@@ -1,0 +1,358 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Customised Jewellary — Handcrafted, Personalised Pieces</title>
+  <meta name="description" content="Customised Jewellary: handcrafted personalised jewellery. Order via WhatsApp or Instagram DM. Pan-India shipping." />
+  <meta property="og:title" content="Customised Jewellary" />
+  <meta property="og:description" content="Handcrafted personalised jewellery. Pan-India shipping." />
+  <meta property="og:type" content="website" />
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap" rel="stylesheet">
+  <script src="https://cdn.tailwindcss.com"></script>
+  <style>
+    :root { color-scheme: light dark; }
+    html { scroll-behavior: smooth; }
+    body { font-family: 'Poppins', system-ui, -apple-system, "Segoe UI", Roboto, Arial, sans-serif; background: linear-gradient(180deg,#fff7f8 0%, #fbf3f6 40%, #0b0f19 100%); }
+    @media (prefers-color-scheme: dark) {
+      body { background: linear-gradient(180deg,#071024 0%, #071022 100%); }
+    }
+
+    /* Floating header & footer helpers */
+    .float-panel {
+      backdrop-filter: blur(8px) saturate(120%);
+      -webkit-backdrop-filter: blur(8px) saturate(120%);
+      background: color-mix(in srgb, white 76%, transparent);
+    }
+    @media (prefers-color-scheme: dark) {
+      .float-panel { background: color-mix(in srgb, #071022 72%, transparent); }
+    }
+
+    /* Focus ring for keyboard users */
+    :focus { outline: none; }
+    .focus-ring:focus-visible { box-shadow: 0 0 0 5px rgba(236,72,153,0.12); border-radius: 0.5rem; }
+
+    /* Smooth transforms */
+    .smooth { transition: all 220ms cubic-bezier(.2,.9,.2,1); }
+
+    /* subtle shrink on scroll class */
+    .header--scrolled { transform: translateY(-2px) scale(0.995); box-shadow: 0 12px 30px rgba(2,6,23,0.18); }
+
+    /* main container sits visually separated */
+    .site-wrap {
+      max-width: 1100px;
+      margin: 2.75rem auto;
+      padding: 2rem;
+      border-radius: 28px;
+      box-shadow: 0 18px 50px rgba(2,6,23,0.08);
+      background: color-mix(in srgb, white 88%, transparent);
+      backdrop-filter: blur(6px);
+    }
+    @media (prefers-color-scheme: dark) {
+      .site-wrap { background: color-mix(in srgb, #071022 72%, transparent); box-shadow: 0 22px 60px rgba(2,6,23,0.28); }
+    }
+
+    /* make header floating (not stuck to absolute top) while still sticky */
+    header.sticky-header { position: sticky; top: 18px; z-index: 60; margin: 0 auto; left: 0; right: 0; max-width: 1100px; border-radius: 14px; }
+
+    /* footer separation */
+    footer.float-footer { margin: 2rem auto 3.5rem; max-width: 1100px; border-radius: 16px; }
+
+    /* small responsive tweak so header looks good on tiny screens */
+    @media (max-width: 420px) {
+      .site-wrap { margin: 1.25rem 1rem; padding: 1rem; border-radius: 18px; }
+      header.sticky-header { top: 12px; margin: 0 0.75rem; }
+      footer.float-footer { margin: 1rem 0.75rem 2rem; }
+    }
+  </style>
+</head>
+<body class="text-slate-900 dark:text-slate-100">
+
+  <!-- Floating sticky header (visually separated) -->
+  <header class="sticky-header float-panel smooth border border-rose-100/30 dark:border-slate-800/40 shadow-md px-4 py-3">
+    <div class="flex items-center justify-between gap-4">
+      <div class="flex items-center gap-4">
+        <a href="#" class="flex items-center gap-3">
+          <div class="w-11 h-11 rounded-xl bg-gradient-to-br from-rose-500 to-rose-300 flex items-center justify-center shadow-sm ring-1 ring-black/5">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" aria-hidden>
+              <path d="M4 16.5V7.5C4 6.39543 4.89543 5.5 6 5.5H18" stroke="white" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"></path>
+              <path d="M9 19.5L12 6.5L15 19.5" stroke="white" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"></path>
+            </svg>
+          </div>
+          <span class="text-lg font-bold tracking-tight">Customised <span class="text-rose-600">Jewellary</span></span>
+        </a>
+      </div>
+
+      <nav class="hidden md:flex items-center gap-6 text-sm">
+        <a href="#catalog" class="hover:text-rose-600 smooth">Shop</a>
+        <a href="#how" class="hover:text-rose-600 smooth">How it works</a>
+        <a href="#reviews" class="hover:text-rose-600 smooth">Reviews</a>
+        <a href="#faq" class="hover:text-rose-600 smooth">FAQ</a>
+      </nav>
+
+      <div class="flex items-center gap-3">
+        <a href="https://www.instagram.com/customisedjewellary" target="_blank" rel="noopener" class="text-sm underline underline-offset-4 hidden sm:inline">Instagram</a>
+        <a href="https://wa.me/917006641613?text=Hi%20I%27m%20interested%20in%20customised%20jewellery" class="inline-flex items-center gap-2 rounded-2xl bg-rose-600 text-white px-4 py-2 text-sm font-semibold shadow hover:bg-rose-700 focus:outline-none focus-visible:ring-4 focus-visible:ring-rose-300 smooth">
+          <svg aria-hidden class="w-4 h-4" viewBox="0 0 24 24" fill="none"><path d="M21 3L3 21" stroke="white" stroke-width="1.5" stroke-linecap="round"/></svg>
+          Order on WhatsApp
+        </a>
+
+        <button id="menuBtn" aria-controls="mobileNav" aria-expanded="false" class="md:hidden p-2 rounded-md focus-ring smooth">
+          <svg id="menuIcon" width="22" height="22" viewBox="0 0 24 24" fill="none" class="text-slate-900 dark:text-slate-100">
+            <path d="M4 7h16M4 12h16M4 17h16" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"></path>
+          </svg>
+        </button>
+      </div>
+    </div>
+
+    <!-- mobile nav -->
+    <div id="mobileNav" class="md:hidden border-t border-rose-100/20 dark:border-slate-800/40 hidden mt-3 pt-3">
+      <div class="flex flex-col gap-2">
+        <a href="#catalog" class="py-2 rounded-md hover:bg-rose-50/50 dark:hover:bg-slate-800 smooth">Shop</a>
+        <a href="#how" class="py-2 rounded-md hover:bg-rose-50/50 dark:hover:bg-slate-800 smooth">How it works</a>
+        <a href="#reviews" class="py-2 rounded-md hover:bg-rose-50/50 dark:hover:bg-slate-800 smooth">Reviews</a>
+        <a href="#faq" class="py-2 rounded-md hover:bg-rose-50/50 dark:hover:bg-slate-800 smooth">FAQ</a>
+        <div class="pt-2 border-t border-rose-50/30 dark:border-slate-800/30">
+          <a href="https://www.instagram.com/customisedjewellary" class="py-2 block">Instagram</a>
+          <a href="https://wa.me/917006641613" class="py-2 block">WhatsApp</a>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <!-- Main content card (visually separate) -->
+  <main class="site-wrap smooth">
+    <!-- Hero -->
+    <section class="relative overflow-hidden">
+      <div class="grid md:grid-cols-2 gap-10 items-center">
+        <div>
+          <h1 class="text-3xl md:text-5xl font-extrabold leading-tight">Handcrafted, <span class="text-rose-600">personalised</span> jewellery made to order</h1>
+          <p class="mt-4 text-lg text-slate-700 dark:text-slate-300">Name necklaces, couple bracelets, rings and more — customised to your style. Pan-India shipping.</p>
+          <div class="mt-6 flex gap-3">
+            <a href="#catalog" class="rounded-2xl bg-rose-600 text-white px-5 py-3 font-semibold shadow hover:bg-rose-700 smooth">Browse designs</a>
+            <a href="https://wa.me/917006641613?text=I%20want%20to%20customise%20a%20piece%20%F0%9F%92%8D" class="rounded-2xl border border-rose-300/60 dark:border-rose-700 px-5 py-3 font-semibold hover:bg-rose-50/70 dark:hover:bg-slate-800 smooth">Custom order</a>
+          </div>
+          <ul class="mt-6 grid grid-cols-2 gap-4 text-sm">
+            <li class="flex items-center gap-2"><span>✅</span> Free mockup before making</li>
+            <li class="flex items-center gap-2"><span>✅</span> UPI / Cards / COD</li>
+            <li class="flex items-center gap-2"><span>✅</span> 7-day replacement for defects</li>
+            <li class="flex items-center gap-2"><span>✅</span> Pan-India shipping</li>
+          </ul>
+        </div>
+
+        <div>
+          <div class="aspect-[4/5] rounded-3xl overflow-hidden shadow-2xl ring-1 ring-black/5 bg-cover bg-center smooth transform hover:-translate-y-1"
+               style="background-image: url('images/Logo GPT1 TM.png');"></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Catalog -->
+    <section id="catalog" class="py-10">
+      <div class="flex items-end justify-between mb-6">
+        <h2 class="text-2xl md:text-3xl font-bold">Popular picks</h2>
+        <a href="https://wa.me/917006641613?text=Send%20me%20your%20catalog" class="text-sm underline underline-offset-4">Ask for full catalogue</a>
+      </div>
+
+      <div class="grid sm:grid-cols-2 lg:grid-cols-3 gap-6">
+        <!-- Cards... kept content identical to yours -->
+        <article class="group rounded-2xl border border-slate-200/60 dark:border-slate-800 overflow-hidden shadow-sm hover:shadow-lg transition-transform smooth">
+          <div class="aspect-square bg-cover bg-center" style="background-image: url('images/Name necklace.jpg');"></div>
+          <div class="p-4">
+            <h3 class="font-semibold">Name Necklace — Classic</h3>
+            <p class="text-sm text-slate-600 dark:text-slate-400">Stainless steel | Gold/Silver/Rose</p>
+            <div class="mt-3 flex items-center justify-between">
+              <span class="font-bold">₹1,299</span>
+              <a href="https://wa.me/917006641613?text=I%27d%20like%20the%20Name%20Necklace%20%E2%80%94%20Classic%20with%20name:%20" class="text-sm px-3 py-1.5 rounded-xl bg-rose-600 text-white smooth">Order</a>
+            </div>
+          </div>
+        </article>
+
+        <article class="group rounded-2xl border border-slate-200/60 dark:border-slate-800 overflow-hidden shadow-sm hover:shadow-lg transition-transform smooth">
+          <div class="aspect-square bg-cover bg-center" style="background-image: url('images/Couple bracelet.jpg');"></div>
+          <div class="p-4">
+            <h3 class="font-semibold">Couple Bracelet Set</h3>
+            <p class="text-sm text-slate-600 dark:text-slate-400">Adjustable cord | Engraved tags</p>
+            <div class="mt-3 flex items-center justify-between">
+              <span class="font-bold">₹999</span>
+              <a href="https://wa.me/917006641613?text=I%27d%20like%20the%20Couple%20Bracelet%20Set%20with%20names:%20" class="text-sm px-3 py-1.5 rounded-xl bg-rose-600 text-white smooth">Order</a>
+            </div>
+          </div>
+        </article>
+
+        <article class="group rounded-2xl border border-slate-200/60 dark:border-slate-800 overflow-hidden shadow-sm hover:shadow-lg transition-transform smooth">
+          <div class="aspect-square bg-cover bg-center" style="background-image: url('images/Wallet.jpg');"></div>
+          <div class="p-4">
+            <h3 class="font-semibold">Wallet</h3>
+            <p class="text-sm text-slate-600 dark:text-slate-400">Premium | Customisable</p>
+            <div class="mt-3 flex items-center justify-between">
+              <span class="font-bold">₹799</span>
+              <a href="https://wa.me/917006641613?text=I%27d%20like%20the%20Birthstone%20Ring%20(size%20and%20stone):%20" class="text-sm px-3 py-1.5 rounded-xl bg-rose-600 text-white smooth">Order</a>
+            </div>
+          </div>
+        </article>
+
+        <article class="group rounded-2xl border border-slate-200/60 dark:border-slate-800 overflow-hidden shadow-sm hover:shadow-lg transition-transform smooth">
+          <div class="aspect-square bg-cover bg-center" style="background-image: url('images/Name Earrings.jpg');"></div>
+          <div class="p-4">
+            <h3 class="font-semibold">Name Earrings</h3>
+            <p class="text-sm text-slate-600 dark:text-slate-400">Customisable</p>
+            <div class="mt-3 flex items-center justify-between">
+              <span class="font-bold">₹699</span>
+              <a href="https://wa.me/917006641613?text=I%27d%20like%20the%20Minimal%20Hoops" class="text-sm px-3 py-1.5 rounded-xl bg-rose-600 text-white smooth">Order</a>
+            </div>
+          </div>
+        </article>
+
+        <article class="group rounded-2xl border border-slate-200/60 dark:border-slate-800 overflow-hidden shadow-sm hover:shadow-lg transition-transform smooth">
+          <div class="aspect-square bg-cover bg-center" style="background-image: url('images/Eye Printed Pendant.jpg');"></div>
+          <div class="p-4">
+            <h3 class="font-semibold">Eye Printed Pendant</h3>
+            <p class="text-sm text-slate-600 dark:text-slate-400">Custom engrave | Premium Quality</p>
+            <div class="mt-3 flex items-center justify-between">
+              <span class="font-bold">₹899</span>
+              <a href="https://wa.me/917006641613?text=I%27d%20like%20the%20Name%20Bracelet%20with%20name:%20" class="text-sm px-3 py-1.5 rounded-xl bg-rose-600 text-white smooth">Order</a>
+            </div>
+          </div>
+        </article>
+
+        <article class="group rounded-2xl border border-slate-200/60 dark:border-slate-800 overflow-hidden shadow-sm hover:shadow-lg transition-transform smooth">
+          <div class="aspect-square bg-cover bg-center" style="background-image: url('images/Name Bracelet.jpg');"></div>
+          <div class="p-4">
+            <h3 class="font-semibold">Name Bracelet</h3>
+            <p class="text-sm text-slate-600 dark:text-slate-400">Gold plated | Gift box</p>
+            <div class="mt-3 flex items-center justify-between">
+              <span class="font-bold">₹749</span>
+              <a href="https://wa.me/917006641613?text=I%27d%20like%20the%20Initial%20Pendant%20(letter):%20" class="text-sm px-3 py-1.5 rounded-xl bg-rose-600 text-white smooth">Order</a>
+            </div>
+          </div>
+        </article>
+      </div>
+    </section>
+
+    <!-- How it works -->
+    <section id="how" class="py-8">
+      <h2 class="text-2xl md:text-3xl font-bold mb-6">How it works</h2>
+      <div class="grid md:grid-cols-4 gap-6 text-sm">
+        <div class="p-5 rounded-2xl border border-slate-200/60 dark:border-slate-800">
+          <p class="font-semibold mb-2">1) Share your idea</p>
+          <p>DM on Instagram or WhatsApp with names, size & reference photo.</p>
+        </div>
+        <div class="p-5 rounded-2xl border border-slate-200/60 dark:border-slate-800">
+          <p class="font-semibold mb-2">2) Get a free mockup</p>
+          <p>We confirm design, metal/finish and price before payment.</p>
+        </div>
+        <div class="p-5 rounded-2xl border border-slate-200/60 dark:border-slate-800">
+          <p class="font-semibold mb-2">3) Crafting & shipping</p>
+          <p>Handmade in 2–5 days. Secure packaging. Tracking shared.</p>
+        </div>
+        <div class="p-5 rounded-2xl border border-slate-200/60 dark:border-slate-800">
+          <p class="font-semibold mb-2">4) After-sales support</p>
+          <p>7-day replacement for manufacturing defects. Care guide included.</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- Reviews -->
+    <section id="reviews" class="py-8">
+      <h2 class="text-2xl md:text-3xl font-bold mb-6">Happy customers</h2>
+      <div class="grid md:grid-cols-3 gap-6 text-sm">
+        <figure class="p-5 rounded-2xl border border-slate-200/60 dark:border-slate-800">
+          <blockquote>“Beautiful quality and the name necklace was exactly as I wanted.”</blockquote>
+          <figcaption class="mt-3 text-slate-500">— Ayesha</figcaption>
+        </figure>
+        <figure class="p-5 rounded-2xl border border-slate-200/60 dark:border-slate-800">
+          <blockquote>“Super fast delivery. Great gift packaging!”</blockquote>
+          <figcaption class="mt-3 text-slate-500">— Rohan</figcaption>
+        </figure>
+        <figure class="p-5 rounded-2xl border border-slate-200/60 dark:border-slate-800">
+          <blockquote>“Loved the custom bracelet set. Perfect fit.”</blockquote>
+          <figcaption class="mt-3 text-slate-500">— Mehak</figcaption>
+        </figure>
+      </div>
+    </section>
+
+    <!-- FAQ -->
+    <section id="faq" class="py-8">
+      <h2 class="text-2xl md:text-3xl font-bold mb-6">FAQ</h2>
+      <div class="space-y-4 text-sm">
+        <details class="rounded-2xl border border-slate-200/60 dark:border-slate-800 p-4">
+          <summary class="font-semibold cursor-pointer">What are the payment options?</summary>
+          <p class="mt-2">UPI, cards, netbanking and cash-on-delivery (select locations).</p>
+        </details>
+        <details class="rounded-2xl border border-slate-200/60 dark:border-slate-800 p-4">
+          <summary class="font-semibold cursor-pointer">How long does customisation take?</summary>
+          <p class="mt-2">2–5 working days for most pieces. We’ll share exact timelines on chat.</p>
+        </details>
+        <details class="rounded-2xl border border-slate-200/60 dark:border-slate-800 p-4">
+          <summary class="font-semibold cursor-pointer">Do you ship internationally?</summary>
+          <p class="mt-2">Yes, DM for rates and timelines.</p>
+        </details>
+      </div>
+    </section>
+  </main>
+
+  <!-- Floating footer (separated and elevated) -->
+  <footer class="float-footer float-panel smooth border border-slate-200/60 dark:border-slate-800/40 px-6 py-6 shadow-md">
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-6 items-start max-w-6xl mx-auto">
+      <div>
+        <div class="flex items-center gap-3 mb-3">
+          <div class="w-10 h-10 rounded-lg bg-gradient-to-br from-rose-500 to-rose-300 flex items-center justify-center shadow-sm ring-1 ring-black/5">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" aria-hidden><path d="M9 19.5L12 6.5L15 19.5" stroke="white" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          </div>
+          <div>
+            <p class="font-semibold">Customised <span class="text-rose-600">Jewellary</span></p>
+            <p class="text-xs text-slate-500">Handcrafted · Pan-India shipping</p>
+          </div>
+        </div>
+        <p class="text-slate-500 text-xs">Order via WhatsApp or Instagram DM. Free mockup and secure packaging.</p>
+      </div>
+
+      <div class="flex flex-col gap-2">
+        <p class="font-semibold">Contact</p>
+        <a href="mailto:orders@customisedjewellary.in" class="underline underline-offset-4">orders@customisedjewellary.in</a>
+        <a href="https://wa.me/917006641613" class="underline underline-offset-4">WhatsApp</a>
+        <a href="https://www.instagram.com/customisedjewellary" target="_blank" rel="noopener" class="underline underline-offset-4">Instagram</a>
+      </div>
+
+      <div class="flex flex-col gap-3">
+        <p class="font-semibold">Policy & Help</p>
+        <a href="#faq" class="underline underline-offset-4">FAQ</a>
+        <a href="https://wa.me/917006641613?text=I%20need%20help%20with%20my%20order" class="underline underline-offset-4">Support (WhatsApp)</a>
+        <p class="text-xs text-slate-500 mt-3">© <span id="year"></span> Customised Jewellary. All rights reserved.</p>
+      </div>
+    </div>
+  </footer>
+
+  <script>
+    // current year
+    document.getElementById('year').textContent = new Date().getFullYear();
+
+    // mobile nav toggle
+    const menuBtn = document.getElementById('menuBtn');
+    const mobileNav = document.getElementById('mobileNav');
+    const menuIcon = document.getElementById('menuIcon');
+
+    menuBtn.addEventListener('click', () => {
+      const opened = mobileNav.classList.toggle('hidden') === false;
+      menuBtn.setAttribute('aria-expanded', opened ? 'true' : 'false');
+
+      menuIcon.innerHTML = opened
+        ? '<path d=\"M6 6L18 18\" stroke=\"currentColor\" stroke-width=\"1.6\" stroke-linecap=\"round\"/><path d=\"M18 6L6 18\" stroke=\"currentColor\" stroke-width=\"1.6\" stroke-linecap=\"round\"/>'
+        : '<path d=\"M4 7h16M4 12h16M4 17h16\" stroke=\"currentColor\" stroke-width=\"1.6\" stroke-linecap=\"round\"/>';
+    });
+
+    // add subtle header shrink on scroll for depth
+    const header = document.querySelector('header.sticky-header');
+    let lastScroll = 0;
+    window.addEventListener('scroll', () => {
+      const sc = window.scrollY;
+      if (sc > 20) header.classList.add('header--scrolled');
+      else header.classList.remove('header--scrolled');
+      lastScroll = sc;
+    });
+  </script>
+</body>
+</html>
