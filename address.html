@@ -1,0 +1,129 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Delivery details — Customised Jewellary</title>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
+  <script src="https://cdn.tailwindcss.com"></script>
+  <style> 
+    body { 
+      font-family: 'Poppins', system-ui, -apple-system, "Segoe UI", Roboto, Arial; 
+      background: #fff7f8; 
+    }
+  </style>
+</head>
+<body class="min-h-screen flex items-center justify-center p-6">
+  <main class="w-full max-w-xl bg-white rounded-2xl shadow-lg p-6">
+    <header class="mb-4">
+      <h1 class="text-xl font-semibold">Delivery details</h1>
+      <p class="text-sm text-slate-500 mt-1">Enter the shipping address for your order. We'll carry this to payment confirmation.</p>
+    </header>
+
+    <div id="summary" class="mb-4 p-3 rounded-lg border border-slate-200 bg-slate-50"></div>
+
+    <form id="addressForm" class="grid gap-3">
+      <label class="text-sm">Full name
+        <input name="shipName" required class="w-full px-3 py-2 mt-1 rounded-lg border" placeholder="Recipient name">
+      </label>
+
+      <label class="text-sm">Phone
+        <input name="shipPhone" required pattern="\d{10}" title="10-digit phone" class="w-full px-3 py-2 mt-1 rounded-lg border" placeholder="10-digit phone">
+      </label>
+
+      <label class="text-sm">Address line 1
+        <input name="addr1" required class="w-full px-3 py-2 mt-1 rounded-lg border" placeholder="Flat, house no., building">
+      </label>
+
+      <label class="text-sm">Address line 2 (optional)
+        <input name="addr2" class="w-full px-3 py-2 mt-1 rounded-lg border" placeholder="Street, landmark">
+      </label>
+
+      <div class="grid grid-cols-2 gap-3">
+        <label class="text-sm">City
+          <input name="city" required class="w-full px-3 py-2 mt-1 rounded-lg border" placeholder="City">
+        </label>
+        <label class="text-sm">District
+          <input name="district" required class="w-full px-3 py-2 mt-1 rounded-lg border" placeholder="District">
+        </label>
+      </div>
+
+      <div class="grid grid-cols-2 gap-3">
+        <label class="text-sm">State
+          <input name="state" required class="w-full px-3 py-2 mt-1 rounded-lg border" placeholder="State">
+        </label>
+        <label class="text-sm">Pincode
+          <input name="pincode" required pattern="\d{6}" title="6-digit PIN" class="w-full px-3 py-2 mt-1 rounded-lg border" placeholder="PIN">
+        </label>
+      </div>
+
+      <div class="flex justify-between items-center mt-3">
+        <a id="backLink" class="text-sm underline">← Back</a>
+        <button type="submit" class="px-4 py-2 rounded-xl bg-rose-600 text-white">Proceed to Payment</button>
+      </div>
+    </form>
+
+    <p class="text-xs text-slate-500 mt-4">We'll never share your address publicly. You'll confirm payment on the next screen.</p>
+  </main>
+
+<script>
+(function(){
+  // parse incoming params (product + customization)
+  const params = new URLSearchParams(window.location.search);
+  
+  function getParam(k){ return params.get(k) || ''; }
+
+  // show summary of order and customization on top
+  const summary = document.getElementById('summary');
+  const name = decodeURIComponent(getParam('product') || '');
+  const price = decodeURIComponent(getParam('price') || '');
+  const qty = decodeURIComponent(getParam('qty') || '');
+  const custName = decodeURIComponent(getParam('custName') || '');
+  const note = decodeURIComponent(getParam('note') || '');
+
+  let lines = [`<div class="font-semibold">${name || 'Custom order'}</div>`];
+  if (price) {
+    // Remove decimal places from price display
+    const cleanPrice = price.replace(/\.00$/, '');
+    lines.push(`<div class="text-sm text-slate-600 mt-1">Amount: ₹${cleanPrice}</div>`);
+  }
+  if (qty && qty !== '1') lines.push(`<div class="text-sm text-slate-600 mt-1">Quantity: ${qty}</div>`);
+  if (custName) lines.push(`<div class="text-sm text-slate-600 mt-1">Customer: ${custName}</div>`);
+  if (note) lines.push(`<div class="text-sm text-slate-600 mt-2"><strong>Customization:</strong><div class="mt-1 text-xs">${note.replace(/\\n/g,'<br>')}</div></div>`);
+
+  summary.innerHTML = lines.join('');
+
+  // back link returns to index
+  document.getElementById('backLink').addEventListener('click', function(e){
+    e.preventDefault();
+    window.location.href = 'index.html';
+  });
+
+  // on submit: validate then redirect to payment.html with ALL parameters
+  const form = document.getElementById('addressForm');
+  form.addEventListener('submit', function(e){
+    e.preventDefault();
+    if (!form.checkValidity()) { form.reportValidity(); return; }
+
+    const fd = new FormData(form);
+    
+    // Build new URLSearchParams starting from ALL existing params
+    const out = new URLSearchParams(window.location.search);
+
+    // Add address fields
+    out.set('shipName', fd.get('shipName') || '');
+    out.set('shipPhone', fd.get('shipPhone') || '');
+    out.set('addr1', fd.get('addr1') || '');
+    out.set('addr2', fd.get('addr2') || '');
+    out.set('city', fd.get('city') || '');
+    out.set('district', fd.get('district') || '');
+    out.set('state', fd.get('state') || '');
+    out.set('pincode', fd.get('pincode') || '');
+
+    // redirect to payment page
+    window.location.href = 'payment.html?' + out.toString();
+  });
+})();
+</script>
+</body>
+</html>

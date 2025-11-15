@@ -1,0 +1,327 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Admin Dashboard — Customised Jewellary</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap" rel="stylesheet">
+  <script src="https://cdn.tailwindcss.com"></script>
+  <style>
+    body { 
+      font-family: 'Poppins', system-ui, -apple-system, "Segoe UI", Roboto, Arial, sans-serif;
+      background: #f8fafc;
+    }
+    .stats-card {
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: white;
+    }
+  </style>
+</head>
+<body class="min-h-screen">
+  <!-- Header -->
+  <header class="bg-white shadow-sm border-b border-gray-200">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div class="flex justify-between items-center py-4">
+        <div class="flex items-center space-x-4">
+          <div class="w-10 h-10 rounded-xl bg-gradient-to-br from-rose-500 to-rose-300 flex items-center justify-center shadow-sm">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
+              <path d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" stroke="white" stroke-width="2"/>
+            </svg>
+          </div>
+          <div>
+            <h1 class="text-xl font-bold text-gray-900">Admin Dashboard</h1>
+            <p class="text-sm text-gray-600">Customised Jewellary Orders</p>
+          </div>
+        </div>
+        <div class="flex items-center space-x-4">
+          <span id="currentDate" class="text-sm text-gray-600"></span>
+          <button onclick="resetCredentials()" class="px-4 py-2 text-sm bg-gray-600 text-white rounded-lg hover:bg-gray-700 transition-colors">
+            Reset Credentials
+          </button>
+          <button id="logoutBtn" class="px-4 py-2 text-sm bg-rose-600 text-white rounded-lg hover:bg-rose-700 transition-colors">
+            Logout
+          </button>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <!-- Main Content -->
+  <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+    <!-- Stats Overview -->
+    <div class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
+      <div class="stats-card rounded-2xl p-6 shadow-lg">
+        <div class="text-3xl font-bold" id="totalOrders">0</div>
+        <div class="text-rose-100">Total Orders</div>
+      </div>
+      <div class="stats-card rounded-2xl p-6 shadow-lg">
+        <div class="text-3xl font-bold" id="pendingOrders">0</div>
+        <div class="text-rose-100">Pending</div>
+      </div>
+      <div class="stats-card rounded-2xl p-6 shadow-lg">
+        <div class="text-3xl font-bold" id="completedOrders">0</div>
+        <div class="text-rose-100">Completed</div>
+      </div>
+      <div class="stats-card rounded-2xl p-6 shadow-lg">
+        <div class="text-3xl font-bold" id="totalRevenue">₹0</div>
+        <div class="text-rose-100">Total Revenue</div>
+      </div>
+    </div>
+
+    <!-- Orders Table -->
+    <div class="bg-white rounded-2xl shadow-lg overflow-hidden">
+      <div class="px-6 py-4 border-b border-gray-200">
+        <div class="flex justify-between items-center">
+          <h2 class="text-lg font-semibold text-gray-900">Recent Orders</h2>
+          <div class="flex space-x-2">
+            <select id="statusFilter" class="border border-gray-300 rounded-lg px-3 py-2 text-sm">
+              <option value="all">All Status</option>
+              <option value="pending">Pending</option>
+              <option value="confirmed">Confirmed</option>
+              <option value="shipped">Shipped</option>
+              <option value="delivered">Delivered</option>
+            </select>
+            <button id="refreshBtn" class="px-4 py-2 bg-rose-600 text-white rounded-lg hover:bg-rose-700 transition-colors text-sm">
+              Refresh
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <div class="overflow-x-auto">
+        <table class="w-full">
+          <thead class="bg-gray-50">
+            <tr>
+              <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Order ID</th>
+              <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Product</th>
+              <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Customer</th>
+              <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Amount</th>
+              <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
+              <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Date</th>
+              <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
+            </tr>
+          </thead>
+          <tbody id="ordersTable" class="bg-white divide-y divide-gray-200">
+            <!-- Orders will be populated here -->
+          </tbody>
+        </table>
+      </div>
+
+      <div class="px-6 py-4 border-t border-gray-200 text-center text-sm text-gray-600" id="noOrdersMessage">
+        No orders found
+      </div>
+    </div>
+  </main>
+
+  <!-- Order Details Modal -->
+  <div id="orderModal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 hidden">
+    <div class="bg-white rounded-2xl p-6 max-w-2xl w-full mx-4 max-h-[90vh] overflow-y-auto">
+      <div class="flex justify-between items-center mb-6">
+        <h3 class="text-xl font-bold">Order Details</h3>
+        <button id="closeModal" class="text-gray-500 hover:text-gray-700">
+          <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+          </svg>
+        </button>
+      </div>
+
+      <div id="orderDetails" class="space-y-4">
+        <!-- Order details will be populated here -->
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // Check if admin is logged in
+    if (!localStorage.getItem('adminLoggedIn')) {
+      window.location.href = 'admin-login.html';
+    }
+
+    // Set current date
+    document.getElementById('currentDate').textContent = new Date().toLocaleDateString('en-IN', {
+      weekday: 'long',
+      year: 'numeric',
+      month: 'long',
+      day: 'numeric'
+    });
+
+    // Logout functionality
+    document.getElementById('logoutBtn').addEventListener('click', function() {
+      localStorage.removeItem('adminLoggedIn');
+      window.location.href = 'admin-login.html';
+    });
+
+    // Function to reset admin credentials
+    function resetCredentials() {
+      if (confirm('Are you sure you want to reset admin credentials? You will need to set them up again.')) {
+        localStorage.removeItem('adminCredentials');
+        localStorage.removeItem('adminLoggedIn');
+        alert('Credentials reset successfully. Redirecting to setup page.');
+        window.location.href = 'admin-setup.html';
+      }
+    }
+
+    // Sample orders data (in production, this would come from a backend)
+    let orders = JSON.parse(localStorage.getItem('jewelleryOrders') || '[]');
+
+    // Function to update stats
+    function updateStats() {
+      const totalOrders = orders.length;
+      const pendingOrders = orders.filter(order => order.status === 'pending').length;
+      const completedOrders = orders.filter(order => order.status === 'delivered').length;
+      const totalRevenue = orders.reduce((sum, order) => sum + (parseInt(order.amount) || 0), 0);
+
+      document.getElementById('totalOrders').textContent = totalOrders;
+      document.getElementById('pendingOrders').textContent = pendingOrders;
+      document.getElementById('completedOrders').textContent = completedOrders;
+      document.getElementById('totalRevenue').textContent = `₹${totalRevenue}`;
+    }
+
+    // Function to render orders table
+    function renderOrdersTable(filterStatus = 'all') {
+      const tableBody = document.getElementById('ordersTable');
+      const noOrdersMessage = document.getElementById('noOrdersMessage');
+      
+      const filteredOrders = filterStatus === 'all' 
+        ? orders 
+        : orders.filter(order => order.status === filterStatus);
+
+      if (filteredOrders.length === 0) {
+        tableBody.innerHTML = '';
+        noOrdersMessage.classList.remove('hidden');
+        return;
+      }
+
+      noOrdersMessage.classList.add('hidden');
+      
+      tableBody.innerHTML = filteredOrders.map(order => `
+        <tr class="hover:bg-gray-50">
+          <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">${order.id}</td>
+          <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">${order.product}</td>
+          <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+            <div>${order.customerName}</div>
+            <div class="text-gray-500">${order.phone}</div>
+          </td>
+          <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">₹${order.amount}</td>
+          <td class="px-6 py-4 whitespace-nowrap">
+            <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full 
+              ${order.status === 'pending' ? 'bg-yellow-100 text-yellow-800' : ''}
+              ${order.status === 'confirmed' ? 'bg-blue-100 text-blue-800' : ''}
+              ${order.status === 'shipped' ? 'bg-purple-100 text-purple-800' : ''}
+              ${order.status === 'delivered' ? 'bg-green-100 text-green-800' : ''}">
+              ${order.status}
+            </span>
+          </td>
+          <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+            ${new Date(order.timestamp).toLocaleDateString('en-IN')}
+          </td>
+          <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
+            <button onclick="viewOrder('${order.id}')" class="text-rose-600 hover:text-rose-900 mr-3">View</button>
+            <button onclick="updateOrderStatus('${order.id}')" class="text-blue-600 hover:text-blue-900">Update</button>
+          </td>
+        </tr>
+      `).join('');
+    }
+
+    // Function to view order details
+    function viewOrder(orderId) {
+      const order = orders.find(o => o.id === orderId);
+      if (!order) return;
+
+      const modal = document.getElementById('orderModal');
+      const details = document.getElementById('orderDetails');
+
+      details.innerHTML = `
+        <div class="grid grid-cols-2 gap-4">
+          <div>
+            <h4 class="font-semibold text-gray-900">Order Information</h4>
+            <div class="mt-2 space-y-2 text-sm">
+              <div><strong>Order ID:</strong> ${order.id}</div>
+              <div><strong>Product:</strong> ${order.product}</div>
+              <div><strong>Amount:</strong> ₹${order.amount}</div>
+              <div><strong>Quantity:</strong> ${order.quantity}</div>
+              <div><strong>Status:</strong> <span class="capitalize">${order.status}</span></div>
+              <div><strong>Order Date:</strong> ${new Date(order.timestamp).toLocaleString('en-IN')}</div>
+            </div>
+          </div>
+
+          <div>
+            <h4 class="font-semibold text-gray-900">Customer Information</h4>
+            <div class="mt-2 space-y-2 text-sm">
+              <div><strong>Name:</strong> ${order.customerName}</div>
+              <div><strong>Phone:</strong> ${order.phone}</div>
+            </div>
+          </div>
+        </div>
+
+        <div>
+          <h4 class="font-semibold text-gray-900">Shipping Address</h4>
+          <div class="mt-2 text-sm">
+            <div>${order.address1}</div>
+            ${order.address2 ? `<div>${order.address2}</div>` : ''}
+            <div>${order.city}, ${order.district}</div>
+            <div>${order.state} - ${order.pincode}</div>
+          </div>
+        </div>
+
+        <div>
+          <h4 class="font-semibold text-gray-900">Customization Details</h4>
+          <div class="mt-2 p-3 bg-gray-50 rounded-lg text-sm">
+            ${order.customization || 'No customization details provided'}
+          </div>
+        </div>
+
+        <div>
+          <h4 class="font-semibold text-gray-900">Payment Information</h4>
+          <div class="mt-2 text-sm">
+            <div><strong>Payment Method:</strong> UPI</div>
+            <div><strong>UPI ID:</strong> ${order.upiId || 'owaisahmadkhanday@oksbi'}</div>
+            <div><strong>Payment Status:</strong> <span class="text-green-600">Completed</span></div>
+          </div>
+        </div>
+      `;
+
+      modal.classList.remove('hidden');
+    }
+
+    // Function to update order status
+    function updateOrderStatus(orderId) {
+      const order = orders.find(o => o.id === orderId);
+      if (!order) return;
+
+      const newStatus = prompt('Update order status:\n(pending, confirmed, shipped, delivered)', order.status);
+      
+      if (newStatus && ['pending', 'confirmed', 'shipped', 'delivered'].includes(newStatus)) {
+        order.status = newStatus;
+        localStorage.setItem('jewelleryOrders', JSON.stringify(orders));
+        renderOrdersTable(document.getElementById('statusFilter').value);
+        updateStats();
+        alert('Order status updated successfully!');
+      }
+    }
+
+    // Close modal
+    document.getElementById('closeModal').addEventListener('click', function() {
+      document.getElementById('orderModal').classList.add('hidden');
+    });
+
+    // Status filter
+    document.getElementById('statusFilter').addEventListener('change', function() {
+      renderOrdersTable(this.value);
+    });
+
+    // Refresh button
+    document.getElementById('refreshBtn').addEventListener('click', function() {
+      orders = JSON.parse(localStorage.getItem('jewelleryOrders') || '[]');
+      renderOrdersTable(document.getElementById('statusFilter').value);
+      updateStats();
+    });
+
+    // Initialize dashboard
+    updateStats();
+    renderOrdersTable();
+  </script>
+</body>
+</html>

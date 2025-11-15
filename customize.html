@@ -1,0 +1,127 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Customize Your Order — Customised Jewellary</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap" rel="stylesheet">
+  <script src="https://cdn.tailwindcss.com"></script>
+  <style>
+    body { 
+      font-family: 'Poppins', system-ui, -apple-system, "Segoe UI", Roboto, Arial, sans-serif;
+      background: linear-gradient(180deg,#fff7f8 0%, #fbf3f6 40%);
+    }
+    @media (prefers-color-scheme: dark) {
+      body { background: linear-gradient(180deg,#071024 0%, #071022 100%); }
+    }
+  </style>
+</head>
+<body class="min-h-screen text-slate-900 dark:text-slate-100">
+  <!-- Simple header for customize page -->
+  <header class="bg-white dark:bg-slate-900 shadow-sm border-b border-slate-200 dark:border-slate-800">
+    <div class="max-w-4xl mx-auto px-4 py-4">
+      <div class="flex items-center justify-between">
+        <a href="index.html" class="flex items-center gap-3">
+          <div class="w-10 h-10 rounded-xl bg-gradient-to-br from-rose-500 to-rose-300 flex items-center justify-center shadow-sm ring-1 ring-black/5">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" aria-hidden>
+              <path d="M4 16.5V7.5C4 6.39543 4.89543 5.5 6 5.5H18" stroke="white" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"></path>
+              <path d="M9 19.5L12 6.5L15 19.5" stroke="white" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"></path>
+            </svg>
+          </div>
+          <span class="text-lg font-bold tracking-tight">Customised <span class="text-rose-600">Jewellary</span></span>
+        </a>
+        <a href="index.html" class="text-sm underline">← Back to Shop</a>
+      </div>
+    </div>
+  </header>
+
+  <!-- Main content -->
+  <main class="max-w-2xl mx-auto px-4 py-8">
+    <div class="bg-white dark:bg-slate-800 rounded-2xl shadow-lg p-6 border border-slate-200 dark:border-slate-700">
+      <h1 class="text-2xl font-bold mb-2">Customize Your Order</h1>
+      <p class="text-slate-600 dark:text-slate-400 mb-6">Tell us how you'd like your piece to be customized</p>
+
+      <!-- Product Summary -->
+      <div id="productSummary" class="mb-6 p-4 bg-slate-50 dark:bg-slate-700 rounded-lg border border-slate-200 dark:border-slate-600">
+        <div class="font-semibold text-lg" id="summaryProductName">—</div>
+        <div class="text-slate-600 dark:text-slate-400 mt-1" id="summaryProductPrice">—</div>
+      </div>
+
+      <!-- Customization Form -->
+      <form id="customizeForm" class="space-y-6">
+        <input type="hidden" id="product" name="product">
+        <input type="hidden" id="price" name="price">
+        
+        <div class="grid gap-4">
+          <div>
+            <label class="block text-sm font-medium mb-2">Your Name (optional)</label>
+            <input type="text" name="custName" class="w-full px-4 py-3 border border-slate-300 dark:border-slate-600 rounded-xl bg-white dark:bg-slate-700">
+          </div>
+
+          <div>
+            <label class="block text-sm font-medium mb-2">Phone (optional)</label>
+            <input type="tel" name="phone" class="w-full px-4 py-3 border border-slate-300 dark:border-slate-600 rounded-xl bg-white dark:bg-slate-700" placeholder="10-digit phone">
+          </div>
+
+          <div>
+            <label class="block text-sm font-medium mb-2">Quantity</label>
+            <input type="number" name="qty" value="1" min="1" class="w-full px-4 py-3 border border-slate-300 dark:border-slate-600 rounded-xl bg-white dark:bg-slate-700">
+          </div>
+
+          <div>
+            <label class="block text-sm font-medium mb-2">Customization Details *</label>
+            <textarea name="note" required rows="5" class="w-full px-4 py-3 border border-slate-300 dark:border-slate-600 rounded-xl bg-white dark:bg-slate-700" placeholder="Please describe:
+• Names to be engraved
+• Preferred finish (Gold/Silver/Rose Gold)
+• Size requirements
+• Any reference images or special requests"></textarea>
+            <p class="text-xs text-slate-500 dark:text-slate-400 mt-1">Required field. Be as detailed as possible for the best results.</p>
+          </div>
+        </div>
+        
+        <div class="flex gap-3 pt-4">
+          <a href="index.html" class="flex-1 px-6 py-3 border border-slate-300 dark:border-slate-600 rounded-xl text-center hover:bg-slate-50 dark:hover:bg-slate-700 transition-colors">Cancel</a>
+          <button type="submit" class="flex-1 px-6 py-3 bg-rose-600 text-white rounded-xl font-semibold hover:bg-rose-700 transition-colors">Continue to Address</button>
+        </div>
+      </form>
+
+      <p class="text-xs text-slate-500 dark:text-slate-400 mt-6 text-center">
+        We'll create a free mockup for your approval before starting production.
+      </p>
+    </div>
+  </main>
+
+  <script>
+    // Get URL parameters
+    const urlParams = new URLSearchParams(window.location.search);
+    const product = decodeURIComponent(urlParams.get('product') || 'Custom Order');
+    const price = decodeURIComponent(urlParams.get('price') || '');
+
+    // Update product summary
+    document.getElementById('summaryProductName').textContent = product;
+    document.getElementById('summaryProductPrice').textContent = price ? `Price: ₹${price}` : 'Price on request';
+    
+    // Set hidden form values
+    document.getElementById('product').value = product;
+    document.getElementById('price').value = price;
+
+    // Form submission
+    document.getElementById('customizeForm').addEventListener('submit', function(e) {
+      e.preventDefault();
+      
+      const formData = new FormData(this);
+      const params = new URLSearchParams();
+      
+      // Add all form data to URL parameters
+      for (let [key, value] of formData.entries()) {
+        if (value) params.append(key, value);
+      }
+      
+      // Redirect to address page
+      window.location.href = 'address.html?' + params.toString();
+    });
+  </script>
+</body>
+</html>
