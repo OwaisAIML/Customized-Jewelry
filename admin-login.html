@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
   <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width, initial-scale-1" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>Admin Login — Customised Jewellary</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -48,7 +48,7 @@
       </form>
 
       <div class="mt-6 text-center space-y-2">
-        <a href="admin-setup.html" class="block text-sm text-rose-600 hover:text-rose-700">Reset Admin Credentials</a>
+        <a href="admin-reset.html" class="block text-sm text-rose-600 hover:text-rose-700">Reset Admin Credentials</a>
         <a href="index.html" class="block text-sm text-gray-600 hover:text-gray-700">← Back to Main Site</a>
       </div>
     </div>
@@ -58,12 +58,15 @@
   </div>
 
   <script>
+    // Master admin key (in a real application, this should be stored securely on the server)
+    const MASTER_ADMIN_KEY = 'JEWELLARY_MASTER_2024';
+
     // Check if admin setup is completed
     window.addEventListener('load', function() {
       const adminCredentials = localStorage.getItem('adminCredentials');
       
       if (!adminCredentials) {
-        // No credentials set, redirect to setup
+        // No credentials set, redirect to setup with master key requirement
         window.location.href = 'admin-setup.html';
         return;
       }
@@ -97,6 +100,7 @@
       if (username === storedCredentials.username && password === storedCredentials.password) {
         // Store login state and redirect to admin dashboard
         localStorage.setItem('adminLoggedIn', 'true');
+        localStorage.setItem('adminLoginTime', new Date().getTime());
         window.location.href = 'admin-dashboard.html';
       } else {
         errorDiv.textContent = 'Invalid username or password';
