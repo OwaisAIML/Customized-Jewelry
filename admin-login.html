@@ -9,105 +9,175 @@
   <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap" rel="stylesheet">
   <script src="https://cdn.tailwindcss.com"></script>
   <style>
-    body { 
-      font-family: 'Poppins', system-ui, -apple-system, "Segoe UI", Roboto, Arial, sans-serif;
-      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    body {
+      font-family: 'Poppins', sans-serif;
+      background: #f0f2f5;
+      min-height: 100vh;
+    }
+    .login-card {
+      background: white;
+      box-shadow: 0 2px 4px rgba(0, 0, 0, .1), 0 8px 16px rgba(0, 0, 0, .1);
     }
   </style>
 </head>
 <body class="min-h-screen flex items-center justify-center p-6">
+  
   <div class="w-full max-w-md">
-    <!-- Login Card -->
-    <div class="bg-white rounded-2xl shadow-2xl p-8">
-      <div class="text-center mb-8">
-        <div class="w-16 h-16 rounded-2xl bg-gradient-to-br from-rose-500 to-rose-300 flex items-center justify-center shadow-lg ring-1 ring-black/5 mx-auto mb-4">
+    <!-- Header -->
+    <div class="text-center mb-8">
+      <div class="inline-flex items-center gap-3 mb-4 p-4">
+        <div class="w-16 h-16 rounded-xl bg-gradient-to-br from-rose-500 to-rose-300 flex items-center justify-center shadow-lg">
           <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
             <path d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" stroke="white" stroke-width="2"/>
           </svg>
         </div>
-        <h1 class="text-2xl font-bold text-gray-900">Admin Login</h1>
-        <p class="text-gray-600 mt-2">Access your order dashboard</p>
-      </div>
-
-      <form id="loginForm" class="space-y-6">
-        <div>
-          <label class="block text-sm font-medium text-gray-700 mb-2">Username</label>
-          <input type="text" name="username" required 
-                 class="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-rose-500 focus:border-transparent transition-all">
+        <div class="text-left">
+          <h1 class="text-2xl font-bold text-gray-900">Customised Jewellary</h1>
+          <p class="text-gray-600">Admin Dashboard</p>
         </div>
-
-        <div>
-          <label class="block text-sm font-medium text-gray-700 mb-2">Password</label>
-          <input type="password" name="password" required 
-                 class="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-rose-500 focus:border-transparent transition-all">
-        </div>
-
-        <button type="submit" class="w-full bg-rose-600 text-white py-3 rounded-xl font-semibold hover:bg-rose-700 transition-colors">
-          Sign In
-        </button>
-      </form>
-
-      <div class="mt-6 text-center space-y-2">
-        <a href="admin-reset.html" class="block text-sm text-rose-600 hover:text-rose-700">Reset Admin Credentials</a>
-        <a href="index.html" class="block text-sm text-gray-600 hover:text-gray-700">← Back to Main Site</a>
       </div>
     </div>
 
-    <!-- Error Message -->
-    <div id="errorMessage" class="hidden mt-4 p-4 bg-red-100 border border-red-400 text-red-700 rounded-xl text-sm"></div>
+    <!-- Login Card -->
+    <div class="login-card rounded-xl p-6">
+      <h2 class="text-xl font-semibold text-center mb-6">Log in to Admin Panel</h2>
+      
+      <form id="loginForm" class="space-y-4">
+        <div>
+          <input type="text" name="username" required 
+                 class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:border-rose-500 focus:ring-1 focus:ring-rose-500"
+                 placeholder="Admin username">
+        </div>
+
+        <div>
+          <input type="password" name="password" required 
+                 class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:border-rose-500 focus:ring-1 focus:ring-rose-500"
+                 placeholder="Password">
+        </div>
+
+        <button type="submit" 
+                class="w-full py-3 bg-rose-600 text-white font-semibold rounded-lg hover:bg-rose-700 transition-colors">
+          Log In
+        </button>
+      </form>
+
+      <!-- Setup Credentials (Only shows if no credentials exist) -->
+      <div id="setupSection" class="mt-6 p-4 bg-blue-50 rounded-lg border border-blue-200 hidden">
+        <p class="text-sm text-blue-700 text-center mb-3">
+          <strong>First time here?</strong> Set up your admin credentials:
+        </p>
+        <form id="setupForm" class="space-y-3">
+          <input type="text" name="newUsername" required 
+                 class="w-full px-3 py-2 border border-gray-300 rounded text-sm"
+                 placeholder="Choose username">
+          <input type="password" name="newPassword" required 
+                 class="w-full px-3 py-2 border border-gray-300 rounded text-sm"
+                 placeholder="Choose password (min 6 chars)">
+          <button type="submit" 
+                  class="w-full py-2 bg-green-600 text-white text-sm font-semibold rounded hover:bg-green-700">
+            Setup Admin Account
+          </button>
+        </form>
+      </div>
+
+      <div class="mt-4 text-center">
+        <button onclick="resetCredentials()" class="text-sm text-rose-600 hover:text-rose-700 font-medium">
+          Reset Credentials
+        </button>
+      </div>
+
+      <div class="mt-6 text-center">
+        <a href="index.html" class="text-sm text-gray-600 hover:text-rose-600">← Back to Store</a>
+      </div>
+    </div>
   </div>
 
   <script>
-    // Master admin key (in a real application, this should be stored securely on the server)
-    const MASTER_ADMIN_KEY = 'JEWELLARY_MASTER_2024';
-
-    // Check if admin setup is completed
-    window.addEventListener('load', function() {
-      const adminCredentials = localStorage.getItem('adminCredentials');
+    // Check if credentials exist
+    function checkCredentials() {
+      const credentials = JSON.parse(localStorage.getItem('adminCredentials') || '{}');
+      const setupSection = document.getElementById('setupSection');
       
-      if (!adminCredentials) {
-        // No credentials set, redirect to setup with master key requirement
-        window.location.href = 'admin-setup.html';
+      if (!credentials.username) {
+        // No credentials exist - show setup form
+        setupSection.classList.remove('hidden');
+      } else {
+        // Credentials exist - hide setup form
+        setupSection.classList.add('hidden');
+      }
+    }
+
+    // Setup form - Create credentials
+    document.getElementById('setupForm').addEventListener('submit', function(e) {
+      e.preventDefault();
+      
+      const formData = new FormData(this);
+      const username = formData.get('newUsername').trim();
+      const password = formData.get('newPassword');
+      
+      if (password.length < 6) {
+        alert('Password must be at least 6 characters long');
         return;
       }
-
-      const credentials = JSON.parse(adminCredentials);
-      if (!credentials.setupCompleted) {
-        // Setup not completed, redirect to setup
-        window.location.href = 'admin-setup.html';
-      }
+      
+      // Store credentials securely
+      const credentials = {
+        username: username,
+        password: password,
+        createdAt: new Date().toISOString()
+      };
+      
+      localStorage.setItem('adminCredentials', JSON.stringify(credentials));
+      
+      alert('✅ Admin account created! You can now login.');
+      checkCredentials(); // Hide setup form
+      this.reset();
     });
 
+    // Login form
     document.getElementById('loginForm').addEventListener('submit', function(e) {
       e.preventDefault();
       
       const formData = new FormData(this);
-      const username = formData.get('username');
+      const username = formData.get('username').trim();
       const password = formData.get('password');
-
-      const errorDiv = document.getElementById('errorMessage');
-
-      // Get stored credentials
-      const storedCredentials = JSON.parse(localStorage.getItem('adminCredentials'));
-
-      if (!storedCredentials) {
-        errorDiv.textContent = 'Admin credentials not found. Please run setup first.';
-        errorDiv.classList.remove('hidden');
-        setTimeout(() => errorDiv.classList.add('hidden'), 5000);
-        return;
-      }
-
-      if (username === storedCredentials.username && password === storedCredentials.password) {
-        // Store login state and redirect to admin dashboard
-        localStorage.setItem('adminLoggedIn', 'true');
-        localStorage.setItem('adminLoginTime', new Date().getTime());
+      
+      const credentials = JSON.parse(localStorage.getItem('adminCredentials') || '{}');
+      
+      if (credentials.username === username && credentials.password === password) {
+        // Successful login
+        const session = {
+          loggedIn: true,
+          username: username,
+          loginTime: Date.now()
+        };
+        
+        localStorage.setItem('adminSession', JSON.stringify(session));
         window.location.href = 'admin-dashboard.html';
       } else {
-        errorDiv.textContent = 'Invalid username or password';
-        errorDiv.classList.remove('hidden');
-        setTimeout(() => errorDiv.classList.add('hidden'), 3000);
+        alert('❌ Invalid username or password');
+        this.querySelector('input[type="password"]').value = '';
       }
     });
+
+    // Reset credentials
+    function resetCredentials() {
+      if (confirm('Are you sure you want to reset admin credentials? This will remove all existing credentials.')) {
+        localStorage.removeItem('adminCredentials');
+        localStorage.removeItem('adminSession');
+        alert('Credentials reset. Please set up new credentials.');
+        checkCredentials(); // Show setup form again
+      }
+    }
+
+    // Auto-redirect if already logged in
+    const session = JSON.parse(localStorage.getItem('adminSession') || '{}');
+    if (session.loggedIn && (Date.now() - session.loginTime < 24 * 60 * 60 * 1000)) {
+      window.location.href = 'admin-dashboard.html';
+    }
+
+    // Initialize
+    checkCredentials();
   </script>
 </body>
 </html>
