@@ -7,176 +7,328 @@
   <meta name="description" content="Secure UPI Payment for Customised Jewellary" />
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght:300;400;600;700&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght:300;400;600,700&display=swap" rel="stylesheet">
   <script src="https://cdn.tailwindcss.com"></script>
 
   <style>
-    body {
-      font-family: 'Poppins', sans-serif;
-      background: #fff5f7;
-    }
-    .chooser-modal, .fallback-modal {
-      display: none;
-      position: fixed;
-      inset: 0;
-      background: rgba(0,0,0,0.55);
-      z-index: 50;
-      align-items: center;
-      justify-content: center;
-    }
-    .modal-card {
-      background: white;
-      padding: 20px;
-      border-radius: 14px;
-      width: 92%;
-      max-width: 420px;
-      box-shadow: 0 8px 30px rgba(0,0,0,0.3);
-    }
-    .app-btn {
-      border: 1px solid #ddd;
-      padding: 10px;
-      border-radius: 10px;
-      background: white;
-      text-align: center;
-      font-size: 14px;
-      cursor: pointer;
-    }
-    .app-grid {
-      margin-top: 15px;
-      display: grid;
-      grid-template-columns: repeat(3,1fr);
-      gap: 10px;
-    }
+    body { font-family: 'Poppins', sans-serif; background: #fff5f7; margin:0; }
+    main { max-width:980px; margin:20px auto; padding:18px; }
+    .chooser-modal, .fallback-modal { display:none; position:fixed; inset:0; background:rgba(0,0,0,0.55); z-index:50; align-items:center; justify-content:center; }
+    .modal-card { background:white; padding:20px; border-radius:14px; width:92%; max-width:420px; box-shadow:0 8px 30px rgba(0,0,0,.3); }
+    .app-btn { border:1px solid #ddd; padding:10px; border-radius:10px; background:white; text-align:center; font-size:14px; cursor:pointer; }
+    .app-grid { margin-top:15px; display:grid; grid-template-columns:repeat(3,1fr); gap:10px; }
+    .btn-primary { background:#ef4444; color:white; padding:12px;border-radius:12px;border:0;cursor:pointer;width:100%;}
+    .small { color:#6b7280; font-size:13px; }
+    .visually-hidden { position:absolute!important;height:1px;width:1px;overflow:hidden;clip:rect(1px,1px,1px,1px);white-space:nowrap;border:0;padding:0;margin:-1px }
   </style>
 </head>
 
-<body class="min-h-screen flex items-center justify-center p-6">
+<body>
 
-  <main class="w-full max-w-2xl rounded-2xl shadow-xl bg-white">
-    <header class="p-6 border-b">
-      <h1 class="text-xl font-bold">Complete Payment</h1>
-      <p class="text-sm text-gray-500">UPI Secure Payment</p>
+  <main class="bg-white rounded-xl shadow p-6">
+    <header class="flex justify-between items-start">
+      <div>
+        <h1 class="text-xl font-semibold">Complete Payment</h1>
+        <p class="small mt-1">UPI Secure Payment</p>
+      </div>
+      <div class="small">© <span id="year"></span> Customised Jewellary</div>
     </header>
 
-    <section class="p-6 grid grid-cols-1 md:grid-cols-2 gap-6">
-
-      <!-- QR + UPI ID -->
+    <section class="grid grid-cols-1 md:grid-cols-2 gap-6 mt-6">
       <div class="text-center">
         <img src="images/Gpay Scanner Toyiba.jpg" class="w-56 h-56 rounded-xl mx-auto shadow" alt="UPI QR">
-
-        <button id="copyBtn" class="mt-4 w-full bg-rose-600 text-white p-3 rounded-xl">Copy UPI ID</button>
-
+        <button id="copyBtn" class="mt-4 btn-primary">Copy UPI ID</button>
         <p class="mt-2 text-sm">UPI ID: <b id="upiDisplay">Aroobakhan660@okicici</b></p>
       </div>
 
-      <!-- Details -->
       <div>
-        <p class="text-sm text-gray-500">Product</p>
+        <p class="small">Product</p>
         <p id="prodName" class="font-semibold text-lg">Product</p>
 
-        <p class="mt-4 text-sm text-gray-500">Amount</p>
+        <p class="mt-4 small">Amount</p>
         <p id="prodPrice" class="font-semibold text-2xl">₹0.00</p>
 
-        <button id="payBtn" class="mt-6 w-full bg-rose-600 text-white p-3 rounded-xl">
-          Pay with UPI App
-        </button>
+        <button id="payBtn" class="mt-6 btn-primary">Pay with UPI App</button>
 
         <div class="mt-4 p-4 bg-green-500 text-white rounded-xl">
-          <b>IMPORTANT:</b> After payment, send *screenshot* to confirm your order.
+          <b>IMPORTANT:</b> After payment, send a screenshot to confirm your order.
         </div>
       </div>
-
     </section>
   </main>
 
-  <!-- UPI App Chooser -->
-  <div id="appChooser" class="chooser-modal">
+  <!-- chooser modal -->
+  <div id="appChooser" class="chooser-modal" role="dialog" aria-hidden="true">
     <div class="modal-card">
       <h2 class="text-lg font-semibold">Open With</h2>
       <div class="app-grid">
         <div class="app-btn" data-app="gpay">Google Pay</div>
         <div class="app-btn" data-app="phonepe">PhonePe</div>
         <div class="app-btn" data-app="paytm">Paytm</div>
-        <div class="app-btn col-span-3" data-app="other">Other UPI App</div>
+        <div class="app-btn" data-app="other" style="grid-column: span 3">Other UPI App</div>
       </div>
       <button id="closeChooser" class="mt-4 w-full text-sm underline">Cancel</button>
     </div>
   </div>
 
-  <!-- Fallback -->
-  <div id="fallbackModal" class="fallback-modal">
+  <!-- fallback -->
+  <div id="fallbackModal" class="fallback-modal" role="dialog" aria-hidden="true">
     <div class="modal-card">
       <h2 class="text-lg font-semibold">Unable to open app</h2>
-      <p class="mt-2 text-sm">Please scan the QR or copy the UPI ID to pay manually.</p>
-      <button id="closeFallback" class="mt-4 w-full bg-gray-200 p-2 rounded">Close</button>
+      <p class="mt-2 small">Please scan the QR or copy the UPI ID to pay manually.</p>
+      <button id="closeFallback" class="mt-4 btn-primary">Close</button>
     </div>
   </div>
 
-  <script>
-    const UPI_ID = "Aroobakhan660@okicici";
-    document.getElementById("upiDisplay").textContent = UPI_ID;
+  <!-- hidden debug dump (not visible) -->
+  <div id="debugDump" class="visually-hidden" aria-hidden="true"></div>
 
-    const chooser = document.getElementById("appChooser");
-    const fallback = document.getElementById("fallbackModal");
+<script>
+/* Improved iOS handling for UPI deep-links
+   - Tries multiple app-specific schemes on iOS using iframe trick
+   - Uses formatted am (two decimals)
+   - Fallback to upi://pay?... and shows fallback modal when no app opened
+   - Logs attempts to console (copy last console line if it still fails)
+*/
 
-    // Read price + product from URL
-    const qs = new URLSearchParams(location.search);
-    const product = qs.get("product") || "Customised Order";
-    const price = qs.get("price") || "";
+(function () {
+  'use strict';
 
-    document.getElementById("prodName").textContent = product;
-    document.getElementById("prodPrice").textContent = price ? "₹" + price : "Set price first";
+  const UPI_ID = "Aroobakhan660@okicici";
+  const PAYEE = "Customised Jewellary";
 
-    const amount = price;
+  // iOS scheme variants to try
+  const IOS_VARIANTS = {
+    gpay: [
+      (q) => `tez://upi/pay?${q}`,       // older Tez alias
+      (q) => `gpay://upi/pay?${q}`,      // gpay custom
+      (q) => `gpay://pay?${q}`,          // some variants
+      (q) => `googlepay://upi/pay?${q}`  // fallback alias
+    ],
+    phonepe: [
+      (q) => `phonepe://pay?${q}`,
+      (q) => `phonepe://upi/pay?${q}`,
+      (q) => `phonepe://upi/pay?${q}`
+    ],
+    paytm: [
+      (q) => `paytmmp://pay?${q}`,
+      (q) => `paytm://pay?${q}`
+    ],
+    other: []
+  };
 
-    // Copy UPI
-    document.getElementById("copyBtn").onclick = () => {
-      navigator.clipboard.writeText(UPI_ID);
-      alert("UPI ID Copied!");
-    };
+  // helpers to detect platform
+  const ua = navigator.userAgent || '';
+  function isIOS() { return /iPhone|iPad|iPod/i.test(ua); }
+  function isAndroid() { return /Android/i.test(ua); }
 
-    // Open chooser
-    document.getElementById("payBtn").onclick = () => {
-      if (!amount) return alert("Amount missing in link!");
-      chooser.style.display = "flex";
-    };
+  // read params
+  const qs = new URLSearchParams(window.location.search);
+  const product = qs.get('product') || 'Customised Order';
+  const priceParam = qs.get('price') || '';          // user's original param
+  const qtyParam = parseInt(qs.get('qty') || '1', 10) || 1;
 
-    document.getElementById("closeChooser").onclick = () => {
-      chooser.style.display = "none";
-    };
+  // format amount: require numeric and 2 decimals
+  let amountStr = '';
+  if (priceParam) {
+    const num = parseFloat(priceParam);
+    if (!Number.isNaN(num) && isFinite(num)) amountStr = (num * qtyParam).toFixed(2);
+  }
 
-    document.getElementById("closeFallback").onclick = () => {
-      fallback.style.display = "none";
-    };
+  // DOM refs
+  const upiDisplay = document.getElementById('upiDisplay');
+  const prodName = document.getElementById('prodName');
+  const prodPrice = document.getElementById('prodPrice');
+  const copyBtn = document.getElementById('copyBtn');
+  const payBtn = document.getElementById('payBtn');
+  const chooser = document.getElementById('appChooser');
+  const fallback = document.getElementById('fallbackModal');
+  const debugDump = document.getElementById('debugDump');
 
-    // Deep Link: UPI PAYMENT URL (this is what FIXES your issue)
-    function getUpiUrl() {
-      return (
-        "upi://pay?" +
-        new URLSearchParams({
-          pa: UPI_ID,
-          pn: "Customised Jewellary",
-          am: amount,
-          cu: "INR",
-          tn: "Order Payment"
-        }).toString()
-      );
+  // initialize UI
+  upiDisplay.textContent = UPI_ID;
+  prodName.textContent = product;
+  prodPrice.textContent = amountStr ? `₹${amountStr}` : 'Set price first';
+  document.getElementById('year').textContent = new Date().getFullYear?.() || new Date().getFullYear();
+
+  // logging helper (console + hidden dump)
+  function log() {
+    const args = Array.from(arguments);
+    console.log.apply(console, ['[payments]'].concat(args));
+    try { debugDump.textContent = JSON.stringify(args); } catch (e) {}
+  }
+
+  // copy UPI id
+  copyBtn.addEventListener('click', async () => {
+    try {
+      await navigator.clipboard.writeText(UPI_ID);
+      alert('UPI ID copied!');
+      log('copied UPI');
+    } catch (e) {
+      prompt('Copy UPI ID', UPI_ID);
+    }
+  });
+
+  // chooser open
+  payBtn.addEventListener('click', () => {
+    if (!amountStr) return alert('Amount missing — add ?price=xxx to the URL or provide the amount.');
+    chooser.style.display = 'flex';
+    chooser.setAttribute('aria-hidden', 'false');
+  });
+  document.getElementById('closeChooser').addEventListener('click', () => {
+    chooser.style.display = 'none';
+  });
+  document.getElementById('closeFallback').addEventListener('click', () => {
+    fallback.style.display = 'none';
+  });
+
+  // build base query string for UPI
+  function buildQuery(am) {
+    const p = new URLSearchParams();
+    p.set('pa', UPI_ID);
+    p.set('pn', PAYEE);
+    if (am) p.set('am', am);
+    p.set('cu', 'INR');
+    p.set('tn', `Order Payment`);
+    p.set('tr', 'ORD' + Date.now());
+    return p.toString();
+  }
+
+  // generic upi url
+  function genericUpi(am) {
+    return `upi://pay?${buildQuery(am)}`;
+  }
+
+  // Attempt open on iOS via iframe trick
+  // Returns a Promise<boolean> resolved true if page became hidden (likely app opened)
+  function attemptOpenIos(uri, timeout = 1200) {
+    log('attempt →', uri);
+    return new Promise((resolve) => {
+      let done = false;
+      const onVis = () => {
+        if (done) return;
+        done = true;
+        cleanup();
+        resolve(true);
+      };
+      function cleanup() {
+        document.removeEventListener('visibilitychange', onVis);
+        if (timer) clearTimeout(timer);
+        try { ifrm && ifrm.parentNode && ifrm.parentNode.removeChild(ifrm); } catch (e) {}
+      }
+      // create hidden iframe
+      let ifrm = document.createElement('iframe');
+      ifrm.style.display = 'none';
+      ifrm.src = uri;
+      document.body.appendChild(ifrm);
+
+      // listen for visibilitychange (user left to app)
+      document.addEventListener('visibilitychange', onVis, { once: true });
+
+      // fallback timeout
+      const timer = setTimeout(() => {
+        if (done) return;
+        done = true;
+        cleanup();
+        resolve(false);
+      }, timeout);
+    });
+  }
+
+  // Generic attempt for non-iOS (fallback to window.location)
+  function attemptOpenGeneric(uri, timeout = 1200) {
+    log('attempt →', uri);
+    return new Promise((resolve) => {
+      let done = false;
+      const onVis = () => {
+        if (done) return;
+        done = true;
+        cleanup();
+        resolve(true);
+      };
+      function cleanup() {
+        document.removeEventListener('visibilitychange', onVis);
+        if (timer) clearTimeout(timer);
+      }
+      try {
+        window.location.assign(uri);
+      } catch (e) {
+        console.warn(e);
+      }
+      document.addEventListener('visibilitychange', onVis, { once: true });
+      const timer = setTimeout(() => {
+        if (done) return;
+        done = true;
+        cleanup();
+        resolve(false);
+      }, timeout);
+    });
+  }
+
+  // Primary per-app open logic (mobile)
+  async function openApp(appKey) {
+    chooser.style.display = 'none';
+    log('openApp', appKey, 'platform', isIOS() ? 'ios' : isAndroid() ? 'android' : 'other');
+
+    const am = amountStr; // two-decimal string
+
+    if (isIOS()) {
+      // Try app-specific scheme variants first (iframe trick)
+      const variants = IOS_VARIANTS[appKey] || [];
+      const base = buildQuery(am);
+      for (let i = 0; i < variants.length; ++i) {
+        const uri = variants[i](base);
+        const ok = await attemptOpenIos(uri, 1200);
+        if (ok) { log('opened via iOS scheme', uri); return; }
+      }
+      // Then try generic upi
+      const upi = genericUpi(am);
+      const ok = await attemptOpenIos(upi, 1200);
+      if (ok) { log('opened via upi://', upi); return; }
+
+      // nothing worked
+      log('ios: all attempts failed for', appKey);
+      alert((appKey==='gpay'?'Google Pay': appKey==='phonepe'?'PhonePe':appKey==='paytm'?'Paytm':'UPI app') + ' could not be opened. Use the QR or copy the UPI ID.');
+      fallback.style.display = 'flex';
+      return;
     }
 
-    document.querySelectorAll(".app-btn").forEach(btn => {
-      btn.onclick = () => {
-        chooser.style.display = "none";
+    // Android: simple generic upi open (Android was already working for you)
+    if (isAndroid()) {
+      // prefer intent URI for Android apps (let system chooser handle)
+      const base = buildQuery(am);
+      // package-specific intent variants might be more reliable but you said Android works; try generic
+      const intentUri = `intent://pay?${base}#Intent;scheme=upi;action=android.intent.action.VIEW;end`;
+      if (await attemptOpenGeneric(intentUri, 1000)) { log('opened via intent', intentUri); return; }
+      if (await attemptOpenGeneric(genericUpi(am), 1000)) { log('opened via upi://', genericUpi(am)); return; }
 
-        const url = getUpiUrl();
+      log('android: all attempts failed for', appKey);
+      fallback.style.display = 'flex';
+      return;
+    }
 
-        try {
-          window.location.href = url; // this opens direct payment page
-        } catch (e) {
-          fallback.style.display = "flex";
-        }
-      };
+    // Desktop / fallback
+    fallback.style.display = 'flex';
+  }
+
+  // wire chooser buttons
+  document.querySelectorAll('.app-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const app = btn.getAttribute('data-app');
+      openApp(app);
     });
-  </script>
+  });
+
+  // Wire fallback close
+  document.getElementById('closeFallback').addEventListener('click', () => {
+    fallback.style.display = 'none';
+  });
+
+  // done
+  log('payments ready. platform', isIOS() ? 'ios' : isAndroid() ? 'android' : 'other', 'amount', amountStr || '(none)');
+
+})();
+</script>
 
 </body>
 </html>
