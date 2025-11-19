@@ -64,7 +64,9 @@
         <div class="mt-4 w-full">
           <button id="copyBtn" class="w-full px-4 py-2 rounded-xl bg-rose-600 text-white font-semibold hover:bg-rose-700 flex items-center justify-center gap-2">
             <span id="copyLabel">Copy UPI ID</span>
-            <svg id="copyTick" class="hidden w-5 h-5 text-white" viewBox="0 0 24 24" fill="none"><path d="M20 6L9 17l-5-5" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            <svg id="copyTick" class="hidden w-5 h-5 text-white" viewBox="0 0 24 24" fill="none">
+              <path d="M20 6L9 17l-5-5" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
           </button>
         </div>
 
@@ -84,7 +86,9 @@
           <div id="addressBlock" class="mt-4 text-sm text-slate-700"></div>
 
           <div class="mt-4 grid grid-cols-1 gap-3">
-            <button id="payBtn" class="w-full px-4 py-2 rounded-xl bg-rose-600 text-white font-semibold hover:bg-rose-700">Pay with UPI app</button>
+            <button id="payBtn" class="w-full px-4 py-2 rounded-xl bg-rose-600 text-white font-semibold hover:bg-rose-700">
+              Pay with UPI app
+            </button>
           </div>
 
           <div class="mt-4 p-4 rounded-xl bg-gradient-to-r from-green-500 to-emerald-600 text-white pulse-glow">
@@ -106,7 +110,9 @@
           </div>
         </div>
 
-        <div id="note" class="mt-4 text-sm text-slate-500">If amount is empty, contact us before paying or enter exact amount in your UPI app.</div>
+        <div id="note" class="mt-4 text-sm text-slate-500">
+          If amount is empty, contact us before paying or enter exact amount in your UPI app.
+        </div>
       </div>
     </section>
 
@@ -122,7 +128,9 @@
   <div id="fallbackModal" class="fallback-modal" role="dialog" aria-modal="true">
     <div class="fallback-card">
       <h3 class="text-lg font-semibold mb-2">Open UPI app to pay</h3>
-      <p class="text-sm mb-4">We couldn't open a UPI app. You can scan the QR code or copy the UPI ID and pay from your phone's UPI app.</p>
+      <p class="text-sm mb-4">
+        We couldn't open a UPI app. You can scan the QR code or copy the UPI ID and pay from your phone's UPI app.
+      </p>
       <div class="flex gap-2 justify-end">
         <button id="fallbackClose" class="px-3 py-2 rounded bg-slate-200 hover:bg-slate-300">Close</button>
       </div>
@@ -142,15 +150,18 @@
 
       <div class="chooser-grid" role="list" aria-label="UPI Apps">
         <button class="app-btn" data-app="gpay" id="btnGPay" role="listitem">
-          <img src="https://upload.wikimedia.org/wikipedia/commons/5/5a/Google_Pay_%28GPay%29_Logo.svg" alt="GPay" style="width:28px;height:20px;object-fit:contain;">
+          <img src="https://upload.wikimedia.org/wikipedia/commons/5/5a/Google_Pay_%28GPay%29_Logo.svg" alt="GPay"
+               style="width:28px;height:20px;object-fit:contain;">
           <div class="text-xs">Google Pay</div>
         </button>
         <button class="app-btn" data-app="phonepe" id="btnPhonePe" role="listitem">
-          <img src="https://download.logo.wine/logo/PhonePe/PhonePe-Logo.wine.png" alt="PhonePe" style="width:28px;height:20px;object-fit:contain;">
+          <img src="https://download.logo.wine/logo/PhonePe/PhonePe-Logo.wine.png" alt="PhonePe"
+               style="width:28px;height:20px;object-fit:contain;">
           <div class="text-xs">PhonePe</div>
         </button>
         <button class="app-btn" data-app="paytm" id="btnPaytm" role="listitem">
-          <img src="https://upload.wikimedia.org/wikipedia/commons/3/3a/Paytm_logo.png" alt="Paytm" style="width:28px;height:20px;object-fit:contain;">
+          <img src="https://upload.wikimedia.org/wikipedia/commons/3/3a/Paytm_logo.png" alt="Paytm"
+               style="width:28px;height:20px;object-fit:contain;">
           <div class="text-xs">Paytm</div>
         </button>
         <button class="app-btn" data-app="other" id="btnOther" style="grid-column: span 3; justify-content: center;">
@@ -158,7 +169,9 @@
         </button>
       </div>
 
-      <p class="text-xs text-slate-500 mt-3">If the app doesn't open we will try a generic intent or show the QR/fallback.</p>
+      <p class="text-xs text-slate-500 mt-3">
+        If the app doesn't open we will try a generic UPI intent or show the QR/fallback.
+      </p>
     </div>
   </div>
 
@@ -178,14 +191,20 @@
     paytm: 'net.one97.paytm'
   };
 
-  // iOS app schemes (variants) — keep trying variants
+  // Human-friendly app names for messages
+  const APP_LABELS = {
+    gpay: 'Google Pay',
+    phonepe: 'PhonePe',
+    paytm: 'Paytm',
+    other: 'UPI app'
+  };
+
+  // iOS app schemes (variants)
   const IOS_SCHEMES = {
-    gpay: ['gpay://upi/pay?', 'tez://upi/pay?', 'gpay://pay?'],
+    gpay: ['gpay://upi/pay?', 'tez://upi/pay?'],
     phonepe: ['phonepe://upi/pay?','phonepe://pay?'],
     paytm: ['paytmmp://pay?','paytm://pay?']
   };
-
-  const APP_LABELS = { gpay: 'Google Pay', phonepe: 'PhonePe', paytm: 'Paytm', other: 'UPI app' };
 
   // ------- HELPERS -------
   const qs = new URLSearchParams(window.location.search);
@@ -206,9 +225,7 @@
 
   const unitPrice = productPrice ? parseFloat(productPrice) : 0;
   const qty = parseInt(quantity, 10) || 1;
-  // Use precise amount (not floored) and format to 2 decimals
-  const totalAmountNumber = (unitPrice * qty) || 0;
-  const totalAmountStr = totalAmountNumber > 0 ? totalAmountNumber.toFixed(2) : '';
+  const totalAmount = Math.floor(unitPrice * qty);
 
   // DOM
   const prodNameEl = document.getElementById('prodName');
@@ -232,7 +249,10 @@
   const btnPaytm = document.getElementById('btnPaytm');
   const btnOther = document.getElementById('btnOther');
 
-  function logDebug(s) { console.log('[payments]', s); debugLog.textContent = 'debug: ' + s; }
+  function logDebug(s) {
+    console.log('[payments]', s);
+    debugLog.textContent = 'debug: ' + s;
+  }
   function isAndroid() { return /Android/i.test(navigator.userAgent); }
   function isIOS() { return /iPhone|iPad|iPod/i.test(navigator.userAgent); }
 
@@ -250,27 +270,23 @@
     showToast(`${name} might not be installed or could not be opened on this device.`);
   }
 
-  // Build UPI query with two-decimal amount + transaction ref
-  function buildQuery(amountStr) {
+  // Build UPI query
+  function buildQuery() {
     const p = new URLSearchParams();
     p.set('pa', UPI_ID);
     p.set('pn', PAYEE);
     p.set('tn', 'Order: ' + productName);
     p.set('cu', 'INR');
-    if (amountStr) p.set('am', amountStr);
-    // add a transaction ref id (useful for tracing)
-    p.set('tr', 'ORD' + Date.now());
+    if (totalAmount > 0) p.set('am', String(totalAmount));
     return p.toString();
   }
+  function buildUpiUrl() { return 'upi://pay?' + buildQuery(); }
 
-  function buildUpiUrl() { return 'upi://pay?' + buildQuery(totalAmountStr); }
-
-  // Build intent variants: variantType = 'pay' or 'upi/pay'
-  function buildIntentUriWithPackage(pkg, variant = 'pay') {
-    const base = buildQuery(totalAmountStr);
-    let path = (variant === 'upi/pay') ? 'upi/pay' : 'pay';
-    let intentUri = `intent://${path}?${base}#Intent;scheme=upi;`;
-    if (pkg) intentUri += `package=${pkg};`;
+  // IMPORTANT: android intent uses "intent://pay?"
+  function buildIntentUriWithPackage(pkg) {
+    const base = buildQuery();
+    let intentUri = 'intent://pay?' + base + '#Intent;scheme=upi;';
+    if (pkg) intentUri += 'package=' + pkg + ';';
     intentUri += 'end';
     return intentUri;
   }
@@ -281,7 +297,7 @@
       const order = {
         id: 'ORD' + Date.now(),
         product: productName,
-        amount: totalAmountStr,
+        amount: totalAmount,
         quantity: qty,
         customerName: shippingName || customerName,
         address1, address2, city, district, state, pincode,
@@ -304,7 +320,10 @@
       copyLabel.textContent = 'Copied';
       copyTick.classList.remove('hidden');
       showToast('UPI ID copied ✓');
-      setTimeout(() => { copyLabel.textContent = 'Copy UPI ID'; copyTick.classList.add('hidden'); }, 1400);
+      setTimeout(() => {
+        copyLabel.textContent = 'Copy UPI ID';
+        copyTick.classList.add('hidden');
+      }, 1400);
     } catch (e) {
       alert('Copy failed — please select and copy: ' + UPI_ID);
     }
@@ -336,8 +355,7 @@
         if (timer) clearTimeout(timer);
       }
       try {
-        // use assign for better compatibility than href in some browsers
-        window.location.assign(uri);
+        window.location.href = uri;
       } catch (e) {
         console.warn('navigation error', e);
       }
@@ -353,7 +371,7 @@
 
   // Build iOS deep-link variants
   function iosDeepLinkFor(appKey) {
-    const baseQuery = buildQuery(totalAmountStr);
+    const baseQuery = buildQuery();
     const variants = IOS_SCHEMES[appKey] || [];
     return variants.map(pref => pref + baseQuery);
   }
@@ -365,45 +383,39 @@
 
     if (isAndroid()) {
       const pkg = PACKAGES[appKey] || null;
+      const targetIntent = buildIntentUriWithPackage(pkg);
+      const genericIntent = buildIntentUriWithPackage(null);
       const upi = buildUpiUrl();
 
-      // Try sequence for Android:
-      // 1) intent://pay? with package
-      // 2) intent://upi/pay? with package
-      // 3) generic intent://pay? (no package) => system chooser
-      // 4) generic intent://upi/pay? (no package)
-      // 5) upi://pay?
       let opened = false;
 
+      // 1) try package-specific intent (this should pre-fill to Aroobakhan660@okicici)
       if (pkg) {
-        const target1 = buildIntentUriWithPackage(pkg, 'pay');
-        logDebug('android: try pkg intent (pay): ' + target1);
-        opened = await attemptOpen(target1, 900);
-        if (opened) { logDebug('opened target pkg intent (pay)'); closeChooser(); return; }
-
-        const target2 = buildIntentUriWithPackage(pkg, 'upi/pay');
-        logDebug('android: try pkg intent (upi/pay): ' + target2);
-        opened = await attemptOpen(target2, 900);
-        if (opened) { logDebug('opened target pkg intent (upi/pay)'); closeChooser(); return; }
+        opened = await attemptOpen(targetIntent, 900);
+        if (opened) {
+          logDebug('opened package intent for ' + appKey);
+          closeChooser();
+          return;
+        }
       }
 
-      // generic attempts
-      const generic1 = buildIntentUriWithPackage(null, 'pay');
-      logDebug('android: try generic intent (pay): ' + generic1);
-      opened = await attemptOpen(generic1, 900);
-      if (opened) { logDebug('opened generic intent (pay)'); closeChooser(); return; }
+      // 2) try generic intent (system chooser; may open any UPI handler)
+      opened = await attemptOpen(genericIntent, 900);
+      if (opened) {
+        logDebug('opened generic intent for ' + appKey);
+        closeChooser();
+        return;
+      }
 
-      const generic2 = buildIntentUriWithPackage(null, 'upi/pay');
-      logDebug('android: try generic intent (upi/pay): ' + generic2);
-      opened = await attemptOpen(generic2, 900);
-      if (opened) { logDebug('opened generic intent (upi/pay)'); closeChooser(); return; }
-
-      // last ditch: upi://
-      logDebug('android: try upi:// ' + upi);
+      // 3) try upi://
       opened = await attemptOpen(upi, 900);
-      if (opened) { logDebug('opened upi://'); closeChooser(); return; }
+      if (opened) {
+        logDebug('opened via upi:// for ' + appKey);
+        closeChooser();
+        return;
+      }
 
-      // all failed
+      // All attempts failed => app probably not installed or could not be opened
       logDebug('android: all attempts failed for ' + appKey);
       closeChooser();
       showAppNotInstalled(appKey);
@@ -412,20 +424,31 @@
     }
 
     if (isIOS()) {
-      // try app-specific scheme variants
       const deepLinks = iosDeepLinkFor(appKey);
+      let opened = false;
+
+      // Try app-specific schemes
       for (let i = 0; i < deepLinks.length; ++i) {
         const url = deepLinks[i];
         logDebug('ios: trying deep link ' + url);
-        const opened = await attemptOpen(url, 900);
-        if (opened) { logDebug('ios opened via scheme: ' + url); closeChooser(); return; }
+        opened = await attemptOpen(url, 900);
+        if (opened) {
+          logDebug('ios opened via scheme for ' + appKey);
+          closeChooser();
+          return;
+        }
       }
-      // generic upi
-      const upi = buildUpiUrl();
-      logDebug('ios: trying generic upi:// ' + upi);
-      const opened = await attemptOpen(upi, 900);
-      if (opened) { logDebug('ios opened via upi://'); closeChooser(); return; }
 
+      // Try generic upi://pay?
+      const upi = buildUpiUrl();
+      opened = await attemptOpen(upi, 900);
+      if (opened) {
+        logDebug('ios opened via generic upi:// for ' + appKey);
+        closeChooser();
+        return;
+      }
+
+      // All failed => likely not installed / not handling link
       logDebug('ios: all attempts failed for ' + appKey);
       closeChooser();
       showAppNotInstalled(appKey);
@@ -433,11 +456,11 @@
       return;
     }
 
-    // desktop
+    // Desktop -> fallback
     showFallback();
   }
 
-  // Non-Android direct flow
+  // Non-Android direct flow (if we ever call it)
   function openUpiForNonAndroid() {
     saveOrderToAdmin();
     if (isIOS()) {
@@ -462,11 +485,18 @@
   // Initialize UI
   function initialize() {
     prodNameEl.textContent = productName;
-    if (totalAmountStr) {
-      if (qty > 1) prodPriceEl.innerHTML = `₹${totalAmountStr}<br><span class="text-sm text-slate-500">(${qty} × ₹${(unitPrice).toFixed(2)})</span>`;
-      else prodPriceEl.textContent = `₹${totalAmountStr}`;
-    } else if (productPrice) prodPriceEl.textContent = productPrice;
-    else prodPriceEl.textContent = 'Contact for price';
+    if (totalAmount > 0) {
+      if (qty > 1) {
+        prodPriceEl.innerHTML =
+          `₹${totalAmount}<br><span class="text-sm text-slate-500">(${qty} × ₹${Math.floor(unitPrice)})</span>`;
+      } else {
+        prodPriceEl.textContent = `₹${totalAmount}`;
+      }
+    } else if (productPrice) {
+      prodPriceEl.textContent = productPrice;
+    } else {
+      prodPriceEl.textContent = 'Contact for price';
+    }
 
     qrBox.style.backgroundImage = `url('${DEFAULT_QR}')`;
 
@@ -490,9 +520,12 @@
   // Attach events
   copyBtn.addEventListener('click', copyUPIId);
 
-  payBtn.addEventListener('click', function (ev) {
-    if (isAndroid() || isIOS()) openChooser();
-    else openUpiForNonAndroid();
+  payBtn.addEventListener('click', function () {
+    if (isAndroid() || isIOS()) {
+      openChooser();
+    } else {
+      openUpiForNonAndroid();
+    }
   });
 
   btnGPay.addEventListener('click', () => openSelectedApp('gpay'));
@@ -504,14 +537,15 @@
     saveOrderToAdmin();
     (async function(){
       if (isAndroid()) {
-        const generic1 = buildIntentUriWithPackage(null, 'pay');
-        const generic2 = buildIntentUriWithPackage(null, 'upi/pay');
-        if (await attemptOpen(generic1, 900)) return;
-        if (await attemptOpen(generic2, 900)) return;
-        if (await attemptOpen(buildUpiUrl(), 900)) return;
+        const genericIntent = buildIntentUriWithPackage(null);
+        const upi = buildUpiUrl();
+        if (await attemptOpen(genericIntent, 900)) return;
+        if (await attemptOpen(upi, 900)) return;
+        showAppNotInstalled('other');
         showFallback();
       } else if (isIOS()) {
         if (await attemptOpen(buildUpiUrl(), 900)) return;
+        showAppNotInstalled('other');
         showFallback();
       } else {
         showFallback();
