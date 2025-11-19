@@ -6,7 +6,6 @@
   <title>Pay — Customised Jewellary</title>
   <meta name="description" content="Secure UPI Payment for Customised Jewellary" />
 
-  <!-- Tailwind (for quick styling) -->
   <script src="https://cdn.tailwindcss.com"></script>
 
   <style>
@@ -14,371 +13,216 @@
       font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
       background: #fff5f7;
     }
-    .overlay {
-      position: fixed;
-      inset: 0;
-      background: rgba(0,0,0,0.5);
-      display: none;
-      align-items: center;
-      justify-content: center;
-      z-index: 50;
-    }
-    .overlay-card {
-      background: #fff;
-      border-radius: 14px;
-      padding: 18px 16px;
-      width: 92%;
-      max-width: 400px;
-      box-shadow: 0 10px 30px rgba(0,0,0,0.25);
-      font-size: 14px;
-    }
-    .spinner {
-      border: 3px solid #f3f3f3;
-      border-top: 3px solid #e11d48;
-      border-radius: 50%;
-      width: 40px;
-      height: 40px;
-      animation: spin 1s linear infinite;
-      margin: 0 auto;
-    }
-    @keyframes spin {
-      0% { transform: rotate(0deg); }
-      100% { transform: rotate(360deg); }
-    }
   </style>
 </head>
+
 <body class="min-h-screen flex items-center justify-center p-4">
 
-  <main class="w-full max-w-2xl bg-white rounded-2xl shadow-xl border border-rose-100">
-    <!-- Header -->
-    <header class="p-5 border-b border-gray-200 flex items-center justify-between">
-      <div>
-        <h1 class="text-lg font-semibold">Complete Payment</h1>
-        <p class="text-xs text-gray-500 mt-1">
-          Pay securely via any UPI app (Google Pay / PhonePe / Paytm / etc.)
-        </p>
-      </div>
-      <a href="index.html" class="text-xs underline text-gray-600">Back</a>
+  <main class="w-full max-w-xl bg-white rounded-2xl shadow-xl border border-rose-100">
+    
+    <!-- HEADER -->
+    <header class="p-5 border-b border-gray-200">
+      <h1 class="text-lg font-semibold">Complete Payment</h1>
+      <p class="text-sm text-gray-500">
+        Pay securely via any UPI app (Google Pay, PhonePe, Paytm…)
+      </p>
     </header>
 
-    <!-- Content -->
-    <section class="p-5 grid grid-cols-1 md:grid-cols-2 gap-6">
-      <!-- Left: QR & UPI -->
-      <div class="flex flex-col items-center">
-        <img
-          src="images/Gpay Scanner Toyiba.jpg"
-          alt="UPI QR for Customised Jewellary"
-          class="w-56 h-56 rounded-xl shadow-md object-cover"
-        />
+    <!-- CONTENT -->
+    <section class="p-6 grid grid-cols-1 md:grid-cols-2 gap-6">
+      
+      <!-- LEFT SIDE: QR + UPI -->
+      <div class="text-center">
+        <img src="images/Gpay Scanner Toyiba.jpg"
+             class="w-52 h-52 rounded-xl shadow-md mx-auto object-cover"
+             alt="UPI QR Code">
 
-        <button
-          id="copyBtn"
-          class="mt-4 w-full bg-rose-600 hover:bg-rose-700 text-white text-sm font-semibold py-2.5 rounded-xl"
-        >
+        <button id="copyBtn"
+                class="mt-4 w-full bg-rose-600 hover:bg-rose-700 text-white font-semibold text-sm p-3 rounded-xl">
           Copy UPI ID
         </button>
 
         <p class="mt-2 text-xs text-gray-600">
-          UPI ID:
-          <span id="upiDisplay" class="font-mono font-semibold text-sm">
-            Aroobakhan660@okicici
-          </span>
+          UPI ID: <span class="font-mono font-semibold" id="upiDisplay">Aroobakhan660@okicici</span>
         </p>
 
-        <p class="mt-3 text-[11px] text-gray-500 text-center">
-          If UPI app does not open, open this page in your phone's browser (Chrome / Safari)
-          and scan the QR or use the copied UPI ID.
+        <p class="mt-3 text-xs text-gray-500">
+          If payment doesn’t open, scan the QR or use the copied UPI ID.
         </p>
       </div>
 
-      <!-- Right: Product + pay button -->
-      <div class="flex flex-col h-full">
-        <div class="border border-gray-200 rounded-xl p-4 flex-1">
-          <p class="text-xs text-gray-500">Product</p>
-          <p id="prodName" class="text-base font-semibold mt-1">
-            Customised Order
-          </p>
+      <!-- RIGHT SIDE: Details + Pay + WhatsApp -->
+      <div>
+        <p class="text-xs text-gray-500">Product</p>
+        <p id="prodName" class="text-base font-semibold mt-1">Product</p>
 
-          <p class="mt-4 text-xs text-gray-500">Amount</p>
-          <p id="prodPrice" class="text-2xl font-semibold mt-1">
-            ₹0.00
-          </p>
+        <p class="mt-4 text-xs text-gray-500">Amount</p>
+        <p id="prodPrice" class="text-2xl font-semibold">₹0.00</p>
 
-          <p id="amountNote" class="mt-1 text-[11px] text-gray-500"></p>
+        <p id="amountNote" class="text-xs text-gray-500"></p>
 
-          <button
-            id="payBtn"
-            class="mt-6 w-full bg-rose-600 hover:bg-rose-700 text-white text-sm font-semibold py-2.5 rounded-xl transition-colors"
-          >
-            Pay with UPI App
-          </button>
+        <!-- Pay button -->
+        <button id="payBtn"
+                class="mt-4 w-full bg-rose-600 hover:bg-rose-700 text-white font-semibold text-sm p-3 rounded-xl">
+          Pay with UPI App
+        </button>
 
-          <div class="mt-4 bg-green-500 text-white text-xs rounded-xl p-3">
-            <p class="font-semibold">IMPORTANT:</p>
-            <p class="mt-1">
-              After completing the payment, please send the <b>transaction screenshot</b> to confirm your order.
-            </p>
-          </div>
+        <!-- UPI backup link -->
+        <a id="upiLink"
+           href="#"
+           class="mt-2 block text-center text-blue-600 underline text-xs break-all">
+        </a>
+
+        <!-- WhatsApp confirm button -->
+        <button id="waBtn"
+                class="mt-4 w-full bg-green-600 hover:bg-green-700 text-white font-semibold text-sm p-3 rounded-xl">
+          Confirm on WhatsApp
+        </button>
+
+        <!-- WhatsApp backup link (visible text) -->
+        <a id="waLink"
+           href="#"
+           target="_blank"
+           class="mt-1 block text-center text-emerald-700 underline text-[11px] break-all">
+        </a>
+
+        <div class="mt-4 bg-green-500 text-white p-3 rounded-xl text-xs">
+          <b>IMPORTANT:</b> After payment, tap “Confirm on WhatsApp” and send the
+          payment screenshot so we can process your order.
         </div>
       </div>
     </section>
 
-    <footer class="px-5 py-3 border-t border-gray-200 text-[11px] text-gray-500 flex justify-between">
+    <footer class="p-4 border-t border-gray-200 text-xs text-gray-500 flex justify-between">
       <span>© <span id="year"></span> Customised Jewellary</span>
-      <span>No OTP / PIN is ever asked on this website</span>
+      <span>We never ask for OTP / PIN</span>
     </footer>
+
   </main>
 
-  <!-- Loading overlay -->
-  <div id="loadingOverlay" class="overlay">
-    <div class="overlay-card text-center">
-      <div class="spinner"></div>
-      <p class="mt-3 text-sm font-semibold">Opening UPI app...</p>
-      <p class="mt-1 text-xs text-gray-600">Please wait</p>
-    </div>
-  </div>
+<script>
+  // ---------------- CONFIG ----------------
+  const UPI_ID       = "Aroobakhan660@okicici";
+  const PAYEE_NAME   = "Customised Jewellary";
 
-  <!-- Fallback overlay -->
-  <div id="fallbackOverlay" class="overlay">
-    <div class="overlay-card">
-      <h2 class="text-sm font-semibold mb-2">Manual Payment Instructions</h2>
-      <ul class="list-disc list-inside text-xs text-gray-700 space-y-1">
-        <li>Scan the QR code above with any UPI app</li>
-        <li>Or use the copied UPI ID: <b>Aroobakhan660@okicici</b></li>
-        <li>Enter amount: <b id="fallbackAmount">₹0.00</b></li>
-        <li>Complete the payment in your UPI app</li>
-        <li>Send transaction screenshot to confirm your order</li>
-      </ul>
-      <button
-        id="fallbackClose"
-        class="mt-3 w-full bg-gray-200 hover:bg-gray-300 text-xs py-2 rounded-lg font-semibold"
-      >
-        Got It
-      </button>
-    </div>
-  </div>
+  // 👇 CHANGE THIS TO YOUR REAL WHATSAPP NUMBER
+  // Format: countrycode + number, NO plus sign, NO spaces
+  // For example: India 98765xxxxx  => "9198765xxxxx"
+  const WHATSAPP_NUMBER = "919876543210";  // ← REPLACE THIS
 
-  <script>
-    // ------- CONFIG -------
-    const UPI_ID = "Aroobakhan660@okicici";
-    const PAYEE_NAME = "Customised Jewellary";
-    const DEFAULT_QR_PATH = "images/Gpay Scanner Toyiba.jpg";
+  // ---------------- DOM ----------------
+  const prodNameEl   = document.getElementById("prodName");
+  const prodPriceEl  = document.getElementById("prodPrice");
+  const amountNoteEl = document.getElementById("amountNote");
+  const copyBtn      = document.getElementById("copyBtn");
+  const upiDisplay   = document.getElementById("upiDisplay");
+  const payBtn       = document.getElementById("payBtn");
+  const upiLinkEl    = document.getElementById("upiLink");
+  const waBtn        = document.getElementById("waBtn");
+  const waLinkEl     = document.getElementById("waLink");
 
-    // ------- DOM -------
-    const upiDisplay    = document.getElementById("upiDisplay");
-    const copyBtn       = document.getElementById("copyBtn");
-    const payBtn        = document.getElementById("payBtn");
-    const prodNameEl    = document.getElementById("prodName");
-    const prodPriceEl   = document.getElementById("prodPrice");
-    const amountNoteEl  = document.getElementById("amountNote");
-    const loadingOver   = document.getElementById("loadingOverlay");
-    const fallbackOver  = document.getElementById("fallbackOverlay");
-    const fallbackClose = document.getElementById("fallbackClose");
-    const fallbackAmt   = document.getElementById("fallbackAmount");
+  document.getElementById("year").textContent = new Date().getFullYear();
+  upiDisplay.textContent = UPI_ID;
 
-    document.getElementById("year").textContent = new Date().getFullYear();
-    upiDisplay.textContent = UPI_ID;
+  // ---------------- URL PARAMS ----------------
+  const qs = new URLSearchParams(location.search);
 
-    // ------- URL params (from previous page) -------
-    const qs      = new URLSearchParams(location.search);
-    const product = qs.get("product") || "Customised Order";
-    const price   = qs.get("price")   || "";
-    const qtyRaw  = qs.get("qty")     || "1";
+  const product = qs.get("product") || "Customised Order";
+  const price   = qs.get("price")   || "";
+  const qtyRaw  = qs.get("qty")     || "1";
 
-    const qty   = parseInt(qtyRaw, 10) || 1;
-    const num   = price ? parseFloat(price) : 0;
-    const total = (num && !isNaN(num)) ? num * qty : 0;
+  const qty   = parseInt(qtyRaw) || 1;
+  const num   = price ? parseFloat(price) : 0;
+  const total = qty * num;
 
-    prodNameEl.textContent = product;
+  let amountStr = "";
+  prodNameEl.textContent = product;
 
-    let amountStr = "";
-    if (total > 0) {
-      amountStr = total.toFixed(2);
-      prodPriceEl.textContent = "₹" + amountStr;
-      fallbackAmt.textContent = "₹" + amountStr;
-      if (qty > 1) {
-        amountNoteEl.textContent = `(${qty} × ₹${num.toFixed(2)})`;
-      } else {
-        amountNoteEl.textContent = "";
-      }
+  if (total > 0) {
+    amountStr = total.toFixed(2);
+    prodPriceEl.textContent = "₹" + amountStr;
+    if (qty > 1) {
+      amountNoteEl.textContent = (${qty} × ₹${num.toFixed(2)});
+    }
+  } else {
+    prodPriceEl.textContent = "Amount not set";
+    amountNoteEl.textContent = "Go back and choose product again so amount is added.";
+    payBtn.disabled = true;
+    payBtn.classList.add("opacity-60", "cursor-not-allowed");
+  }
+
+  // ---------------- MINIMAL UPI LINK ----------------
+  function buildUpiUrl() {
+    const p = new URLSearchParams();
+    p.append("pa", UPI_ID);       // payee VPA
+    p.append("pn", PAYEE_NAME);   // payee name
+    p.append("am", amountStr);    // amount
+    p.append("cu", "INR");        // currency
+
+    return "upi://pay?" + p.toString();
+  }
+
+  let upiUrl = "";
+  if (amountStr) {
+    upiUrl = buildUpiUrl();
+    upiLinkEl.href = upiUrl;
+    upiLinkEl.textContent =
+      "If the button does not work, tap this UPI link: " + upiUrl;
+  } else {
+    upiLinkEl.textContent = "UPI link will appear here when amount is set.";
+  }
+
+  // ---------------- WHATSAPP LINK ----------------
+  function buildWhatsappUrl() {
+    // fallback text if no amount
+    const displayAmount = amountStr ? ₹${amountStr} : "(amount not auto-filled)";
+    const msg =
+      `Hello, I have completed a payment for "${product}" of ${displayAmount} ` +
+      via UPI ID ${UPI_ID}. I am attaching the payment screenshot.;
+
+    const encoded = encodeURIComponent(msg);
+    return https://wa.me/${WHATSAPP_NUMBER}?text=${encoded};
+  }
+
+  const whatsappUrl = buildWhatsappUrl();
+  waLinkEl.href = whatsappUrl;
+  waLinkEl.textContent = "Or tap here if the WhatsApp button does not open: " + whatsappUrl;
+
+  // ---------------- COPY UPI ID ----------------
+  copyBtn.addEventListener("click", () => {
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+      navigator.clipboard.writeText(UPI_ID)
+        .then(() => alert("UPI ID copied: " + UPI_ID))
+        .catch(() => alert("Copy failed, please copy manually."));
     } else {
-      prodPriceEl.textContent = "Amount not set";
-      amountNoteEl.textContent = "Go back and select product again so the amount comes here.";
-      payBtn.disabled = true;
-      payBtn.classList.add("opacity-60", "cursor-not-allowed");
+      alert("Copy not supported, please copy manually: " + UPI_ID);
+    }
+  });
+
+  // ---------------- PAY BUTTON ----------------
+  payBtn.addEventListener("click", () => {
+    if (!amountStr) {
+      alert("Amount is missing. Please go back and select the product again.");
+      return;
     }
 
-    // ------- Device Detection -------
-    function getDeviceType() {
-      const ua = navigator.userAgent || navigator.vendor || "";
-      if (/iPad|iPhone|iPod/.test(ua) && !window.MSStream) {
-        return 'ios';
-      } else if (/android/i.test(ua)) {
-        return 'android';
-      }
-      return 'desktop';
+    if (!upiUrl) {
+      alert("Something went wrong building the UPI link. Please refresh and try again.");
+      return;
     }
 
-    function isInAppBrowser() {
-      const ua = navigator.userAgent || navigator.vendor || "";
-      // Detect common in-app browsers
-      return /FBAN|FBAV|Instagram|Twitter|LinkedIn|WhatsApp|Snapchat/i.test(ua);
+    window.location.href = upiUrl;  // SIMPLEST POSSIBLE
+  });
+
+  // ---------------- WHATSAPP BUTTON ----------------
+  waBtn.addEventListener("click", () => {
+    if (!WHATSAPP_NUMBER || WHATSAPP_NUMBER === "919876543210") {
+      alert("WhatsApp number not configured. Edit the code and set WHATSAPP_NUMBER.");
+      return;
     }
+    window.open(whatsappUrl, "_blank");
+  });
+</script>
 
-    // ------- UPI URL Builder -------
-    function buildUpiUrl() {
-      if (!amountStr) return "";
-
-      // Clean UPI ID (remove spaces)
-      const cleanUpiId = UPI_ID.trim();
-      
-      // Build params manually to ensure proper encoding
-      const params = {
-        pa: cleanUpiId,
-        pn: PAYEE_NAME,
-        am: amountStr,
-        cu: "INR",
-        tn: `Order: ${product}`,
-        tr: `ORD${Date.now()}`
-      };
-
-      // Manually build URL with proper encoding
-      const paramStr = Object.entries(params)
-        .map(([key, val]) => `${key}=${encodeURIComponent(val)}`)
-        .join('&');
-
-      return `upi://pay?${paramStr}`;
-    }
-
-    // ------- Copy UPI -------
-    copyBtn.addEventListener("click", () => {
-      if (navigator.clipboard && navigator.clipboard.writeText) {
-        navigator.clipboard.writeText(UPI_ID)
-          .then(() => {
-            copyBtn.textContent = "✓ Copied!";
-            setTimeout(() => {
-              copyBtn.textContent = "Copy UPI ID";
-            }, 2000);
-          })
-          .catch(() => {
-            alert("Copy failed. Long-press and copy the UPI ID manually.");
-          });
-      } else {
-        // Fallback for older browsers
-        const textArea = document.createElement("textarea");
-        textArea.value = UPI_ID;
-        textArea.style.position = "fixed";
-        textArea.style.opacity = "0";
-        document.body.appendChild(textArea);
-        textArea.select();
-        try {
-          document.execCommand('copy');
-          copyBtn.textContent = "✓ Copied!";
-          setTimeout(() => {
-            copyBtn.textContent = "Copy UPI ID";
-          }, 2000);
-        } catch (err) {
-          alert("Copy not supported. Long-press and copy the UPI ID manually: " + UPI_ID);
-        }
-        document.body.removeChild(textArea);
-      }
-    });
-
-    // ------- Pay button with optimized handling -------
-    payBtn.addEventListener("click", async () => {
-      if (!amountStr) {
-        alert("Amount is missing. Please go back and select the product again.");
-        return;
-      }
-
-      const deviceType = getDeviceType();
-      const upiUrl = buildUpiUrl();
-
-      if (deviceType === 'desktop') {
-        // Desktop: show manual instructions
-        fallbackOver.style.display = "flex";
-        return;
-      }
-
-      // Show loading
-      loadingOver.style.display = "flex";
-
-      // Disable button to prevent double clicks
-      payBtn.disabled = true;
-      payBtn.classList.add("opacity-60");
-
-      try {
-        if (deviceType === 'android') {
-          // Android handling - try intent first, fallback to upi://
-          if (isInAppBrowser()) {
-            // In-app browser: use window.open with fallback
-            const popup = window.open(upiUrl, '_blank');
-            
-            setTimeout(() => {
-              loadingOver.style.display = "none";
-              if (!popup || popup.closed || typeof popup.closed === 'undefined') {
-                fallbackOver.style.display = "flex";
-              }
-              payBtn.disabled = false;
-              payBtn.classList.remove("opacity-60");
-            }, 2000);
-          } else {
-            // Native browser: direct navigation
-            window.location.href = upiUrl;
-            
-            // Show fallback after delay
-            setTimeout(() => {
-              loadingOver.style.display = "none";
-              fallbackOver.style.display = "flex";
-              payBtn.disabled = false;
-              payBtn.classList.remove("opacity-60");
-            }, 3000);
-          }
-        } else if (deviceType === 'ios') {
-          // iOS handling - more reliable with window.location
-          window.location.href = upiUrl;
-          
-          // iOS typically shows a prompt, so wait longer
-          setTimeout(() => {
-            loadingOver.style.display = "none";
-            // Check if still on page (app didn't open)
-            if (document.hasFocus()) {
-              fallbackOver.style.display = "flex";
-            }
-            payBtn.disabled = false;
-            payBtn.classList.remove("opacity-60");
-          }, 4000);
-        }
-      } catch (error) {
-        console.error("UPI redirect error:", error);
-        loadingOver.style.display = "none";
-        fallbackOver.style.display = "flex";
-        payBtn.disabled = false;
-        payBtn.classList.remove("opacity-60");
-      }
-    });
-
-    // ------- Fallback close -------
-    fallbackClose.addEventListener("click", () => {
-      fallbackOver.style.display = "none";
-    });
-
-    // ------- Handle page visibility to detect app return -------
-    document.addEventListener("visibilitychange", () => {
-      if (document.visibilityState === "visible") {
-        // User returned to page - hide loading
-        loadingOver.style.display = "none";
-        payBtn.disabled = false;
-        payBtn.classList.remove("opacity-60");
-      }
-    });
-
-    // ------- Auto-hide loading if page loses focus (app opened) -------
-    window.addEventListener("blur", () => {
-      setTimeout(() => {
-        loadingOver.style.display = "none";
-      }, 1000);
-    });
-  </script>
 </body>
 </html>
