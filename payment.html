@@ -1,37 +1,139 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Pay — Customised Jewellary</title>
+  <meta name="description" content="Secure payment for Customised Jewellary" />
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap" rel="stylesheet">
+  <script src="https://cdn.tailwindcss.com"></script>
+  <style>
+    html { scroll-behavior: smooth; }
+    body { font-family: 'Poppins', system-ui, -apple-system, "Segoe UI", Roboto, Arial, sans-serif;
+      background: linear-gradient(180deg,#fff7f8 0%, #fbf3f6 40%); color: #0f172a; }
+    @media (prefers-color-scheme: dark) {
+      body { background: linear-gradient(180deg,#071024 0%, #071022 100%); color: #e6eef8; }
+    }
+    .card { background: color-mix(in srgb, white 92%, transparent); backdrop-filter: blur(6px); }
+    .small-note { font-size: .85rem; color: #6b7280; }
+    
+    /* Pulsing animation for important notice */
+    @keyframes pulse-glow {
+      0%, 100% { box-shadow: 0 0 0 0 rgba(34, 197, 94, 0.7); }
+      50% { box-shadow: 0 0 0 10px rgba(34, 197, 94, 0); }
+    }
+    .pulse-glow {
+      animation: pulse-glow 2s infinite;
+    }
+  </style>
+</head>
+<body class="min-h-screen flex items-center justify-center p-6">
+
+  <main class="w-full max-w-2xl rounded-2xl shadow-2xl overflow-hidden card ring-1 ring-black/5">
+    <header class="p-6 border-b border-slate-200/40 dark:border-slate-800/40 flex items-center justify-between">
+      <div>
+        <h1 class="text-xl font-bold">Complete payment</h1>
+        <p class="text-sm text-slate-500 mt-1">Secure UPI payment — Google Pay, PhonePe, Paytm or any UPI app.</p>
+      </div>
+      <a href="index.html" class="text-sm underline">Back to Shop</a>
+    </header>
+
+    <section class="p-6 grid grid-cols-1 md:grid-cols-2 gap-6 items-start">
+      <div class="flex flex-col items-center">
+        <div id="qrBox" class="w-56 h-56 rounded-xl bg-center bg-cover ring-1 ring-black/5 shadow-sm"
+             style="background-image: url('images/Gpay Scanner Toyiba.jpg')"></div>
+        <a id="downloadQR" class="mt-4 text-xs underline" href="images/Gpay Scanner Toyiba.jpg" download="Toyiba-UPI-QR.png">Download QR</a>
+
+        <div class="mt-4 w-full">
+          <button id="copyBtn" class="w-full px-4 py-2 rounded-xl bg-rose-600 text-white font-semibold hover:bg-rose-700 flex items-center justify-center gap-2">
+            <span id="copyLabel">Copy UPI ID</span>
+            <svg id="copyTick" class="hidden w-5 h-5 text-white" viewBox="0 0 24 24" fill="none"><path d="M20 6L9 17l-5-5" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          </button>
+        </div>
+      </div>
+
+      <div>
+        <div class="p-4 rounded-xl border border-slate-200/40 dark:border-slate-800/40 shadow-sm">
+          <div class="text-xs text-slate-500">Product</div>
+          <div id="prodName" class="font-semibold mt-1 text-lg">—</div>
+
+          <div class="mt-4 text-xs text-slate-500">Amount</div>
+          <div id="prodPrice" class="font-mono font-semibold text-2xl mt-1">—</div>
+
+          <div id="addressBlock" class="mt-4 text-sm text-slate-700"></div>
+
+          <div class="mt-6 flex gap-3">
+            <button id="payBtn" class="px-4 py-2 rounded-xl bg-rose-600 text-white font-semibold hover:bg-rose-700">Pay with Google Pay</button>
+            <a id="waConfirm" class="px-4 py-2 rounded-xl border border-slate-300 text-sm hover:bg-slate-100 self-center" href="#" target="_blank" rel="noopener">Confirm on WhatsApp</a>
+          </div>
+
+          <!-- HIGHLY VISIBLE WhatsApp screenshot instruction -->
+          <div class="mt-4 p-4 rounded-xl bg-gradient-to-r from-green-500 to-emerald-600 text-white pulse-glow">
+            <div class="flex items-center gap-3 mb-2">
+              <svg class="w-6 h-6 flex-shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
+              </svg>
+              <span class="font-bold text-lg">IMPORTANT STEP</span>
+            </div>
+            <p class="font-semibold text-sm leading-relaxed">
+              After payment, <span class="underline">MUST send transaction screenshot</span> on WhatsApp to confirm your order
+            </p>
+            <p class="text-xs opacity-90 mt-2 flex items-center gap-1">
+              <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                <path d="M21 11.5a8.38 8.38 0 01-.9 3.8 8.5 8.5 0 01-7.6 4.7 8.38 8.38 0 01-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 01-.9-3.8 8.5 8.5 0 014.7-7.6 8.38 8.38 0 013.8-.9h.5a8.48 8.48 0 018 8v.5z"/>
+              </svg>
+              Click "Confirm on WhatsApp" button above after payment
+            </p>
+          </div>
+        </div>
+
+        <div id="note" class="mt-4 text-sm text-slate-500">If amount is empty, contact us before paying or enter exact amount in your UPI app.</div>
+      </div>
+    </section>
+
+    <footer class="p-4 text-xs text-slate-500 border-t border-slate-200/40 dark:border-slate-800/40 flex items-center justify-between">
+      <div>© <span id="year"></span> Customised Jewellary</div>
+      <div>Secure · No OTP / PIN requested by us</div>
+    </footer>
+  </main>
+
+  <div id="toast" class="fixed bottom-6 right-6 hidden px-4 py-3 rounded-lg bg-slate-900 text-white shadow-xl">Copied ✓</div>
+
 <script>
 (function(){
-  // Constants
+  // ---- CONFIG ----
   const UPI_ID = "Aroobakhan660@okicici";
   const PAYEE = "Customised Jewellary";
   const DEFAULT_QR = "images/Gpay Scanner Toyiba.jpg";
   const WHATSAPP_NUMBER = "919103927064";
 
-  // URL parameters reader
+  // ---- UTILS ----
   const urlParams = new URLSearchParams(window.location.search);
-  const decodeParam = (param) => { try { return decodeURIComponent(param || '') } catch(e){ return param || '' } };
+  const safeDecode = (p) => { try { return decodeURIComponent(p || '') } catch(e) { return p || '' } };
 
-  // Page params
-  const productName = decodeParam(urlParams.get('product')) || 'Customised order';
-  const productPrice = decodeParam(urlParams.get('price')) || '';
-  const quantity = decodeParam(urlParams.get('qty')) || '1';
-  const customerName = decodeParam(urlParams.get('custName')) || '';
-  const customerPhone = decodeParam(urlParams.get('phone')) || '';
-  const shippingName = decodeParam(urlParams.get('shipName')) || '';
-  const shippingPhone = decodeParam(urlParams.get('shipPhone')) || '';
-  const address1 = decodeParam(urlParams.get('addr1')) || '';
-  const address2 = decodeParam(urlParams.get('addr2')) || '';
-  const city = decodeParam(urlParams.get('city')) || '';
-  const district = decodeParam(urlParams.get('district')) || '';
-  const state = decodeParam(urlParams.get('state')) || '';
-  const pincode = decodeParam(urlParams.get('pincode')) || '';
-  const note = decodeParam(urlParams.get('note')) || '';
+  // Read incoming parameters
+  const productName = safeDecode(urlParams.get('product')) || 'Customised order';
+  const productPrice = safeDecode(urlParams.get('price')) || '';
+  const quantity = safeDecode(urlParams.get('qty')) || '1';
+  const customerName = safeDecode(urlParams.get('custName')) || '';
+  const customerPhone = safeDecode(urlParams.get('phone')) || '';
+  const shippingName = safeDecode(urlParams.get('shipName')) || '';
+  const shippingPhone = safeDecode(urlParams.get('shipPhone')) || '';
+  const address1 = safeDecode(urlParams.get('addr1')) || '';
+  const address2 = safeDecode(urlParams.get('addr2')) || '';
+  const city = safeDecode(urlParams.get('city')) || '';
+  const district = safeDecode(urlParams.get('district')) || '';
+  const state = safeDecode(urlParams.get('state')) || '';
+  const pincode = safeDecode(urlParams.get('pincode')) || '';
+  const note = safeDecode(urlParams.get('note')) || '';
 
-  // Amount calculation
   const unitPrice = productPrice ? parseFloat(productPrice) : 0;
   const qty = parseInt(quantity) || 1;
   const totalAmount = Math.floor(unitPrice * qty);
 
-  // DOM
+  // DOM refs
   const prodNameEl = document.getElementById('prodName');
   const prodPriceEl = document.getElementById('prodPrice');
   const copyBtn = document.getElementById('copyBtn');
@@ -43,7 +145,13 @@
   const qrBox = document.getElementById('qrBox');
   const addressBlock = document.getElementById('addressBlock');
 
+  // Platform detection
+  function isAndroid() { return /Android/i.test(navigator.userAgent); }
+  function isIOS() { return /iPhone|iPad|iPod/i.test(navigator.userAgent); }
+
+  // --- UI init ---
   function initializeUI() {
+    // product
     prodNameEl.textContent = productName;
     if (totalAmount > 0) {
       if (qty > 1) {
@@ -56,10 +164,27 @@
     } else {
       prodPriceEl.textContent = 'Contact for price';
     }
+
+    // QR
     qrBox.style.backgroundImage = `url('${DEFAULT_QR}')`;
+
+    // address
     renderAddressBlock();
+
+    // whatsapp link
     setupWhatsAppLink();
+
+    // year
     document.getElementById('year').textContent = new Date().getFullYear();
+
+    // button label hint (optional)
+    if (isAndroid()) {
+      payBtn.textContent = 'Pay with Google Pay (Android)';
+    } else if (isIOS()) {
+      payBtn.textContent = 'Pay with UPI app (iOS)';
+    } else {
+      payBtn.textContent = 'Pay with UPI app';
+    }
   }
 
   function renderAddressBlock() {
@@ -71,7 +196,7 @@
     if (address1) parts.push(`<div>${address1}</div>`);
     if (address2) parts.push(`<div>${address2}</div>`);
     const locationParts = [city, district, state, pincode].filter(Boolean);
-    if (locationParts.length > 0) parts.push(`<div>${locationParts.join(', ')}</div>`);
+    if (locationParts.length) parts.push(`<div>${locationParts.join(', ')}</div>`);
     addressBlock.innerHTML = parts.join('') || '<div class="text-slate-500 text-sm">No address provided</div>';
   }
 
@@ -87,14 +212,14 @@
     if (displayName) parts.push(`Name: ${displayName}`);
     if (displayPhone) parts.push(`Phone: ${displayPhone}`);
     const addressParts = [address1, address2, city, district, state, pincode].filter(Boolean);
-    if (addressParts.length > 0) parts.push(`Address: ${addressParts.join(', ')}`);
+    if (addressParts.length) parts.push(`Address: ${addressParts.join(', ')}`);
     if (note) parts.push(`Customization: ${note}`);
     parts.push('Transaction screenshot attached');
     const message = parts.join('\n');
     waConfirm.href = `https://wa.me/${WHATSAPP_NUMBER}?text=${encodeURIComponent(message)}`;
   }
 
-  // Copy UPI
+  // --- copy UPI ----
   async function copyUPIId() {
     try {
       await navigator.clipboard.writeText(UPI_ID);
@@ -104,8 +229,8 @@
       setTimeout(() => {
         copyLabel.textContent = 'Copy UPI ID';
         copyTick.classList.add('hidden');
-      }, 1600);
-    } catch(e) {
+      }, 1400);
+    } catch (e) {
       alert('Copy failed — please select and copy: ' + UPI_ID);
     }
   }
@@ -113,105 +238,120 @@
   function showToast(message) {
     toast.textContent = message;
     toast.classList.remove('hidden');
-    setTimeout(() => { toast.classList.add('hidden'); }, 2000);
+    setTimeout(() => {
+      toast.classList.add('hidden');
+    }, 1800);
   }
 
-  // Detect platform
-  function isAndroid() {
-    return /Android/i.test(navigator.userAgent);
-  }
-  function isIOS() {
-    return /iPhone|iPad|iPod/i.test(navigator.userAgent);
+  // --- build UPI urls ---
+  function buildUPIQuery() {
+    const q = new URLSearchParams();
+    q.set('pa', UPI_ID);
+    q.set('pn', PAYEE);
+    q.set('tn', 'Order: ' + productName);
+    q.set('cu', 'INR');
+    if (totalAmount > 0) q.set('am', String(totalAmount));
+    return q.toString();
   }
 
-  // Build UPI params and URL
   function buildUPIUrl() {
-    const params = [
-      `pa=${encodeURIComponent(UPI_ID)}`,
-      `pn=${encodeURIComponent(PAYEE)}`,
-      `tn=${encodeURIComponent('Order: ' + productName)}`,
-      `cu=INR`
-    ];
-    if (totalAmount > 0) params.push(`am=${totalAmount}`);
-    return `upi://pay?${params.join('&')}`;
+    return 'upi://pay?' + buildUPIQuery();
   }
 
-  // Initiate payment with platform-aware deep link
-  function initiateUPIPayment(e) {
-    // Optional: save order to admin before redirect (keeps local copy)
+  function buildIntentUriForAndroid() {
+    // Intent URI that prefers Google Pay package, but Android may present chooser if package not installed.
+    // scheme=upi ensures correct handling
+    const query = buildUPIQuery();
+    return `intent://upi/pay?${query}#Intent;scheme=upi;package=com.google.android.apps.nbu.paisa.user;end`;
+  }
+
+  // --- attempt payment ---
+  function initiateUPIPayment(event) {
+    event && event.preventDefault && event.preventDefault();
+
+    // Save a local order snapshot (non-blocking)
     saveOrderToAdmin();
 
     const upiUrl = buildUPIUrl();
 
-    try {
-      if (isAndroid()) {
-        // Use Android intent URI — this strongly prefers Google Pay app (package specified).
-        // If Google Pay isn't installed, Android will show an "Open with" chooser or fallback.
-        const intentUri = `intent://upi/pay?${new URLSearchParams(upiUrl.split('?')[1]).toString()}#Intent;package=com.google.android.apps.nbu.paisa.user;scheme=upi;end`;
-        // Use location change to trigger intent
-        window.location.href = intentUri;
+    // Perform platform-specific redirect triggered by user click
+    if (isAndroid()) {
+      // Android: attempt intent redirect (Google Pay preferred). This must be a user gesture to succeed.
+      try {
+        window.location.href = buildIntentUriForAndroid();
 
-        // After attempting to open, if nothing happens show fallback guidance
+        // If intent did not open (no handler), show fallback after short delay
         setTimeout(() => {
-          showToast('If Google Pay did not open, use the QR or Copy UPI ID to pay.');
+          showToast('If Google Pay did not open, scan the QR or copy the UPI ID to pay.');
         }, 1200);
-      } else if (isIOS()) {
-        // On iOS: try the UPI URL directly. Many UPI apps on iOS register the upi:// scheme.
-        // If it fails (no handler) we show fallback guidance (can't reliably detect failure).
+      } catch (err) {
+        console.error('Android redirect failed:', err);
+        showToast('Could not open Google Pay. Please use QR or copy the UPI ID.');
+      }
+      return;
+    }
+
+    if (isIOS()) {
+      // iOS: try upi:// — many UPI apps on iOS register the upi scheme.
+      try {
         window.location.href = upiUrl;
 
+        // Can't reliably detect failure, so guide user to fallback after a pause
         setTimeout(() => {
-          showToast('If your UPI app did not open, please scan the QR or copy the UPI ID to pay.');
+          showToast('If your UPI app did not open, scan the QR or copy the UPI ID to pay.');
         }, 1200);
-      } else {
-        // Desktop / unknown: open QR/copy fallback and a small message
-        showToast('Open a UPI app on your phone and scan the QR or copy the UPI ID.');
+      } catch (err) {
+        console.error('iOS redirect failed:', err);
+        showToast('Could not open UPI app. Please use QR or copy the UPI ID.');
       }
-    } catch (err) {
-      console.error('Payment redirect failed:', err);
-      showToast('Could not open payment app. Use QR or copy UPI ID.');
+      return;
     }
+
+    // Desktop/unknown: instruct to use phone
+    showToast('Open a UPI app on your phone and scan the QR or copy the UPI ID.');
   }
 
-  // Save order to local admin (simulate)
+  // --- local "admin" save (non-critical) ---
   function saveOrderToAdmin() {
-    const orderData = {
-      id: 'ORD' + Date.now(),
-      product: productName,
-      amount: totalAmount,
-      quantity: qty,
-      customerName: shippingName || customerName,
-      phone: shippingPhone || customerPhone,
-      address1: address1,
-      address2: address2,
-      city: city,
-      district: district,
-      state: state,
-      pincode: pincode,
-      customization: note,
-      status: 'pending',
-      timestamp: new Date().toISOString(),
-      upiId: UPI_ID
-    };
     try {
-      const existingOrders = JSON.parse(localStorage.getItem('jewelleryOrders') || '[]');
-      existingOrders.unshift(orderData);
-      localStorage.setItem('jewelleryOrders', JSON.stringify(existingOrders));
-      console.log('Order saved to admin dashboard:', orderData);
-    } catch (error) {
-      console.error('Failed to save order:', error);
+      const orderData = {
+        id: 'ORD' + Date.now(),
+        product: productName,
+        amount: totalAmount,
+        quantity: qty,
+        customerName: shippingName || customerName,
+        phone: shippingPhone || customerPhone,
+        address1: address1,
+        address2: address2,
+        city: city,
+        district: district,
+        state: state,
+        pincode: pincode,
+        customization: note,
+        status: 'pending',
+        timestamp: new Date().toISOString(),
+        upiId: UPI_ID
+      };
+      const existing = JSON.parse(localStorage.getItem('jewelleryOrders') || '[]');
+      existing.unshift(orderData);
+      localStorage.setItem('jewelleryOrders', JSON.stringify(existing));
+      // don't block UI for this
+    } catch (err) {
+      console.warn('Failed to save local order snapshot', err);
     }
   }
 
-  // Event listeners
+  // --- attach listeners & initialize ---
   copyBtn.addEventListener('click', copyUPIId);
   payBtn.addEventListener('click', initiateUPIPayment);
 
-  // Initialize page
+  // initialize after DOM references are ready
   initializeUI();
 
-  // Save order to admin (simulate order creation). In production, save after payment confirmation.
+  // create an initial local snapshot (non-critical)
   setTimeout(saveOrderToAdmin, 1000);
 
 })();
 </script>
+</body>
+</html>
