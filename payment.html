@@ -103,18 +103,44 @@
 
 <script>
 (function(){
+  // Constants
   const UPI_ID = "Aroobakhan660@okicici";
   const PAYEE = "Customised Jewellary";
   const DEFAULT_QR = "images/Gpay Scanner Toyiba.jpg";
+  const WHATSAPP_NUMBER = "919103927064";
 
-  // safe params reader
-  const sp = new URLSearchParams(window.location.search);
-  const get = k => sp.get(k) || '';
-
-  // decode helper
-  const dec = v => {
-    try { return decodeURIComponent(v); } catch(e){ return v || ''; }
+  // URL parameters reader
+  const urlParams = new URLSearchParams(window.location.search);
+  
+  // Helper function to safely decode URL parameters
+  const decodeParam = (param) => {
+    try { 
+      return decodeURIComponent(param || ''); 
+    } catch(e){ 
+      return param || ''; 
+    }
   };
+
+  // Get all parameters from URL
+  const productName = decodeParam(urlParams.get('product')) || 'Customised order';
+  const productPrice = decodeParam(urlParams.get('price')) || '';
+  const quantity = decodeParam(urlParams.get('qty')) || '1';
+  const customerName = decodeParam(urlParams.get('custName')) || '';
+  const customerPhone = decodeParam(urlParams.get('phone')) || '';
+  const shippingName = decodeParam(urlParams.get('shipName')) || '';
+  const shippingPhone = decodeParam(urlParams.get('shipPhone')) || '';
+  const address1 = decodeParam(urlParams.get('addr1')) || '';
+  const address2 = decodeParam(urlParams.get('addr2')) || '';
+  const city = decodeParam(urlParams.get('city')) || '';
+  const district = decodeParam(urlParams.get('district')) || '';
+  const state = decodeParam(urlParams.get('state')) || '';
+  const pincode = decodeParam(urlParams.get('pincode')) || '';
+  const note = decodeParam(urlParams.get('note')) || '';
+
+  // Calculate total amount (remove decimal places)
+  const unitPrice = productPrice ? parseFloat(productPrice) : 0;
+  const qty = parseInt(quantity) || 1;
+  const totalAmount = Math.floor(unitPrice * qty);
 
   // DOM elements
   const prodNameEl = document.getElementById('prodName');
@@ -126,50 +152,41 @@
   const waConfirm = document.getElementById('waConfirm');
   const toast = document.getElementById('toast');
   const qrBox = document.getElementById('qrBox');
-  const downloadQR = document.getElementById('downloadQR');
   const addressBlock = document.getElementById('addressBlock');
 
-  // Read ALL parameters
-  const productName = dec(get('product') || 'Customised order');
-  const productPrice = dec(get('price') || '');
-  const quantity = dec(get('qty') || '1');
-  const customerName = dec(get('custName') || '');
-  const customerPhone = dec(get('phone') || '');
-  const shippingName = dec(get('shipName') || '');
-  const shippingPhone = dec(get('shipPhone') || '');
-  const address1 = dec(get('addr1') || '');
-  const address2 = dec(get('addr2') || '');
-  const city = dec(get('city') || '');
-  const district = dec(get('district') || '');
-  const state = dec(get('state') || '');
-  const pincode = dec(get('pincode') || '');
-  const note = dec(get('note') || '');
-
-  // Calculate total amount - FIXED: Remove decimal places
-  const unitPrice = productPrice ? parseFloat(productPrice) : 0;
-  const qty = parseInt(quantity) || 1;
-  const totalAmount = Math.floor(unitPrice * qty); // Remove decimal places
-
-  // Populate UI - FIXED: Show only rupees without decimal
-  prodNameEl.textContent = productName;
-  
-  if (totalAmount > 0) {
-    if (qty > 1) {
-      prodPriceEl.innerHTML = `₹${totalAmount}<br><span class="text-sm text-slate-500">(${qty} × ₹${Math.floor(unitPrice)})</span>`;
+  // Initialize UI
+  function initializeUI() {
+    // Set product name
+    prodNameEl.textContent = productName;
+    
+    // Set price display
+    if (totalAmount > 0) {
+      if (qty > 1) {
+        prodPriceEl.innerHTML = `₹${totalAmount}<br><span class="text-sm text-slate-500">(${qty} × ₹${Math.floor(unitPrice)})</span>`;
+      } else {
+        prodPriceEl.textContent = `₹${totalAmount}`;
+      }
+    } else if (productPrice) {
+      prodPriceEl.textContent = productPrice;
     } else {
-      prodPriceEl.textContent = `₹${totalAmount}`;
+      prodPriceEl.textContent = 'Contact for price';
     }
-  } else if (productPrice) {
-    prodPriceEl.textContent = productPrice;
-  } else {
-    prodPriceEl.textContent = 'Contact for price';
+    
+    // Set QR code
+    qrBox.style.backgroundImage = `url('${DEFAULT_QR}')`;
+    
+    // Set address block
+    renderAddressBlock();
+    
+    // Set WhatsApp confirmation link
+    setupWhatsAppLink();
+    
+    // Set footer year
+    document.getElementById('year').textContent = new Date().getFullYear();
   }
-  
-  qrBox.style.backgroundImage = `url('${DEFAULT_QR}')`;
-  downloadQR.href = DEFAULT_QR;
 
-  // Address block
-  (function(){
+  // Render address block
+  function renderAddressBlock() {
     const parts = [];
     const displayName = shippingName || customerName;
     const displayPhone = shippingPhone || customerPhone;
@@ -189,10 +206,10 @@
     }
     
     addressBlock.innerHTML = parts.join('') || '<div class="text-slate-500 text-sm">No address provided</div>';
-  })();
+  }
 
-  // WhatsApp confirmation link - FIXED: Show only rupees without decimal
-  (function(){
+  // Setup WhatsApp confirmation link
+  function setupWhatsAppLink() {
     const parts = [];
     parts.push(`Hi, I placed an order for "${productName}"`);
     
@@ -218,18 +235,18 @@
     parts.push('Transaction screenshot attached');
     
     const message = parts.join('\n');
-    waConfirm.href = `https://wa.me/919103927064?text=${encodeURIComponent(message)}`;
-  })();
+    waConfirm.href = `https://wa.me/${WHATSAPP_NUMBER}?text=${encodeURIComponent(message)}`;
+  }
 
-  // Copy UPI ID
-  async function doCopy() {
+  // Copy UPI ID to clipboard
+  async function copyUPIId() {
     try {
       await navigator.clipboard.writeText(UPI_ID);
       copyLabel.textContent = 'Copied';
       copyTick.classList.remove('hidden');
-      toast.classList.remove('hidden');
+      showToast('Copied ✓');
+      
       setTimeout(() => {
-        toast.classList.add('hidden');
         copyLabel.textContent = 'Copy UPI ID';
         copyTick.classList.add('hidden');
       }, 1600);
@@ -237,40 +254,39 @@
       alert('Copy failed — please select and copy: ' + UPI_ID);
     }
   }
-  copyBtn.addEventListener('click', doCopy);
 
-  // Pay button - UPI payment - FIXED: Use integer amount without decimal
-  payBtn.addEventListener('click', () => {
-    const parts = [];
-    parts.push(`pa=${encodeURIComponent(UPI_ID)}`);
-    parts.push(`pn=${encodeURIComponent(PAYEE)}`);
-    parts.push(`tn=${encodeURIComponent('Order: ' + productName)}`);
-    parts.push(`cu=INR`);
+  // Show toast message
+  function showToast(message) {
+    toast.textContent = message;
+    toast.classList.remove('hidden');
+    setTimeout(() => {
+      toast.classList.add('hidden');
+    }, 1600);
+  }
+
+  // Initialize UPI payment
+  function initiateUPIPayment() {
+    const params = [
+      `pa=${encodeURIComponent(UPI_ID)}`,
+      `pn=${encodeURIComponent(PAYEE)}`,
+      `tn=${encodeURIComponent('Order: ' + productName)}`,
+      `cu=INR`
+    ];
     
     if (totalAmount > 0) {
-      parts.push(`am=${totalAmount}`); // Use integer amount without decimal
+      params.push(`am=${totalAmount}`);
     }
     
-    const upiUrl = `upi://pay?${parts.join('&')}`;
+    const upiUrl = `upi://pay?${params.join('&')}`;
     window.location.href = upiUrl;
     
+    // Show fallback message if UPI app doesn't open
     setTimeout(() => {
-      toast.textContent = 'If UPI app did not open, use the QR or copy UPI ID';
-      toast.classList.remove('hidden');
-      setTimeout(() => {
-        toast.classList.add('hidden');
-        toast.textContent = 'Copied ✓';
-      }, 3000);
+      showToast('If UPI app did not open, use the QR or copy UPI ID');
     }, 1000);
-  });
+  }
 
-  // Footer year
-  const yEl = document.getElementById('year');
-  if (yEl) yEl.textContent = new Date().getFullYear();
-})();
-</script>
-<script>
-  // Function to save order to localStorage (add this to your existing payment.html)
+  // Save order to admin dashboard
   function saveOrderToAdmin() {
     const orderData = {
       id: 'ORD' + Date.now(),
@@ -291,22 +307,28 @@
       upiId: UPI_ID
     };
 
-    // Get existing orders from localStorage
-    const existingOrders = JSON.parse(localStorage.getItem('jewelleryOrders') || '[]');
-    
-    // Add new order
-    existingOrders.unshift(orderData);
-    
-    // Save back to localStorage
-    localStorage.setItem('jewelleryOrders', JSON.stringify(existingOrders));
-    
-    console.log('Order saved to admin dashboard:', orderData);
+    try {
+      const existingOrders = JSON.parse(localStorage.getItem('jewelleryOrders') || '[]');
+      existingOrders.unshift(orderData);
+      localStorage.setItem('jewelleryOrders', JSON.stringify(existingOrders));
+      console.log('Order saved to admin dashboard:', orderData);
+    } catch (error) {
+      console.error('Failed to save order:', error);
+    }
   }
 
-  // Call this function when payment is successful (you can call it after WhatsApp confirmation)
-  // For now, we'll call it when the page loads to simulate order creation
+  // Event listeners
+  copyBtn.addEventListener('click', copyUPIId);
+  payBtn.addEventListener('click', initiateUPIPayment);
+
+  // Initialize the page
+  initializeUI();
+  
+  // Save order to admin (simulate order creation)
   // In production, call this when payment is actually confirmed
   setTimeout(saveOrderToAdmin, 1000);
+
+})();
 </script>
 </body>
 </html>
