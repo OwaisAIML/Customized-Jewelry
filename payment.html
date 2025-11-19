@@ -32,6 +32,19 @@
       box-shadow: 0 10px 30px rgba(0,0,0,0.25);
       font-size: 14px;
     }
+    .spinner {
+      border: 3px solid #f3f3f3;
+      border-top: 3px solid #e11d48;
+      border-radius: 50%;
+      width: 40px;
+      height: 40px;
+      animation: spin 1s linear infinite;
+      margin: 0 auto;
+    }
+    @keyframes spin {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
+    }
   </style>
 </head>
 <body class="min-h-screen flex items-center justify-center p-4">
@@ -73,7 +86,7 @@
         </p>
 
         <p class="mt-3 text-[11px] text-gray-500 text-center">
-          If UPI app does not open, open this page in your phone’s browser (Chrome / Safari)
+          If UPI app does not open, open this page in your phone's browser (Chrome / Safari)
           and scan the QR or use the copied UPI ID.
         </p>
       </div>
@@ -95,7 +108,7 @@
 
           <button
             id="payBtn"
-            class="mt-6 w-full bg-rose-600 hover:bg-rose-700 text-white text-sm font-semibold py-2.5 rounded-xl"
+            class="mt-6 w-full bg-rose-600 hover:bg-rose-700 text-white text-sm font-semibold py-2.5 rounded-xl transition-colors"
           >
             Pay with UPI App
           </button>
@@ -116,20 +129,31 @@
     </footer>
   </main>
 
+  <!-- Loading overlay -->
+  <div id="loadingOverlay" class="overlay">
+    <div class="overlay-card text-center">
+      <div class="spinner"></div>
+      <p class="mt-3 text-sm font-semibold">Opening UPI app...</p>
+      <p class="mt-1 text-xs text-gray-600">Please wait</p>
+    </div>
+  </div>
+
   <!-- Fallback overlay -->
   <div id="fallbackOverlay" class="overlay">
     <div class="overlay-card">
-      <h2 class="text-sm font-semibold mb-2">If your UPI app did not open</h2>
+      <h2 class="text-sm font-semibold mb-2">Manual Payment Instructions</h2>
       <ul class="list-disc list-inside text-xs text-gray-700 space-y-1">
-        <li>Make sure you opened this page in your phone’s browser (Chrome / Safari).</li>
-        <li>Scan the QR code with any UPI app, or use the copied UPI ID to pay.</li>
-        <li>Some apps / iPhones do not support direct UPI links from the browser.</li>
+        <li>Scan the QR code above with any UPI app</li>
+        <li>Or use the copied UPI ID: <b>Aroobakhan660@okicici</b></li>
+        <li>Enter amount: <b id="fallbackAmount">₹0.00</b></li>
+        <li>Complete the payment in your UPI app</li>
+        <li>Send transaction screenshot to confirm your order</li>
       </ul>
       <button
         id="fallbackClose"
-        class="mt-3 w-full bg-gray-200 hover:bg-gray-300 text-xs py-1.5 rounded-lg"
+        class="mt-3 w-full bg-gray-200 hover:bg-gray-300 text-xs py-2 rounded-lg font-semibold"
       >
-        Close
+        Got It
       </button>
     </div>
   </div>
@@ -138,6 +162,7 @@
     // ------- CONFIG -------
     const UPI_ID = "Aroobakhan660@okicici";
     const PAYEE_NAME = "Customised Jewellary";
+    const DEFAULT_QR_PATH = "images/Gpay Scanner Toyiba.jpg";
 
     // ------- DOM -------
     const upiDisplay    = document.getElementById("upiDisplay");
@@ -146,8 +171,10 @@
     const prodNameEl    = document.getElementById("prodName");
     const prodPriceEl   = document.getElementById("prodPrice");
     const amountNoteEl  = document.getElementById("amountNote");
+    const loadingOver   = document.getElementById("loadingOverlay");
     const fallbackOver  = document.getElementById("fallbackOverlay");
     const fallbackClose = document.getElementById("fallbackClose");
+    const fallbackAmt   = document.getElementById("fallbackAmount");
 
     document.getElementById("year").textContent = new Date().getFullYear();
     upiDisplay.textContent = UPI_ID;
@@ -155,12 +182,12 @@
     // ------- URL params (from previous page) -------
     const qs      = new URLSearchParams(location.search);
     const product = qs.get("product") || "Customised Order";
-    const price   = qs.get("price")   || "";   // string
+    const price   = qs.get("price")   || "";
     const qtyRaw  = qs.get("qty")     || "1";
 
     const qty   = parseInt(qtyRaw, 10) || 1;
     const num   = price ? parseFloat(price) : 0;
-    const total = num * qty;
+    const total = (num && !isNaN(num)) ? num * qty : 0;
 
     prodNameEl.textContent = product;
 
@@ -168,86 +195,189 @@
     if (total > 0) {
       amountStr = total.toFixed(2);
       prodPriceEl.textContent = "₹" + amountStr;
+      fallbackAmt.textContent = "₹" + amountStr;
       if (qty > 1) {
-        amountNoteEl.textContent = (${qty} × ₹${num.toFixed(2)});
+        amountNoteEl.textContent = `(${qty} × ₹${num.toFixed(2)})`;
+      } else {
+        amountNoteEl.textContent = "";
       }
     } else {
       prodPriceEl.textContent = "Amount not set";
       amountNoteEl.textContent = "Go back and select product again so the amount comes here.";
-      // Disable pay button if no amount
       payBtn.disabled = true;
       payBtn.classList.add("opacity-60", "cursor-not-allowed");
     }
 
-    // ------- Helpers -------
-    function isMobile() {
-      return /Android|iPhone|iPad|iPod/i.test(navigator.userAgent);
+    // ------- Device Detection -------
+    function getDeviceType() {
+      const ua = navigator.userAgent || navigator.vendor || "";
+      if (/iPad|iPhone|iPod/.test(ua) && !window.MSStream) {
+        return 'ios';
+      } else if (/android/i.test(ua)) {
+        return 'android';
+      }
+      return 'desktop';
     }
 
+    function isInAppBrowser() {
+      const ua = navigator.userAgent || navigator.vendor || "";
+      // Detect common in-app browsers
+      return /FBAN|FBAV|Instagram|Twitter|LinkedIn|WhatsApp|Snapchat/i.test(ua);
+    }
+
+    // ------- UPI URL Builder -------
     function buildUpiUrl() {
       if (!amountStr) return "";
 
-      const params = new URLSearchParams({
-        pa: UPI_ID,           // payee address
-        pn: PAYEE_NAME,       // payee name
-        am: amountStr,        // amount
-        cu: "INR",            // currency
-        tn: "Order: " + product, // note
-        tr: "ORD" + Date.now()   // transaction reference
-      });
+      // Clean UPI ID (remove spaces)
+      const cleanUpiId = UPI_ID.trim();
+      
+      // Build params manually to ensure proper encoding
+      const params = {
+        pa: cleanUpiId,
+        pn: PAYEE_NAME,
+        am: amountStr,
+        cu: "INR",
+        tn: `Order: ${product}`,
+        tr: `ORD${Date.now()}`
+      };
 
-      return "upi://pay?" + params.toString();
+      // Manually build URL with proper encoding
+      const paramStr = Object.entries(params)
+        .map(([key, val]) => `${key}=${encodeURIComponent(val)}`)
+        .join('&');
+
+      return `upi://pay?${paramStr}`;
     }
 
     // ------- Copy UPI -------
     copyBtn.addEventListener("click", () => {
       if (navigator.clipboard && navigator.clipboard.writeText) {
         navigator.clipboard.writeText(UPI_ID)
-          .then(() => alert("UPI ID copied: " + UPI_ID))
-          .catch(() => alert("Copy failed. Long-press and copy the UPI ID manually."));
+          .then(() => {
+            copyBtn.textContent = "✓ Copied!";
+            setTimeout(() => {
+              copyBtn.textContent = "Copy UPI ID";
+            }, 2000);
+          })
+          .catch(() => {
+            alert("Copy failed. Long-press and copy the UPI ID manually.");
+          });
       } else {
-        alert("Copy not supported. Long-press and copy the UPI ID manually: " + UPI_ID);
+        // Fallback for older browsers
+        const textArea = document.createElement("textarea");
+        textArea.value = UPI_ID;
+        textArea.style.position = "fixed";
+        textArea.style.opacity = "0";
+        document.body.appendChild(textArea);
+        textArea.select();
+        try {
+          document.execCommand('copy');
+          copyBtn.textContent = "✓ Copied!";
+          setTimeout(() => {
+            copyBtn.textContent = "Copy UPI ID";
+          }, 2000);
+        } catch (err) {
+          alert("Copy not supported. Long-press and copy the UPI ID manually: " + UPI_ID);
+        }
+        document.body.removeChild(textArea);
       }
     });
 
-    // ------- Pay button -------
-    payBtn.addEventListener("click", () => {
+    // ------- Pay button with optimized handling -------
+    payBtn.addEventListener("click", async () => {
       if (!amountStr) {
         alert("Amount is missing. Please go back and select the product again.");
         return;
       }
 
-      if (!isMobile()) {
-        // On desktop: just show instructions
-        fallbackOver.style.display = "flex";
-        return;
-      }
-
+      const deviceType = getDeviceType();
       const upiUrl = buildUpiUrl();
-      if (!upiUrl) {
-        alert("Something went wrong building the UPI link. Please try again.");
+
+      if (deviceType === 'desktop') {
+        // Desktop: show manual instructions
+        fallbackOver.style.display = "flex";
         return;
       }
 
-      // Single, simple redirect – most reliable across Android / iOS
-      try {
-        window.location.href = upiUrl;
-      } catch (e) {
-        // If browser refuses, show instructions
-        fallbackOver.style.display = "flex";
-      }
+      // Show loading
+      loadingOver.style.display = "flex";
 
-      // Extra safety: show fallback after a delay if nothing obvious happened
-      setTimeout(() => {
-        // On some iOS / in-app browsers, nothing happens at all
-        // User can use QR / copied UPI ID then
+      // Disable button to prevent double clicks
+      payBtn.disabled = true;
+      payBtn.classList.add("opacity-60");
+
+      try {
+        if (deviceType === 'android') {
+          // Android handling - try intent first, fallback to upi://
+          if (isInAppBrowser()) {
+            // In-app browser: use window.open with fallback
+            const popup = window.open(upiUrl, '_blank');
+            
+            setTimeout(() => {
+              loadingOver.style.display = "none";
+              if (!popup || popup.closed || typeof popup.closed === 'undefined') {
+                fallbackOver.style.display = "flex";
+              }
+              payBtn.disabled = false;
+              payBtn.classList.remove("opacity-60");
+            }, 2000);
+          } else {
+            // Native browser: direct navigation
+            window.location.href = upiUrl;
+            
+            // Show fallback after delay
+            setTimeout(() => {
+              loadingOver.style.display = "none";
+              fallbackOver.style.display = "flex";
+              payBtn.disabled = false;
+              payBtn.classList.remove("opacity-60");
+            }, 3000);
+          }
+        } else if (deviceType === 'ios') {
+          // iOS handling - more reliable with window.location
+          window.location.href = upiUrl;
+          
+          // iOS typically shows a prompt, so wait longer
+          setTimeout(() => {
+            loadingOver.style.display = "none";
+            // Check if still on page (app didn't open)
+            if (document.hasFocus()) {
+              fallbackOver.style.display = "flex";
+            }
+            payBtn.disabled = false;
+            payBtn.classList.remove("opacity-60");
+          }, 4000);
+        }
+      } catch (error) {
+        console.error("UPI redirect error:", error);
+        loadingOver.style.display = "none";
         fallbackOver.style.display = "flex";
-      }, 3000);
+        payBtn.disabled = false;
+        payBtn.classList.remove("opacity-60");
+      }
     });
 
     // ------- Fallback close -------
     fallbackClose.addEventListener("click", () => {
       fallbackOver.style.display = "none";
+    });
+
+    // ------- Handle page visibility to detect app return -------
+    document.addEventListener("visibilitychange", () => {
+      if (document.visibilityState === "visible") {
+        // User returned to page - hide loading
+        loadingOver.style.display = "none";
+        payBtn.disabled = false;
+        payBtn.classList.remove("opacity-60");
+      }
+    });
+
+    // ------- Auto-hide loading if page loses focus (app opened) -------
+    window.addEventListener("blur", () => {
+      setTimeout(() => {
+        loadingOver.style.display = "none";
+      }, 1000);
     });
   </script>
 </body>
