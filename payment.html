@@ -1,106 +1,3 @@
-<!doctype html>
-<html lang="en">
-<head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Pay — Customised Jewellary</title>
-  <meta name="description" content="Secure payment for Customised Jewellary" />
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap" rel="stylesheet">
-  <script src="https://cdn.tailwindcss.com"></script>
-  <style>
-    html { scroll-behavior: smooth; }
-    body { font-family: 'Poppins', system-ui, -apple-system, "Segoe UI", Roboto, Arial, sans-serif;
-      background: linear-gradient(180deg,#fff7f8 0%, #fbf3f6 40%); color: #0f172a; }
-    @media (prefers-color-scheme: dark) {
-      body { background: linear-gradient(180deg,#071024 0%, #071022 100%); color: #e6eef8; }
-    }
-    .card { background: color-mix(in srgb, white 92%, transparent); backdrop-filter: blur(6px); }
-    .small-note { font-size: .85rem; color: #6b7280; }
-    
-    /* Pulsing animation for important notice */
-    @keyframes pulse-glow {
-      0%, 100% { box-shadow: 0 0 0 0 rgba(34, 197, 94, 0.7); }
-      50% { box-shadow: 0 0 0 10px rgba(34, 197, 94, 0); }
-    }
-    .pulse-glow {
-      animation: pulse-glow 2s infinite;
-    }
-  </style>
-</head>
-<body class="min-h-screen flex items-center justify-center p-6">
-
-  <main class="w-full max-w-2xl rounded-2xl shadow-2xl overflow-hidden card ring-1 ring-black/5">
-    <header class="p-6 border-b border-slate-200/40 dark:border-slate-800/40 flex items-center justify-between">
-      <div>
-        <h1 class="text-xl font-bold">Complete payment</h1>
-        <p class="text-sm text-slate-500 mt-1">Secure UPI payment — Google Pay, PhonePe, Paytm or any UPI app.</p>
-      </div>
-      <a href="index.html" class="text-sm underline">Back to Shop</a>
-    </header>
-
-    <section class="p-6 grid grid-cols-1 md:grid-cols-2 gap-6 items-start">
-      <div class="flex flex-col items-center">
-        <div id="qrBox" class="w-56 h-56 rounded-xl bg-center bg-cover ring-1 ring-black/5 shadow-sm"
-             style="background-image: url('images/Gpay Scanner Toyiba.jpg')"></div>
-        <a id="downloadQR" class="mt-4 text-xs underline" href="images/Gpay Scanner Toyiba.jpg" download="Toyiba-UPI-QR.png">Download QR</a>
-
-        <div class="mt-4 w-full">
-          <button id="copyBtn" class="w-full px-4 py-2 rounded-xl bg-rose-600 text-white font-semibold hover:bg-rose-700 flex items-center justify-center gap-2">
-            <span id="copyLabel">Copy UPI ID</span>
-            <svg id="copyTick" class="hidden w-5 h-5 text-white" viewBox="0 0 24 24" fill="none"><path d="M20 6L9 17l-5-5" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
-          </button>
-        </div>
-      </div>
-
-      <div>
-        <div class="p-4 rounded-xl border border-slate-200/40 dark:border-slate-800/40 shadow-sm">
-          <div class="text-xs text-slate-500">Product</div>
-          <div id="prodName" class="font-semibold mt-1 text-lg">—</div>
-
-          <div class="mt-4 text-xs text-slate-500">Amount</div>
-          <div id="prodPrice" class="font-mono font-semibold text-2xl mt-1">—</div>
-
-          <div id="addressBlock" class="mt-4 text-sm text-slate-700"></div>
-
-          <div class="mt-6 flex gap-3">
-            <button id="payBtn" class="px-4 py-2 rounded-xl bg-rose-600 text-white font-semibold hover:bg-rose-700">Pay with Google Pay</button>
-            <a id="waConfirm" class="px-4 py-2 rounded-xl border border-slate-300 text-sm hover:bg-slate-100 self-center" href="#" target="_blank" rel="noopener">Confirm on WhatsApp</a>
-          </div>
-
-          <!-- HIGHLY VISIBLE WhatsApp screenshot instruction -->
-          <div class="mt-4 p-4 rounded-xl bg-gradient-to-r from-green-500 to-emerald-600 text-white pulse-glow">
-            <div class="flex items-center gap-3 mb-2">
-              <svg class="w-6 h-6 flex-shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                <path d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
-              </svg>
-              <span class="font-bold text-lg">IMPORTANT STEP</span>
-            </div>
-            <p class="font-semibold text-sm leading-relaxed">
-              After payment, <span class="underline">MUST send transaction screenshot</span> on WhatsApp to confirm your order
-            </p>
-            <p class="text-xs opacity-90 mt-2 flex items-center gap-1">
-              <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor">
-                <path d="M21 11.5a8.38 8.38 0 01-.9 3.8 8.5 8.5 0 01-7.6 4.7 8.38 8.38 0 01-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 01-.9-3.8 8.5 8.5 0 014.7-7.6 8.38 8.38 0 013.8-.9h.5a8.48 8.48 0 018 8v.5z"/>
-              </svg>
-              Click "Confirm on WhatsApp" button above after payment
-            </p>
-          </div>
-        </div>
-
-        <div id="note" class="mt-4 text-sm text-slate-500">If amount is empty, contact us before paying or enter exact amount in your UPI app.</div>
-      </div>
-    </section>
-
-    <footer class="p-4 text-xs text-slate-500 border-t border-slate-200/40 dark:border-slate-800/40 flex items-center justify-between">
-      <div>© <span id="year"></span> Customised Jewellary</div>
-      <div>Secure · No OTP / PIN requested by us</div>
-    </footer>
-  </main>
-
-  <div id="toast" class="fixed bottom-6 right-6 hidden px-4 py-3 rounded-lg bg-slate-900 text-white shadow-xl">Copied ✓</div>
-
 <script>
 (function(){
   // Constants
@@ -111,17 +8,9 @@
 
   // URL parameters reader
   const urlParams = new URLSearchParams(window.location.search);
-  
-  // Helper function to safely decode URL parameters
-  const decodeParam = (param) => {
-    try { 
-      return decodeURIComponent(param || ''); 
-    } catch(e){ 
-      return param || ''; 
-    }
-  };
+  const decodeParam = (param) => { try { return decodeURIComponent(param || '') } catch(e){ return param || '' } };
 
-  // Get all parameters from URL
+  // Page params
   const productName = decodeParam(urlParams.get('product')) || 'Customised order';
   const productPrice = decodeParam(urlParams.get('price')) || '';
   const quantity = decodeParam(urlParams.get('qty')) || '1';
@@ -137,12 +26,12 @@
   const pincode = decodeParam(urlParams.get('pincode')) || '';
   const note = decodeParam(urlParams.get('note')) || '';
 
-  // Calculate total amount (remove decimal places)
+  // Amount calculation
   const unitPrice = productPrice ? parseFloat(productPrice) : 0;
   const qty = parseInt(quantity) || 1;
   const totalAmount = Math.floor(unitPrice * qty);
 
-  // DOM elements
+  // DOM
   const prodNameEl = document.getElementById('prodName');
   const prodPriceEl = document.getElementById('prodPrice');
   const copyBtn = document.getElementById('copyBtn');
@@ -154,12 +43,8 @@
   const qrBox = document.getElementById('qrBox');
   const addressBlock = document.getElementById('addressBlock');
 
-  // Initialize UI
   function initializeUI() {
-    // Set product name
     prodNameEl.textContent = productName;
-    
-    // Set price display
     if (totalAmount > 0) {
       if (qty > 1) {
         prodPriceEl.innerHTML = `₹${totalAmount}<br><span class="text-sm text-slate-500">(${qty} × ₹${Math.floor(unitPrice)})</span>`;
@@ -171,81 +56,51 @@
     } else {
       prodPriceEl.textContent = 'Contact for price';
     }
-    
-    // Set QR code
     qrBox.style.backgroundImage = `url('${DEFAULT_QR}')`;
-    
-    // Set address block
     renderAddressBlock();
-    
-    // Set WhatsApp confirmation link
     setupWhatsAppLink();
-    
-    // Set footer year
     document.getElementById('year').textContent = new Date().getFullYear();
   }
 
-  // Render address block
   function renderAddressBlock() {
     const parts = [];
     const displayName = shippingName || customerName;
     const displayPhone = shippingPhone || customerPhone;
-    
-    if (displayName) {
-      parts.push(`<div><strong>Ship to:</strong> ${displayName}</div>`);
-    }
-    if (displayPhone) {
-      parts.push(`<div><strong>Phone:</strong> ${displayPhone}</div>`);
-    }
+    if (displayName) parts.push(`<div><strong>Ship to:</strong> ${displayName}</div>`);
+    if (displayPhone) parts.push(`<div><strong>Phone:</strong> ${displayPhone}</div>`);
     if (address1) parts.push(`<div>${address1}</div>`);
     if (address2) parts.push(`<div>${address2}</div>`);
-    
     const locationParts = [city, district, state, pincode].filter(Boolean);
-    if (locationParts.length > 0) {
-      parts.push(`<div>${locationParts.join(', ')}</div>`);
-    }
-    
+    if (locationParts.length > 0) parts.push(`<div>${locationParts.join(', ')}</div>`);
     addressBlock.innerHTML = parts.join('') || '<div class="text-slate-500 text-sm">No address provided</div>';
   }
 
-  // Setup WhatsApp confirmation link
   function setupWhatsAppLink() {
     const parts = [];
     parts.push(`Hi, I placed an order for "${productName}"`);
-    
     if (totalAmount > 0) {
       parts.push(`Amount: ₹${totalAmount}`);
-      if (qty > 1) {
-        parts.push(`Quantity: ${qty}`);
-      }
+      if (qty > 1) parts.push(`Quantity: ${qty}`);
     }
-    
     const displayName = shippingName || customerName;
     const displayPhone = shippingPhone || customerPhone;
-    
     if (displayName) parts.push(`Name: ${displayName}`);
     if (displayPhone) parts.push(`Phone: ${displayPhone}`);
-    
     const addressParts = [address1, address2, city, district, state, pincode].filter(Boolean);
-    if (addressParts.length > 0) {
-      parts.push(`Address: ${addressParts.join(', ')}`);
-    }
-    
+    if (addressParts.length > 0) parts.push(`Address: ${addressParts.join(', ')}`);
     if (note) parts.push(`Customization: ${note}`);
     parts.push('Transaction screenshot attached');
-    
     const message = parts.join('\n');
     waConfirm.href = `https://wa.me/${WHATSAPP_NUMBER}?text=${encodeURIComponent(message)}`;
   }
 
-  // Copy UPI ID to clipboard
+  // Copy UPI
   async function copyUPIId() {
     try {
       await navigator.clipboard.writeText(UPI_ID);
       copyLabel.textContent = 'Copied';
       copyTick.classList.remove('hidden');
       showToast('Copied ✓');
-      
       setTimeout(() => {
         copyLabel.textContent = 'Copy UPI ID';
         copyTick.classList.add('hidden');
@@ -255,38 +110,70 @@
     }
   }
 
-  // Show toast message
   function showToast(message) {
     toast.textContent = message;
     toast.classList.remove('hidden');
-    setTimeout(() => {
-      toast.classList.add('hidden');
-    }, 1600);
+    setTimeout(() => { toast.classList.add('hidden'); }, 2000);
   }
 
-  // Initialize UPI payment
-  function initiateUPIPayment() {
+  // Detect platform
+  function isAndroid() {
+    return /Android/i.test(navigator.userAgent);
+  }
+  function isIOS() {
+    return /iPhone|iPad|iPod/i.test(navigator.userAgent);
+  }
+
+  // Build UPI params and URL
+  function buildUPIUrl() {
     const params = [
       `pa=${encodeURIComponent(UPI_ID)}`,
       `pn=${encodeURIComponent(PAYEE)}`,
       `tn=${encodeURIComponent('Order: ' + productName)}`,
       `cu=INR`
     ];
-    
-    if (totalAmount > 0) {
-      params.push(`am=${totalAmount}`);
-    }
-    
-    const upiUrl = `upi://pay?${params.join('&')}`;
-    window.location.href = upiUrl;
-    
-    // Show fallback message if UPI app doesn't open
-    setTimeout(() => {
-      showToast('If UPI app did not open, use the QR or copy UPI ID');
-    }, 1000);
+    if (totalAmount > 0) params.push(`am=${totalAmount}`);
+    return `upi://pay?${params.join('&')}`;
   }
 
-  // Save order to admin dashboard
+  // Initiate payment with platform-aware deep link
+  function initiateUPIPayment(e) {
+    // Optional: save order to admin before redirect (keeps local copy)
+    saveOrderToAdmin();
+
+    const upiUrl = buildUPIUrl();
+
+    try {
+      if (isAndroid()) {
+        // Use Android intent URI — this strongly prefers Google Pay app (package specified).
+        // If Google Pay isn't installed, Android will show an "Open with" chooser or fallback.
+        const intentUri = `intent://upi/pay?${new URLSearchParams(upiUrl.split('?')[1]).toString()}#Intent;package=com.google.android.apps.nbu.paisa.user;scheme=upi;end`;
+        // Use location change to trigger intent
+        window.location.href = intentUri;
+
+        // After attempting to open, if nothing happens show fallback guidance
+        setTimeout(() => {
+          showToast('If Google Pay did not open, use the QR or Copy UPI ID to pay.');
+        }, 1200);
+      } else if (isIOS()) {
+        // On iOS: try the UPI URL directly. Many UPI apps on iOS register the upi:// scheme.
+        // If it fails (no handler) we show fallback guidance (can't reliably detect failure).
+        window.location.href = upiUrl;
+
+        setTimeout(() => {
+          showToast('If your UPI app did not open, please scan the QR or copy the UPI ID to pay.');
+        }, 1200);
+      } else {
+        // Desktop / unknown: open QR/copy fallback and a small message
+        showToast('Open a UPI app on your phone and scan the QR or copy the UPI ID.');
+      }
+    } catch (err) {
+      console.error('Payment redirect failed:', err);
+      showToast('Could not open payment app. Use QR or copy UPI ID.');
+    }
+  }
+
+  // Save order to local admin (simulate)
   function saveOrderToAdmin() {
     const orderData = {
       id: 'ORD' + Date.now(),
@@ -306,7 +193,6 @@
       timestamp: new Date().toISOString(),
       upiId: UPI_ID
     };
-
     try {
       const existingOrders = JSON.parse(localStorage.getItem('jewelleryOrders') || '[]');
       existingOrders.unshift(orderData);
@@ -321,14 +207,11 @@
   copyBtn.addEventListener('click', copyUPIId);
   payBtn.addEventListener('click', initiateUPIPayment);
 
-  // Initialize the page
+  // Initialize page
   initializeUI();
-  
-  // Save order to admin (simulate order creation)
-  // In production, call this when payment is actually confirmed
+
+  // Save order to admin (simulate order creation). In production, save after payment confirmation.
   setTimeout(saveOrderToAdmin, 1000);
 
 })();
 </script>
-</body>
-</html>
