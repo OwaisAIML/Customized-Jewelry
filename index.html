@@ -19,6 +19,8 @@
     @media (prefers-color-scheme: dark) {
       body { background: linear-gradient(180deg,#071024 0%, #071022 100%); }
     }
+<button id="buyNow">Buy Now</button>
+
 
     /* Floating header & footer helpers */
     .float-panel {
@@ -445,5 +447,33 @@
       });
     });
   </script>
+<script>
+// Your backend URL
+const BACKEND = "https://upi-checkout-backend.onrender.com";
+
+// When Buy Now is clicked
+document.getElementById('buyNow').addEventListener('click', async () => {
+  try {
+    // productId must match your backend product list
+    const payload = { productId: "ring-001", qty: 1 };
+
+    const res = await fetch(BACKEND + "/create-order", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(payload)
+    });
+
+    const j = await res.json();
+    if (!res.ok) throw new Error(j.error || "Order creation failed");
+
+    // Redirect to checkout
+    window.location.href = `${BACKEND}/checkout.html?orderId=${j.orderId}`;
+
+  } catch (err) {
+    alert("Error: " + err.message);
+  }
+});
+</script>
+
 </body>
 </html>
