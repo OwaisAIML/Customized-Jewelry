@@ -225,4 +225,35 @@
 </script>
 
 </body>
+<!-- BUY BUTTON (insert just before </body>) -->
+<button id="buyNow">Buy Now</button>
+
+<script>
+const BACKEND = "https://upi-checkout-backend.onrender.com";
+
+// If your page already has a Buy/Add button, set its id to 'buyNow' or change selector below.
+document.getElementById('buyNow').addEventListener('click', async () => {
+  try {
+    // Change productId to match the real product you want to sell (ring-001, necklace-001, etc.)
+    const payload = { productId: "ring-001", qty: 1 };
+
+    const res = await fetch(BACKEND + "/create-order", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(payload)
+    });
+
+    const j = await res.json();
+    if (!res.ok) throw new Error(j.error || "Order creation failed");
+
+    // Redirect the user to the backend-hosted checkout page
+    window.location.href = `${BACKEND}/checkout.html?orderId=${encodeURIComponent(j.orderId)}`;
+
+  } catch (err) {
+    alert("Error: " + err.message);
+  }
+});
+</script>
+<!-- end buy snippet -->
+
 </html>
