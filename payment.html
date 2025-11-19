@@ -1,208 +1,328 @@
 <!doctype html>
 <html lang="en">
 <head>
-<meta charset="utf-8" />
-<meta name="viewport" content="width=device-width,initial-scale=1" />
-<title>Payment — Customised Jewellary</title>
-<meta name="description" content="Pay to Aroobakhan660@okicici via UPI" />
-<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
-<script src="https://cdn.tailwindcss.com"></script>
-<style>
-  :root{--muted:#6b7280;--accent:#ef4444}
-  body{font-family:'Poppins',system-ui,-apple-system,"Segoe UI",Roboto,Arial; background:linear-gradient(180deg,#fff7f8,#fbf3f6); color:#0f172a; min-height:100vh;}
-  .card{background:color-mix(in srgb,white 94%,transparent);backdrop-filter:blur(6px);border-radius:16px;box-shadow:0 8px 30px rgba(2,6,23,.08);padding:18px;}
-  .btn{display:inline-flex;align-items:center;justify-content:center;gap:.5rem;padding:.75rem 1rem;border-radius:12px;border:0;font-weight:600;cursor:pointer}
-  .btn-primary{background:var(--accent);color:white}
-  .btn-outline{background:white;border:1px solid #e6e6e9;color:#111}
-  .chooser-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:.5rem}
-  .small{font-size:.85rem;color:var(--muted)}
-  .debug{position:fixed;left:12px;bottom:12px;background:rgba(255,255,255,.9);padding:8px 10px;border-radius:8px;box-shadow:0 6px 18px rgba(2,6,23,.08);font-size:12px;max-width:calc(100% - 48px);word-break:break-word}
-  /* modal */
-  .modal-backdrop{position:fixed;inset:0;display:none;align-items:center;justify-content:center;background:rgba(2,6,23,.45);z-index:60}
-  .modal{width:92%;max-width:520px;background:white;border-radius:12px;padding:16px;box-shadow:0 18px 60px rgba(2,6,23,.25)}
-  @media (prefers-color-scheme:dark){ body{background:linear-gradient(180deg,#071024,#071022);color:#e6eef8} .card{background:rgba(3,7,18,.72);border:1px solid rgba(255,255,255,.03)} .modal{background:#071022;color:#e6eef8} .btn-outline{background:transparent;border:1px solid rgba(255,255,255,.06)} .debug{background:rgba(6,10,20,.8);color:#e6eef8} }
-</style>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Pay — Customised Jewellary</title>
+  <meta name="description" content="Secure payment for Customised Jewellary" />
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap" rel="stylesheet">
+  <script src="https://cdn.tailwindcss.com"></script>
+  <style>
+    html { scroll-behavior: smooth; }
+    body { font-family: 'Poppins', system-ui, -apple-system, "Segoe UI", Roboto, Arial, sans-serif;
+      background: linear-gradient(180deg,#fff7f8 0%, #fbf3f6 40%); color: #0f172a; }
+    @media (prefers-color-scheme: dark) {
+      body { background: linear-gradient(180deg,#071024 0%, #071022 100%); color: #e6eef8; }
+    }
+    .card { background: color-mix(in srgb, white 92%, transparent); backdrop-filter: blur(6px); }
+    .small-note { font-size: .85rem; color: #6b7280; }
+    @keyframes pulse-glow {
+      0%, 100% { box-shadow: 0 0 0 0 rgba(34, 197, 94, 0.7); }
+      50% { box-shadow: 0 0 0 10px rgba(34, 197, 94, 0); }
+    }
+    .pulse-glow { animation: pulse-glow 2s infinite; }
+
+    .fallback-modal { position: fixed; inset: 0; display: none; align-items: center; justify-content: center; background: rgba(2,6,23,0.5); z-index: 60; }
+    .fallback-card { width: 92%; max-width: 420px; background: #fff; padding: 1.25rem; border-radius: 12px; box-shadow: 0 8px 30px rgba(2,6,23,0.3); }
+    @media (prefers-color-scheme: dark) {
+      .fallback-card { background: #071022; color: #e6eef8; }
+    }
+
+    .debug { position: fixed; left: 8px; bottom: 8px; font-size: 11px; color: #666; }
+
+    /* chooser modal */
+    .chooser-modal { position: fixed; inset: 0; display: none; align-items: center; justify-content: center; background: rgba(2,6,23,0.45); z-index: 70; }
+    .chooser-card { width: 92%; max-width: 480px; background: #fff; padding: 1.25rem; border-radius: 12px; box-shadow: 0 12px 40px rgba(2,6,23,0.35); }
+    .chooser-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 0.75rem; margin-top: 1rem; }
+    .app-btn { display:flex; align-items:center; justify-content:center; gap:0.5rem; padding:0.75rem; border-radius:10px; cursor:pointer; border:1px solid #e5e7eb; background:#fff; }
+    .app-btn:active { transform: translateY(1px); }
+    @media (prefers-color-scheme: dark) {
+      .chooser-card { background: #071022; color: #e6eef8; border: 1px solid rgba(255,255,255,0.03); }
+      .app-btn { border-color: rgba(255,255,255,0.06); background: rgba(255,255,255,0.02); }
+    }
+  </style>
 </head>
-<body class="flex items-center justify-center p-6">
-  <main class="w-full max-w-3xl">
-    <div class="card">
-      <div class="flex items-start justify-between">
-        <div>
-          <h1 class="text-2xl font-semibold">Complete payment</h1>
-          <p class="small mt-1">Secure UPI payment — Google Pay, PhonePe, Paytm or any UPI app.</p>
+<body class="min-h-screen flex items-center justify-center p-6">
+
+  <main class="w-full max-w-2xl rounded-2xl shadow-2xl overflow-hidden card ring-1 ring-black/5">
+    <header class="p-6 border-b border-slate-200/40 dark:border-slate-800/40 flex items-center justify-between">
+      <div>
+        <h1 class="text-xl font-bold">Complete payment</h1>
+        <p class="text-sm text-slate-500 mt-1">Secure UPI payment — Google Pay, PhonePe, Paytm or any UPI app.</p>
+      </div>
+      <a href="index.html" class="text-sm underline">Back to Shop</a>
+    </header>
+
+    <section class="p-6 grid grid-cols-1 md:grid-cols-2 gap-6 items-start">
+      <div class="flex flex-col items-center">
+        <div id="qrBox" class="w-56 h-56 rounded-xl bg-center bg-cover ring-1 ring-black/5 shadow-sm"
+             style="background-image: url('images/Gpay Scanner Toyiba.jpg')"></div>
+        <a id="downloadQR" class="mt-4 text-xs underline" href="images/Gpay Scanner Toyiba.jpg" download="Toyiba-UPI-QR.png">Download QR</a>
+
+        <div class="mt-4 w-full">
+          <button id="copyBtn" class="w-full px-4 py-2 rounded-xl bg-rose-600 text-white font-semibold hover:bg-rose-700 flex items-center justify-center gap-2">
+            <span id="copyLabel">Copy UPI ID</span>
+            <svg id="copyTick" class="hidden w-5 h-5 text-white" viewBox="0 0 24 24" fill="none"><path d="M20 6L9 17l-5-5" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          </button>
         </div>
-        <div class="small">© <span id="year"></span> Customised Jewellary</div>
+
+        <div class="mt-3 text-xs text-slate-600 text-center">
+          <div>UPI ID: <strong id="upiDisplay" class="text-sm">Aroobakhan660@okicici</strong></div>
+        </div>
       </div>
 
-      <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mt-6 items-start">
-        <!-- left: QR / copy -->
-        <div class="flex flex-col items-center">
-          <div id="qr" class="w-56 h-56 rounded-xl ring-1 ring-black/5 shadow-sm bg-center bg-cover" style="background-image:url('images/Gpay Scanner Toyiba.jpg')"></div>
-          <a id="downloadQR" class="small mt-3 underline" href="images/Gpay Scanner Toyiba.jpg" download="Toyiba-UPI-QR.png">Download QR</a>
+      <div>
+        <div class="p-4 rounded-xl border border-slate-200/40 dark:border-slate-800/40 shadow-sm">
+          <div class="text-xs text-slate-500">Product</div>
+          <div id="prodName" class="font-semibold mt-1 text-lg">—</div>
 
-          <div class="w-full mt-4">
-            <button id="copyBtn" class="btn btn-primary w-full">Copy UPI ID</button>
-            <div class="small text-center mt-2">UPI ID: <strong id="upiDisplay">Aroobakhan660@okicici</strong></div>
+          <div class="mt-4 text-xs text-slate-500">Amount</div>
+          <div id="prodPrice" class="font-mono font-semibold text-2xl mt-1">—</div>
+
+          <div id="addressBlock" class="mt-4 text-sm text-slate-700"></div>
+
+          <div class="mt-4 grid grid-cols-1 gap-3">
+            <button id="payBtn" class="w-full px-4 py-2 rounded-xl bg-rose-600 text-white font-semibold hover:bg-rose-700">Pay with UPI app</button>
+          </div>
+
+          <div class="mt-4 p-4 rounded-xl bg-gradient-to-r from-green-500 to-emerald-600 text-white pulse-glow">
+            <div class="flex items-center gap-3 mb-2">
+              <svg class="w-6 h-6 flex-shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
+              </svg>
+              <span class="font-bold text-lg">IMPORTANT STEP</span>
+            </div>
+            <p class="font-semibold text-sm leading-relaxed">
+              After payment, <span class="underline">MUST send transaction screenshot</span> to confirm your order.
+            </p>
+            <p class="text-xs opacity-90 mt-2 flex items-center gap-1">
+              <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                <path d="M21 11.5a8.38 8.38 0 01-.9 3.8 8.5 8.5 0 01-7.6 4.7 8.38 8.38 0 01-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 01-.9-3.8 8.5 8.5 0 014.7-7.6 8.38 8.38 0 013.8-.9h.5a8.48 8.48 0 018 8v.5z"/>
+              </svg>
+              Use the "Download QR" above or the chooser to open your preferred UPI app.
+            </p>
           </div>
         </div>
 
-        <!-- right: details and pay -->
-        <div>
-          <div class="p-4 rounded-xl border border-slate-200/40">
-            <div class="small">Product</div>
-            <div id="prodName" class="font-semibold mt-1 text-lg">Customised order</div>
-
-            <div class="mt-4 small">Amount</div>
-            <div id="prodPrice" class="font-mono font-semibold text-2xl mt-1">—</div>
-
-            <div id="addressBlock" class="mt-4 small text-slate-700"></div>
-
-            <div class="mt-4 grid gap-3">
-              <button id="payBtn" class="btn btn-primary">Pay with UPI app</button>
-              <button id="openChooser" class="btn btn-outline">Choose app (GPay / PhonePe / Paytm)</button>
-            </div>
-
-            <div class="mt-4 p-3 rounded-lg bg-gradient-to-r from-green-500 to-emerald-600 text-white">
-              <div class="font-semibold">IMPORTANT</div>
-              <div class="small mt-1">After payment, <strong>please upload or send the transaction screenshot</strong> to confirm your order.</div>
-            </div>
-          </div>
-
-          <div id="note" class="small text-slate-500 mt-3">If the amount is empty, either set the amount or contact us. Amount is sent to UPI apps as two-decimal INR (e.g. 250.00).</div>
-        </div>
+        <div id="note" class="mt-4 text-sm text-slate-500">If amount is empty, contact us before paying or enter exact amount in your UPI app.</div>
       </div>
-    </div>
+    </section>
+
+    <footer class="p-4 text-xs text-slate-500 border-t border-slate-200/40 dark:border-slate-800/40 flex items-center justify-between">
+      <div>© <span id="year"></span> Customised Jewellary</div>
+      <div>Secure · No OTP / PIN requested by us</div>
+    </footer>
   </main>
 
-  <!-- chooser modal -->
-  <div id="chooserModal" class="modal-backdrop" aria-hidden="true">
-    <div class="modal">
+  <div id="toast" class="fixed bottom-6 right-6 hidden px-4 py-3 rounded-lg bg-slate-900 text-white shadow-xl">Copied ✓</div>
+
+  <!-- fallback modal -->
+  <div id="fallbackModal" class="fallback-modal" role="dialog" aria-modal="true">
+    <div class="fallback-card">
+      <h3 class="text-lg font-semibold mb-2">Open UPI app to pay</h3>
+      <p class="text-sm mb-4">We couldn't open a UPI app. You can scan the QR code or copy the UPI ID and pay from your phone's UPI app.</p>
+      <div class="flex gap-2 justify-end">
+        <button id="fallbackClose" class="px-3 py-2 rounded bg-slate-200 hover:bg-slate-300">Close</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- CHOOSER MODAL -->
+  <div id="appChooser" class="chooser-modal" role="dialog" aria-modal="true" aria-hidden="true">
+    <div class="chooser-card">
       <div class="flex items-center justify-between">
         <div>
           <h3 class="text-lg font-semibold">Open with</h3>
-          <p class="small mt-1">Select an app to open the payment screen pre-filled with the UPI ID and amount.</p>
+          <p class="text-sm text-slate-500 mt-1">Choose your preferred UPI app to pay.</p>
         </div>
-        <button id="chooserClose" class="small underline">Close</button>
+        <button id="chooserClose" class="text-sm underline">Close</button>
       </div>
 
-      <div class="chooser-grid mt-4">
-        <button class="app-btn" id="chooseGpay">Google Pay</button>
-        <button class="app-btn" id="choosePhonePe">PhonePe</button>
-        <button class="app-btn" id="choosePaytm">Paytm</button>
+      <div class="chooser-grid" role="list" aria-label="UPI Apps">
+        <button class="app-btn" data-app="gpay" id="btnGPay" role="listitem">
+          <img src="https://upload.wikimedia.org/wikipedia/commons/5/5a/Google_Pay_%28GPay%29_Logo.svg" alt="GPay" style="width:28px;height:20px;object-fit:contain;">
+          <div class="text-xs">Google Pay</div>
+        </button>
+        <button class="app-btn" data-app="phonepe" id="btnPhonePe" role="listitem">
+          <img src="https://download.logo.wine/logo/PhonePe/PhonePe-Logo.wine.png" alt="PhonePe" style="width:28px;height:20px;object-fit:contain;">
+          <div class="text-xs">PhonePe</div>
+        </button>
+        <button class="app-btn" data-app="paytm" id="btnPaytm" role="listitem">
+          <img src="https://upload.wikimedia.org/wikipedia/commons/3/3a/Paytm_logo.png" alt="Paytm" style="width:28px;height:20px;object-fit:contain;">
+          <div class="text-xs">Paytm</div>
+        </button>
+        <button class="app-btn" data-app="other" id="btnOther" style="grid-column: span 3; justify-content: center;">
+          <div class="text-xs">Other / Scan QR</div>
+        </button>
       </div>
 
-      <div class="small mt-3">If the chosen app cannot be opened we'll detect that and notify you precisely.</div>
+      <p class="text-xs text-slate-500 mt-3">If the app doesn't open we will try a generic intent or show the QR/fallback.</p>
     </div>
   </div>
 
-  <!-- fallback modal -->
-  <div id="fallbackModal" class="modal-backdrop" aria-hidden="true">
-    <div class="modal">
-      <h3 class="text-lg font-semibold">Open UPI app to pay</h3>
-      <p class="small mt-2">We couldn't open the UPI app. You can scan the QR, copy the UPI ID and pay from your phone, or install the selected UPI app.</p>
-      <div class="mt-4 flex justify-end"><button id="fallbackClose" class="btn btn-outline">Close</button></div>
-    </div>
-  </div>
-
-  <div id="debugLog" class="debug">debug: ready</div>
+  <div class="debug" id="debugLog">debug: ready</div>
 
 <script>
-/*
-  payments.html
-  - UPI ID: Aroobakhan660@okicici
-  - Robust attempt sequence for Android (intent variants) and iOS (scheme variants)
-  - Detects failure using visibilitychange fallback
-  - Prints debug output for each attempt
-*/
-
 (function () {
-  // CONFIG
-  const UPI_ID = 'Aroobakhan660@okicici';
-  const PAYEE = 'Customised Jewellary';
+  // ------- CONFIG -------
+  const UPI_ID = "Aroobakhan660@okicici";
+  const PAYEE = "Customised Jewellary";
+  const DEFAULT_QR = "images/Gpay Scanner Toyiba.jpg";
 
-  // Android packages
+  // Android package names
   const PACKAGES = {
     gpay: 'com.google.android.apps.nbu.paisa.user',
     phonepe: 'com.phonepe.app',
     paytm: 'net.one97.paytm'
   };
 
-  // iOS scheme variants (expanded)
+  // iOS app schemes (variants) — keep trying variants
   const IOS_SCHEMES = {
-    gpay: ['gpay://pay?', 'gpay://upi/pay?', 'tez://upi/pay?', 'googlepay://upi/pay?'],
-    phonepe: ['phonepe://pay?', 'phonepe://upi/pay?', 'phonepe://pay?'],
-    paytm: ['paytmmp://pay?', 'paytm://pay?', 'paytmmp://wallet?']
+    gpay: ['gpay://upi/pay?', 'tez://upi/pay?', 'gpay://pay?'],
+    phonepe: ['phonepe://upi/pay?','phonepe://pay?'],
+    paytm: ['paytmmp://pay?','paytm://pay?']
   };
 
-  // friendly labels
-  const APP_LABEL = { gpay: 'Google Pay', phonepe: 'PhonePe', paytm: 'Paytm' };
+  const APP_LABELS = { gpay: 'Google Pay', phonepe: 'PhonePe', paytm: 'Paytm', other: 'UPI app' };
 
-  // Helpers / DOM
-  const isAndroid = () => /Android/i.test(navigator.userAgent);
-  const isIOS = () => /iPhone|iPad|iPod/i.test(navigator.userAgent);
-
-  const el = {
-    upiDisplay: document.getElementById('upiDisplay'),
-    copyBtn: document.getElementById('copyBtn'),
-    payBtn: document.getElementById('payBtn'),
-    openChooser: document.getElementById('openChooser'),
-    chooserModal: document.getElementById('chooserModal'),
-    chooserClose: document.getElementById('chooserClose'),
-    chooseGpay: document.getElementById('chooseGpay'),
-    choosePhonePe: document.getElementById('choosePhonePe'),
-    choosePaytm: document.getElementById('choosePaytm'),
-    fallbackModal: document.getElementById('fallbackModal'),
-    fallbackClose: document.getElementById('fallbackClose'),
-    debug: document.getElementById('debugLog'),
-    prodName: document.getElementById('prodName'),
-    prodPrice: document.getElementById('prodPrice'),
-    year: document.getElementById('year')
-  };
-
-  // Order data (you can pass price via ?price= or leave empty)
+  // ------- HELPERS -------
   const qs = new URLSearchParams(window.location.search);
-  const productName = qs.get('product') || 'Customised order';
-  const unitPrice = parseFloat(qs.get('price') || '0') || 0;
-  const qty = parseInt(qs.get('qty') || '1', 10) || 1;
-  // amount must be two-decimal string for many UPI apps
-  const amountNumber = +(unitPrice * qty) || 0;
-  const amountStr = amountNumber > 0 ? amountNumber.toFixed(2) : '';
+  const safe = (v) => { try { return decodeURIComponent(v || '') } catch (e) { return v || '' } };
 
-  // Utility: update debug text (and console)
-  function debug(msg) { console.log('[payments]', msg); el.debug.textContent = 'debug: ' + msg; }
+  const productName = safe(qs.get('product')) || 'Customised order';
+  const productPrice = safe(qs.get('price')) || '';
+  const quantity = safe(qs.get('qty')) || '1';
+  const customerName = safe(qs.get('custName')) || '';
+  const shippingName = safe(qs.get('shipName')) || '';
+  const address1 = safe(qs.get('addr1')) || '';
+  const address2 = safe(qs.get('addr2')) || '';
+  const city = safe(qs.get('city')) || '';
+  const district = safe(qs.get('district')) || '';
+  const state = safe(qs.get('state')) || '';
+  const pincode = safe(qs.get('pincode')) || '';
+  const note = safe(qs.get('note')) || '';
 
-  // Build UPI query string (am optional)
-  function buildQuery(am) {
+  const unitPrice = productPrice ? parseFloat(productPrice) : 0;
+  const qty = parseInt(quantity, 10) || 1;
+  // Use precise amount (not floored) and format to 2 decimals
+  const totalAmountNumber = (unitPrice * qty) || 0;
+  const totalAmountStr = totalAmountNumber > 0 ? totalAmountNumber.toFixed(2) : '';
+
+  // DOM
+  const prodNameEl = document.getElementById('prodName');
+  const prodPriceEl = document.getElementById('prodPrice');
+  const copyBtn = document.getElementById('copyBtn');
+  const copyLabel = document.getElementById('copyLabel');
+  const copyTick = document.getElementById('copyTick');
+  const payBtn = document.getElementById('payBtn');
+  const toast = document.getElementById('toast');
+  const qrBox = document.getElementById('qrBox');
+  const addressBlock = document.getElementById('addressBlock');
+  const fallbackModal = document.getElementById('fallbackModal');
+  const fallbackClose = document.getElementById('fallbackClose');
+  const upiDisplay = document.getElementById('upiDisplay');
+  const debugLog = document.getElementById('debugLog');
+
+  const appChooser = document.getElementById('appChooser');
+  const chooserClose = document.getElementById('chooserClose');
+  const btnGPay = document.getElementById('btnGPay');
+  const btnPhonePe = document.getElementById('btnPhonePe');
+  const btnPaytm = document.getElementById('btnPaytm');
+  const btnOther = document.getElementById('btnOther');
+
+  function logDebug(s) { console.log('[payments]', s); debugLog.textContent = 'debug: ' + s; }
+  function isAndroid() { return /Android/i.test(navigator.userAgent); }
+  function isIOS() { return /iPhone|iPad|iPod/i.test(navigator.userAgent); }
+
+  function showToast(msg) {
+    toast.textContent = msg;
+    toast.classList.remove('hidden');
+    setTimeout(() => toast.classList.add('hidden'), 2200);
+  }
+  function showFallback() { fallbackModal.style.display = 'flex'; }
+  function hideFallback() { fallbackModal.style.display = 'none'; }
+  fallbackClose.addEventListener('click', hideFallback);
+
+  function showAppNotInstalled(appKey) {
+    const name = APP_LABELS[appKey] || 'UPI app';
+    showToast(`${name} might not be installed or could not be opened on this device.`);
+  }
+
+  // Build UPI query with two-decimal amount + transaction ref
+  function buildQuery(amountStr) {
     const p = new URLSearchParams();
     p.set('pa', UPI_ID);
     p.set('pn', PAYEE);
-    p.set('tn', `Order: ${productName}`);
+    p.set('tn', 'Order: ' + productName);
     p.set('cu', 'INR');
-    if (am) p.set('am', am);
-    p.set('tr', 'ORD' + Date.now()); // transaction ref
+    if (amountStr) p.set('am', amountStr);
+    // add a transaction ref id (useful for tracing)
+    p.set('tr', 'ORD' + Date.now());
     return p.toString();
   }
 
-  // UPI generic scheme
-  function upiSchemeUrl(am) { return 'upi://pay?' + buildQuery(am); }
+  function buildUpiUrl() { return 'upi://pay?' + buildQuery(totalAmountStr); }
 
-  // Android intent builder (variants)
-  function androidIntent(pkg, pathVariant, am) {
-    // pathVariant: 'pay' or 'upi/pay'
-    const base = buildQuery(am);
-    return `intent://${pathVariant}?${base}#Intent;scheme=upi;${pkg ? ('package=' + pkg + ';') : ''}end`;
+  // Build intent variants: variantType = 'pay' or 'upi/pay'
+  function buildIntentUriWithPackage(pkg, variant = 'pay') {
+    const base = buildQuery(totalAmountStr);
+    let path = (variant === 'upi/pay') ? 'upi/pay' : 'pay';
+    let intentUri = `intent://${path}?${base}#Intent;scheme=upi;`;
+    if (pkg) intentUri += `package=${pkg};`;
+    intentUri += 'end';
+    return intentUri;
   }
 
-  // iOS scheme variants builder for appKey
-  function iosVariantUrls(appKey, am) {
-    const base = buildQuery(am);
-    const variants = IOS_SCHEMES[appKey] || [];
-    return variants.map(pref => pref + base);
+  // Save snapshot locally
+  function saveOrderToAdmin() {
+    try {
+      const order = {
+        id: 'ORD' + Date.now(),
+        product: productName,
+        amount: totalAmountStr,
+        quantity: qty,
+        customerName: shippingName || customerName,
+        address1, address2, city, district, state, pincode,
+        customization: note,
+        status: 'pending',
+        timestamp: new Date().toISOString(),
+        upiId: UPI_ID
+      };
+      const arr = JSON.parse(localStorage.getItem('jewelleryOrders') || '[]');
+      arr.unshift(order);
+      localStorage.setItem('jewelleryOrders', JSON.stringify(arr));
+      logDebug('saved order snapshot');
+    } catch (e) { console.warn('save snapshot failed', e); }
   }
 
-  // Visibility-based attempt (navigate & wait for visibilitychange)
-  function attemptOpen(uri, timeout = 1600) {
-    debug(`attempting → ${uri}`);
+  // copy
+  async function copyUPIId() {
+    try {
+      await navigator.clipboard.writeText(UPI_ID);
+      copyLabel.textContent = 'Copied';
+      copyTick.classList.remove('hidden');
+      showToast('UPI ID copied ✓');
+      setTimeout(() => { copyLabel.textContent = 'Copy UPI ID'; copyTick.classList.add('hidden'); }, 1400);
+    } catch (e) {
+      alert('Copy failed — please select and copy: ' + UPI_ID);
+    }
+  }
+
+  // UI functions for chooser
+  function openChooser() {
+    appChooser.style.display = 'flex';
+    appChooser.setAttribute('aria-hidden', 'false');
+  }
+  function closeChooser() {
+    appChooser.style.display = 'none';
+    appChooser.setAttribute('aria-hidden', 'true');
+  }
+  chooserClose.addEventListener('click', closeChooser);
+
+  // Attempt to open a URI and detect if user left the page.
+  function attemptOpen(uri, timeout = 1200) {
     return new Promise((resolve) => {
       let done = false;
       const onVis = () => {
@@ -216,10 +336,10 @@
         if (timer) clearTimeout(timer);
       }
       try {
-        // use assign for compatibility
+        // use assign for better compatibility than href in some browsers
         window.location.assign(uri);
       } catch (e) {
-        console.warn(e);
+        console.warn('navigation error', e);
       }
       document.addEventListener('visibilitychange', onVis, { once: true });
       const timer = setTimeout(() => {
@@ -231,137 +351,177 @@
     });
   }
 
-  // Show chooser modal
-  function openChooser() {
-    el.chooserModal.style.display = 'flex';
-    el.chooserModal.setAttribute('aria-hidden', 'false');
-  }
-  function closeChooser() {
-    el.chooserModal.style.display = 'none';
-    el.chooserModal.setAttribute('aria-hidden', 'true');
+  // Build iOS deep-link variants
+  function iosDeepLinkFor(appKey) {
+    const baseQuery = buildQuery(totalAmountStr);
+    const variants = IOS_SCHEMES[appKey] || [];
+    return variants.map(pref => pref + baseQuery);
   }
 
-  // Show fallback
-  function showFallback() {
-    el.fallbackModal.style.display = 'flex';
-    el.fallbackModal.setAttribute('aria-hidden', 'false');
-  }
-  function hideFallback() {
-    el.fallbackModal.style.display = 'none';
-    el.fallbackModal.setAttribute('aria-hidden', 'true');
-  }
+  // Primary flow when user chooses an app
+  async function openSelectedApp(appKey) {
+    saveOrderToAdmin();
+    logDebug('openSelectedApp: ' + appKey + ' platform: ' + (isAndroid() ? 'android' : isIOS() ? 'ios' : 'other'));
 
-  // Show app-not-installed alert for specific app (best-effort)
-  function showAppMissing(appKey) {
-    const label = APP_LABEL[appKey] || 'UPI app';
-    alert(`${label} couldn't be opened — it may not be installed or it rejected the deep link. Please install ${label} or use the QR / copy UPI ID.`);
-  }
-
-  // Main open flow per app
-  async function openApp(appKey) {
-    closeChooser();
-    debug(`openApp(${appKey}) starting — platform: ${isAndroid() ? 'android' : isIOS() ? 'ios' : 'desktop'}`);
-
-    // Save local snapshot: useful for admin / debugging (localStorage)
-    try {
-      const orders = JSON.parse(localStorage.getItem('jewelleryOrders') || '[]');
-      orders.unshift({
-        id: 'ORD' + Date.now(),
-        product: productName,
-        amount: amountStr || '',
-        upiId: UPI_ID,
-        timestamp: new Date().toISOString(),
-        app: appKey
-      });
-      localStorage.setItem('jewelleryOrders', JSON.stringify(orders));
-      debug('order snapshot saved');
-    } catch (err) { console.warn(err); }
-
-    // Android sequence (aggressive; multiple variants)
     if (isAndroid()) {
       const pkg = PACKAGES[appKey] || null;
+      const upi = buildUpiUrl();
 
-      // 1. package-specific intent://pay?
-      if (pkg) {
-        const uriA = androidIntent(pkg, 'pay', amountStr);
-        if (await attemptOpen(uriA, 1200)) { debug('opened: ' + uriA); return; }
-      }
-      // 2. package-specific intent://upi/pay?
-      if (pkg) {
-        const uriB = androidIntent(pkg, 'upi/pay', amountStr);
-        if (await attemptOpen(uriB, 1200)) { debug('opened: ' + uriB); return; }
-      }
-      // 3. generic intent://pay? (system chooser)
-      const uriC = androidIntent(null, 'pay', amountStr);
-      if (await attemptOpen(uriC, 1200)) { debug('opened: ' + uriC); return; }
-      // 4. generic intent://upi/pay?
-      const uriD = androidIntent(null, 'upi/pay', amountStr);
-      if (await attemptOpen(uriD, 1200)) { debug('opened: ' + uriD); return; }
-      // 5. upi://pay?
-      const uriE = upiSchemeUrl(amountStr);
-      if (await attemptOpen(uriE, 1200)) { debug('opened: ' + uriE); return; }
+      // Try sequence for Android:
+      // 1) intent://pay? with package
+      // 2) intent://upi/pay? with package
+      // 3) generic intent://pay? (no package) => system chooser
+      // 4) generic intent://upi/pay? (no package)
+      // 5) upi://pay?
+      let opened = false;
 
-      // failed all attempts
-      debug('android: all attempts failed for ' + appKey);
-      showAppMissing(appKey);
+      if (pkg) {
+        const target1 = buildIntentUriWithPackage(pkg, 'pay');
+        logDebug('android: try pkg intent (pay): ' + target1);
+        opened = await attemptOpen(target1, 900);
+        if (opened) { logDebug('opened target pkg intent (pay)'); closeChooser(); return; }
+
+        const target2 = buildIntentUriWithPackage(pkg, 'upi/pay');
+        logDebug('android: try pkg intent (upi/pay): ' + target2);
+        opened = await attemptOpen(target2, 900);
+        if (opened) { logDebug('opened target pkg intent (upi/pay)'); closeChooser(); return; }
+      }
+
+      // generic attempts
+      const generic1 = buildIntentUriWithPackage(null, 'pay');
+      logDebug('android: try generic intent (pay): ' + generic1);
+      opened = await attemptOpen(generic1, 900);
+      if (opened) { logDebug('opened generic intent (pay)'); closeChooser(); return; }
+
+      const generic2 = buildIntentUriWithPackage(null, 'upi/pay');
+      logDebug('android: try generic intent (upi/pay): ' + generic2);
+      opened = await attemptOpen(generic2, 900);
+      if (opened) { logDebug('opened generic intent (upi/pay)'); closeChooser(); return; }
+
+      // last ditch: upi://
+      logDebug('android: try upi:// ' + upi);
+      opened = await attemptOpen(upi, 900);
+      if (opened) { logDebug('opened upi://'); closeChooser(); return; }
+
+      // all failed
+      logDebug('android: all attempts failed for ' + appKey);
+      closeChooser();
+      showAppNotInstalled(appKey);
       showFallback();
       return;
     }
 
-    // iOS sequence
     if (isIOS()) {
-      const variants = iosVariantUrls(appKey, amountStr);
-      for (let i = 0; i < variants.length; ++i) {
-        const uri = variants[i];
-        if (await attemptOpen(uri, 1300)) { debug('opened: ' + uri); return; }
+      // try app-specific scheme variants
+      const deepLinks = iosDeepLinkFor(appKey);
+      for (let i = 0; i < deepLinks.length; ++i) {
+        const url = deepLinks[i];
+        logDebug('ios: trying deep link ' + url);
+        const opened = await attemptOpen(url, 900);
+        if (opened) { logDebug('ios opened via scheme: ' + url); closeChooser(); return; }
       }
       // generic upi
-      const uriGeneric = upiSchemeUrl(amountStr);
-      if (await attemptOpen(uriGeneric, 1300)) { debug('opened: ' + uriGeneric); return; }
+      const upi = buildUpiUrl();
+      logDebug('ios: trying generic upi:// ' + upi);
+      const opened = await attemptOpen(upi, 900);
+      if (opened) { logDebug('ios opened via upi://'); closeChooser(); return; }
 
-      // failed
-      debug('ios: all attempts failed for ' + appKey);
-      showAppMissing(appKey);
+      logDebug('ios: all attempts failed for ' + appKey);
+      closeChooser();
+      showAppNotInstalled(appKey);
       showFallback();
       return;
     }
 
-    // Desktop: show fallback (QR & copy)
+    // desktop
     showFallback();
   }
 
-  // UI wiring
-  el.copyBtn.addEventListener('click', async () => {
-    try {
-      await navigator.clipboard.writeText(UPI_ID);
-      debug('UPI copied to clipboard');
-      alert('UPI ID copied: ' + UPI_ID);
-    } catch (e) {
-      prompt('Copy UPI ID', UPI_ID);
+  // Non-Android direct flow
+  function openUpiForNonAndroid() {
+    saveOrderToAdmin();
+    if (isIOS()) {
+      const upi = buildUpiUrl();
+      try {
+        const ifr = document.createElement('iframe');
+        ifr.style.display = 'none';
+        ifr.src = upi;
+        document.body.appendChild(ifr);
+        logDebug('inserted iframe for upi:// (iOS fallback)');
+        setTimeout(() => { try { document.body.removeChild(ifr); } catch (e) {} }, 1600);
+      } catch (e) { console.warn('iframe method failed', e); }
+      setTimeout(() => {
+        if (!document.hidden) { showFallback(); showToast('If your UPI app did not open, scan the QR or copy the UPI ID.'); }
+      }, 900);
+      return;
     }
-  });
+    showFallback();
+    showToast('Use your phone: scan the QR or copy the UPI ID.');
+  }
 
-  el.payBtn.addEventListener('click', () => {
-    // show chooser on mobile; if desktop, show fallback instructions (QR)
+  // Initialize UI
+  function initialize() {
+    prodNameEl.textContent = productName;
+    if (totalAmountStr) {
+      if (qty > 1) prodPriceEl.innerHTML = `₹${totalAmountStr}<br><span class="text-sm text-slate-500">(${qty} × ₹${(unitPrice).toFixed(2)})</span>`;
+      else prodPriceEl.textContent = `₹${totalAmountStr}`;
+    } else if (productPrice) prodPriceEl.textContent = productPrice;
+    else prodPriceEl.textContent = 'Contact for price';
+
+    qrBox.style.backgroundImage = `url('${DEFAULT_QR}')`;
+
+    const parts = [];
+    const displayName = shippingName || customerName;
+    if (displayName) parts.push(`<div><strong>Ship to:</strong> ${displayName}</div>`);
+    if (address1) parts.push(`<div>${address1}</div>`);
+    if (address2) parts.push(`<div>${address2}</div>`);
+    const loc = [city, district, state, pincode].filter(Boolean);
+    if (loc.length) parts.push(`<div>${loc.join(', ')}</div>`);
+    addressBlock.innerHTML = parts.join('') || '<div class="text-slate-500 text-sm">No address provided</div>';
+
+    if (upiDisplay) upiDisplay.textContent = UPI_ID;
+    document.getElementById('year').textContent = new Date().getFullYear();
+
+    if (isAndroid()) payBtn.textContent = 'Pay with UPI app';
+    else if (isIOS()) payBtn.textContent = 'Pay with UPI app (iOS)';
+    else payBtn.textContent = 'Pay with UPI app';
+  }
+
+  // Attach events
+  copyBtn.addEventListener('click', copyUPIId);
+
+  payBtn.addEventListener('click', function (ev) {
     if (isAndroid() || isIOS()) openChooser();
-    else showFallback();
+    else openUpiForNonAndroid();
   });
 
-  el.openChooser.addEventListener('click', () => openChooser());
-  el.chooserClose.addEventListener('click', () => closeChooser());
-  el.chooseGpay.addEventListener('click', () => openApp('gpay'));
-  el.choosePhonePe.addEventListener('click', () => openApp('phonepe'));
-  el.choosePaytm.addEventListener('click', () => openApp('paytm'));
-  el.fallbackClose.addEventListener('click', () => hideFallback());
+  btnGPay.addEventListener('click', () => openSelectedApp('gpay'));
+  btnPhonePe.addEventListener('click', () => openSelectedApp('phonepe'));
+  btnPaytm.addEventListener('click', () => openSelectedApp('paytm'));
 
-  // initialize display
-  el.upiDisplay.textContent = UPI_ID;
-  el.prodName.textContent = productName;
-  el.prodPrice.textContent = amountStr ? `₹ ${amountStr}` : 'Contact for price';
-  el.year.textContent = new Date().getFullYear();
+  btnOther.addEventListener('click', () => {
+    closeChooser();
+    saveOrderToAdmin();
+    (async function(){
+      if (isAndroid()) {
+        const generic1 = buildIntentUriWithPackage(null, 'pay');
+        const generic2 = buildIntentUriWithPackage(null, 'upi/pay');
+        if (await attemptOpen(generic1, 900)) return;
+        if (await attemptOpen(generic2, 900)) return;
+        if (await attemptOpen(buildUpiUrl(), 900)) return;
+        showFallback();
+      } else if (isIOS()) {
+        if (await attemptOpen(buildUpiUrl(), 900)) return;
+        showFallback();
+      } else {
+        showFallback();
+      }
+    })();
+  });
 
-  debug('ready — UPI ' + UPI_ID + (amountStr ? (' amount: ' + amountStr) : ' (no amount)'));
-
+  // run
+  initialize();
+  setTimeout(saveOrderToAdmin, 900);
 })();
 </script>
 </body>
