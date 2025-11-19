@@ -5,250 +5,255 @@
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>Pay — Customised Jewellary</title>
   <meta name="description" content="Secure UPI Payment for Customised Jewellary" />
-
-  <!-- Tailwind (for quick styling) -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght:300;400;600;700&display=swap" rel="stylesheet">
   <script src="https://cdn.tailwindcss.com"></script>
 
   <style>
     body {
-      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      font-family: 'Poppins', sans-serif;
       background: #fff5f7;
     }
-    .overlay {
+    .chooser-modal, .fallback-modal {
+      display: none;
       position: fixed;
       inset: 0;
-      background: rgba(0,0,0,0.5);
-      display: none;
+      background: rgba(0,0,0,0.55);
+      z-index: 50;
       align-items: center;
       justify-content: center;
-      z-index: 50;
     }
-    .overlay-card {
-      background: #fff;
+    .modal-card {
+      background: white;
+      padding: 20px;
       border-radius: 14px;
-      padding: 18px 16px;
       width: 92%;
-      max-width: 400px;
-      box-shadow: 0 10px 30px rgba(0,0,0,0.25);
+      max-width: 420px;
+      box-shadow: 0 8px 30px rgba(0,0,0,0.3);
+    }
+    .app-btn {
+      border: 1px solid #ddd;
+      padding: 10px;
+      border-radius: 10px;
+      background: white;
+      text-align: center;
       font-size: 14px;
+      cursor: pointer;
+    }
+    .app-grid {
+      margin-top: 15px;
+      display: grid;
+      grid-template-columns: repeat(3,1fr);
+      gap: 10px;
     }
   </style>
 </head>
-<body class="min-h-screen flex items-center justify-center p-4">
 
-  <main class="w-full max-w-2xl bg-white rounded-2xl shadow-xl border border-rose-100">
-    <!-- Header -->
-    <header class="p-5 border-b border-gray-200 flex items-center justify-between">
-      <div>
-        <h1 class="text-lg font-semibold">Complete Payment</h1>
-        <p class="text-xs text-gray-500 mt-1">
-          Pay securely via any UPI app (Google Pay / PhonePe / Paytm / etc.)
-        </p>
-      </div>
-      <a href="index.html" class="text-xs underline text-gray-600">Back</a>
+<body class="min-h-screen flex items-center justify-center p-6">
+
+  <main class="w-full max-w-2xl rounded-2xl shadow-xl bg-white">
+    <header class="p-6 border-b">
+      <h1 class="text-xl font-bold">Complete Payment</h1>
+      <p class="text-sm text-gray-500">UPI Secure Payment</p>
     </header>
 
-    <!-- Content -->
-    <section class="p-5 grid grid-cols-1 md:grid-cols-2 gap-6">
-      <!-- Left: QR & UPI -->
-      <div class="flex flex-col items-center">
-        <img
-          src="images/Gpay Scanner Toyiba.jpg"
-          alt="UPI QR for Customised Jewellary"
-          class="w-56 h-56 rounded-xl shadow-md object-cover"
-        />
+    <section class="p-6 grid grid-cols-1 md:grid-cols-2 gap-6">
 
-        <button
-          id="copyBtn"
-          class="mt-4 w-full bg-rose-600 hover:bg-rose-700 text-white text-sm font-semibold py-2.5 rounded-xl"
-        >
-          Copy UPI ID
+      <!-- QR + UPI ID -->
+      <div class="text-center">
+        <img src="images/Gpay Scanner Toyiba.jpg" class="w-56 h-56 rounded-xl mx-auto shadow" alt="UPI QR">
+
+        <button id="copyBtn" class="mt-4 w-full bg-rose-600 text-white p-3 rounded-xl">Copy UPI ID</button>
+
+        <p class="mt-2 text-sm">UPI ID: <b id="upiDisplay">Aroobakhan660@okicici</b></p>
+      </div>
+
+      <!-- Details -->
+      <div>
+        <p class="text-sm text-gray-500">Product</p>
+        <p id="prodName" class="font-semibold text-lg">Product</p>
+
+        <p class="mt-4 text-sm text-gray-500">Amount</p>
+        <p id="prodPrice" class="font-semibold text-2xl">₹0.00</p>
+
+        <button id="payBtn" class="mt-6 w-full bg-rose-600 text-white p-3 rounded-xl">
+          Pay with UPI App
         </button>
 
-        <p class="mt-2 text-xs text-gray-600">
-          UPI ID:
-          <span id="upiDisplay" class="font-mono font-semibold text-sm">
-            Aroobakhan660@okicici
-          </span>
-        </p>
-
-        <p class="mt-3 text-[11px] text-gray-500 text-center">
-          If UPI app does not open, open this page in your phone’s browser (Chrome / Safari)
-          and scan the QR or use the copied UPI ID.
-        </p>
-      </div>
-
-      <!-- Right: Product + pay button -->
-      <div class="flex flex-col h-full">
-        <div class="border border-gray-200 rounded-xl p-4 flex-1">
-          <p class="text-xs text-gray-500">Product</p>
-          <p id="prodName" class="text-base font-semibold mt-1">
-            Customised Order
-          </p>
-
-          <p class="mt-4 text-xs text-gray-500">Amount</p>
-          <p id="prodPrice" class="text-2xl font-semibold mt-1">
-            ₹0.00
-          </p>
-
-          <p id="amountNote" class="mt-1 text-[11px] text-gray-500"></p>
-
-          <button
-            id="payBtn"
-            class="mt-6 w-full bg-rose-600 hover:bg-rose-700 text-white text-sm font-semibold py-2.5 rounded-xl"
-          >
-            Pay with UPI App
-          </button>
-
-          <div class="mt-4 bg-green-500 text-white text-xs rounded-xl p-3">
-            <p class="font-semibold">IMPORTANT:</p>
-            <p class="mt-1">
-              After completing the payment, please send the <b>transaction screenshot</b> to confirm your order.
-            </p>
-          </div>
+        <div class="mt-4 p-4 bg-green-500 text-white rounded-xl text-sm">
+          <b>IMPORTANT:</b> After payment, send a <b>transaction screenshot</b> to confirm your order.
         </div>
       </div>
-    </section>
 
-    <footer class="px-5 py-3 border-t border-gray-200 text-[11px] text-gray-500 flex justify-between">
-      <span>© <span id="year"></span> Customised Jewellary</span>
-      <span>No OTP / PIN is ever asked on this website</span>
-    </footer>
+    </section>
   </main>
 
-  <!-- Fallback overlay -->
-  <div id="fallbackOverlay" class="overlay">
-    <div class="overlay-card">
-      <h2 class="text-sm font-semibold mb-2">If your UPI app did not open</h2>
-      <ul class="list-disc list-inside text-xs text-gray-700 space-y-1">
-        <li>Make sure you opened this page in your phone’s browser (Chrome / Safari).</li>
-        <li>Scan the QR code with any UPI app, or use the copied UPI ID to pay.</li>
-        <li>Some apps / iPhones do not support direct UPI links from the browser.</li>
-      </ul>
-      <button
-        id="fallbackClose"
-        class="mt-3 w-full bg-gray-200 hover:bg-gray-300 text-xs py-1.5 rounded-lg"
-      >
-        Close
-      </button>
+  <!-- UPI App Chooser -->
+  <div id="appChooser" class="chooser-modal">
+    <div class="modal-card">
+      <h2 class="text-lg font-semibold">Open With</h2>
+      <div class="app-grid">
+        <div class="app-btn" data-app="gpay">Google Pay</div>
+        <div class="app-btn" data-app="phonepe">PhonePe</div>
+        <div class="app-btn" data-app="paytm">Paytm</div>
+        <div class="app-btn col-span-3" data-app="other">Any UPI App</div>
+      </div>
+      <button id="closeChooser" class="mt-4 w-full text-sm underline">Cancel</button>
+    </div>
+  </div>
+
+  <!-- Fallback -->
+  <div id="fallbackModal" class="fallback-modal">
+    <div class="modal-card">
+      <h2 class="text-lg font-semibold">Unable to open app correctly</h2>
+      <p class="mt-2 text-sm">
+        Your UPI app may not support deep links from the browser on this device.
+        Please scan the QR or copy the UPI ID and pay manually.
+      </p>
+      <button id="closeFallback" class="mt-4 w-full bg-gray-200 p-2 rounded">Close</button>
     </div>
   </div>
 
   <script>
-    // ------- CONFIG -------
+    // ---------------- CONFIG ----------------
     const UPI_ID = "Aroobakhan660@okicici";
     const PAYEE_NAME = "Customised Jewellary";
 
-    // ------- DOM -------
-    const upiDisplay    = document.getElementById("upiDisplay");
-    const copyBtn       = document.getElementById("copyBtn");
-    const payBtn        = document.getElementById("payBtn");
-    const prodNameEl    = document.getElementById("prodName");
-    const prodPriceEl   = document.getElementById("prodPrice");
-    const amountNoteEl  = document.getElementById("amountNote");
-    const fallbackOver  = document.getElementById("fallbackOverlay");
-    const fallbackClose = document.getElementById("fallbackClose");
+    // Write UPI ID on page
+    document.getElementById("upiDisplay").textContent = UPI_ID;
 
-    document.getElementById("year").textContent = new Date().getFullYear();
-    upiDisplay.textContent = UPI_ID;
+    const chooser  = document.getElementById("appChooser");
+    const fallback = document.getElementById("fallbackModal");
 
-    // ------- URL params (from previous page) -------
     const qs      = new URLSearchParams(location.search);
     const product = qs.get("product") || "Customised Order";
-    const price   = qs.get("price")   || "";   // string
-    const qtyRaw  = qs.get("qty")     || "1";
+    const price   = qs.get("price")   || "";
 
-    const qty   = parseInt(qtyRaw, 10) || 1;
-    const num   = price ? parseFloat(price) : 0;
-    const total = num * qty;
+    document.getElementById("prodName").textContent  = product;
+    document.getElementById("prodPrice").textContent = price ? "₹" + price : "Set price first";
 
-    prodNameEl.textContent = product;
+    const amount = price; // string
 
-    let amountStr = "";
-    if (total > 0) {
-      amountStr = total.toFixed(2);
-      prodPriceEl.textContent = "₹" + amountStr;
-      if (qty > 1) {
-        amountNoteEl.textContent = (${qty} × ₹${num.toFixed(2)});
+    // --- platform helpers ---
+    function isAndroid() {
+      return /Android/i.test(navigator.userAgent);
+    }
+    function isIOS() {
+      return /iPhone|iPad|iPod/i.test(navigator.userAgent);
+    }
+
+    // --- build UPI query (common for all apps) ---
+    function makeUpiQuery() {
+      return new URLSearchParams({
+        pa: UPI_ID,
+        pn: PAYEE_NAME,
+        am: amount,
+        cu: "INR",
+        tn: "Order: " + product,
+        tr: "ORD" + Date.now()
+      }).toString();
+    }
+
+    // Generic UPI deep link
+    function makeGenericUpiUrl() {
+      return "upi://pay?" + makeUpiQuery();
+    }
+
+    // iOS app-specific URLs (best effort – apps can still ignore params)
+    function makeIosAppUrl(appKey) {
+      const query = makeUpiQuery();
+
+      if (appKey === "gpay") {
+        // Google Pay (iOS)
+        return "gpay://upi/pay?" + query;
       }
-    } else {
-      prodPriceEl.textContent = "Amount not set";
-      amountNoteEl.textContent = "Go back and select product again so the amount comes here.";
-      // Disable pay button if no amount
-      payBtn.disabled = true;
-      payBtn.classList.add("opacity-60", "cursor-not-allowed");
+      if (appKey === "phonepe") {
+        // PhonePe (iOS)
+        return "phonepe://upi/pay?" + query;
+      }
+      if (appKey === "paytm") {
+        // Paytm (iOS)
+        return "paytmmp://upi/pay?" + query;
+      }
+      // Any other / unknown UPI app → generic scheme
+      return makeGenericUpiUrl();
     }
 
-    // ------- Helpers -------
-    function isMobile() {
-      return /Android|iPhone|iPad|iPod/i.test(navigator.userAgent);
-    }
-
-    function buildUpiUrl() {
-      if (!amountStr) return "";
-
-      const params = new URLSearchParams({
-        pa: UPI_ID,           // payee address
-        pn: PAYEE_NAME,       // payee name
-        am: amountStr,        // amount
-        cu: "INR",            // currency
-        tn: "Order: " + product, // note
-        tr: "ORD" + Date.now()   // transaction reference
+    // --- copy UPI ID ---
+    document.getElementById("copyBtn").onclick = () => {
+      navigator.clipboard.writeText(UPI_ID).then(() => {
+        alert("UPI ID Copied!");
+      }).catch(() => {
+        alert("Copy failed. Please long-press & copy manually: " + UPI_ID);
       });
+    };
 
-      return "upi://pay?" + params.toString();
-    }
+    // --- open chooser ---
+    document.getElementById("payBtn").onclick = () => {
+      if (!amount) {
+        alert("Amount missing in link. Add ?price=XXX to the URL from previous page.");
+        return;
+      }
 
-    // ------- Copy UPI -------
-    copyBtn.addEventListener("click", () => {
-      if (navigator.clipboard && navigator.clipboard.writeText) {
-        navigator.clipboard.writeText(UPI_ID)
-          .then(() => alert("UPI ID copied: " + UPI_ID))
-          .catch(() => alert("Copy failed. Long-press and copy the UPI ID manually."));
+      if (isAndroid() || isIOS()) {
+        chooser.style.display = "flex";
       } else {
-        alert("Copy not supported. Long-press and copy the UPI ID manually: " + UPI_ID);
+        // Desktop / unsupported → fallback instructions
+        fallback.style.display = "flex";
       }
-    });
+    };
 
-    // ------- Pay button -------
-    payBtn.addEventListener("click", () => {
-      if (!amountStr) {
-        alert("Amount is missing. Please go back and select the product again.");
-        return;
-      }
+    document.getElementById("closeChooser").onclick = () => {
+      chooser.style.display = "none";
+    };
 
-      if (!isMobile()) {
-        // On desktop: just show instructions
-        fallbackOver.style.display = "flex";
-        return;
-      }
+    document.getElementById("closeFallback").onclick = () => {
+      fallback.style.display = "none";
+    };
 
-      const upiUrl = buildUpiUrl();
-      if (!upiUrl) {
-        alert("Something went wrong building the UPI link. Please try again.");
-        return;
-      }
+    // --- handle app selection ---
+    document.querySelectorAll(".app-btn").forEach(btn => {
+      btn.onclick = () => {
+        const appKey = btn.getAttribute("data-app");
+        chooser.style.display = "none";
 
-      // Single, simple redirect – most reliable across Android / iOS
-      try {
-        window.location.href = upiUrl;
-      } catch (e) {
-        // If browser refuses, show instructions
-        fallbackOver.style.display = "flex";
-      }
+        if (!amount) {
+          alert("Amount missing in link.");
+          return;
+        }
 
-      // Extra safety: show fallback after a delay if nothing obvious happened
-      setTimeout(() => {
-        // On some iOS / in-app browsers, nothing happens at all
-        // User can use QR / copied UPI ID then
-        fallbackOver.style.display = "flex";
-      }, 3000);
-    });
+        const genericUrl = makeGenericUpiUrl();
+        let targetUrl = genericUrl;
 
-    // ------- Fallback close -------
-    fallbackClose.addEventListener("click", () => {
-      fallbackOver.style.display = "none";
+        if (isIOS()) {
+          // iOS: try app-specific scheme first, then fallback to generic
+          targetUrl = makeIosAppUrl(appKey);
+
+          // First attempt: app-specific
+          try {
+            window.location.href = targetUrl;
+          } catch (e) {
+            // If navigation throws (rare), fallback
+            window.location.href = genericUrl;
+          }
+
+          // NOTE: Many iOS UPI apps STILL ignore the parameters and show home.
+          // This is a limitation of the apps, not of the web page.
+        } else if (isAndroid()) {
+          // Android: generic UPI deep-link is usually respected
+          try {
+            window.location.href = genericUrl;
+          } catch (e) {
+            fallback.style.display = "flex";
+          }
+        } else {
+          // Others → fallback
+          fallback.style.display = "flex";
+        }
+      };
     });
   </script>
+
 </body>
 </html>
