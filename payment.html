@@ -68,7 +68,7 @@
         </div>
 
         <div class="mt-3 text-xs text-slate-600 text-center">
-          <div>UPI ID: <strong id="upiDisplay" class="text-sm"></strong></div>
+          <div>UPI ID: <strong id="upiDisplay" class="text-sm">Aroobakhan660@okicici</strong></div>
         </div>
       </div>
 
@@ -177,10 +177,7 @@
     paytm: 'net.one97.paytm'
   };
 
-  // iOS app schemes (common/working forms found in integration docs & community examples)
-  // Google Pay: gpay:// or tez:// (gpay recommended)
-  // PhonePe: phonepe://upi/pay?...
-  // Paytm: paytmmp://pay? or paytm:// (paytmmp commonly used)
+  // iOS app schemes (variants). We'll try these before generic upi://
   const IOS_SCHEMES = {
     gpay: ['gpay://upi/pay?', 'tez://upi/pay?'],
     phonepe: ['phonepe://upi/pay?','phonepe://pay?'],
@@ -256,14 +253,13 @@
   function buildUpiUrl() { return 'upi://pay?' + buildQuery(); }
   function buildIntentUriWithPackage(pkg) {
     const base = buildQuery();
-    // note: exact intent format: intent://upi/pay?{params}#Intent;scheme=upi;package=com.example;end
     let intentUri = 'intent://upi/pay?' + base + '#Intent;scheme=upi;';
     if (pkg) intentUri += 'package=' + pkg + ';';
     intentUri += 'end';
     return intentUri;
   }
 
-  // Save snapshot locally (same as before)
+  // Save snapshot locally
   function saveOrderToAdmin() {
     try {
       const order = {
@@ -272,7 +268,6 @@
         amount: totalAmount,
         quantity: qty,
         customerName: shippingName || customerName,
-        phone: '', // we removed whatsapp etc
         address1, address2, city, district, state, pincode,
         customization: note,
         status: 'pending',
@@ -311,7 +306,6 @@
   chooserClose.addEventListener('click', closeChooser);
 
   // Attempt to open a URI and detect if user left the page.
-  // Resolves true if page hidden (likely opened app), false if timed out.
   function attemptOpen(uri, timeout = 1200) {
     return new Promise((resolve) => {
       let done = false;
@@ -325,7 +319,6 @@
         document.removeEventListener('visibilitychange', onVis);
         if (timer) clearTimeout(timer);
       }
-      // try navigation
       try {
         window.location.href = uri;
       } catch (e) {
@@ -341,31 +334,29 @@
     });
   }
 
-  // Build iOS deep-link for chosen app (tries known scheme variants)
+  // Build iOS deep-link variants
   function iosDeepLinkFor(appKey) {
     const baseQuery = buildQuery();
     const variants = IOS_SCHEMES[appKey] || [];
-    // return first variant with query appended
     return variants.map(pref => pref + baseQuery);
   }
 
-  // Primary flow when user chooses an app in chooser
+  // Primary flow when user chooses an app
   async function openSelectedApp(appKey) {
     saveOrderToAdmin();
     logDebug('openSelectedApp: ' + appKey + ' platform: ' + (isAndroid() ? 'android' : isIOS() ? 'ios' : 'other'));
 
-    // --- ANDROID PATH: use intent with package, then generic intent, then upi:// ---
     if (isAndroid()) {
       const pkg = PACKAGES[appKey] || null;
       const targetIntent = buildIntentUriWithPackage(pkg);
       const genericIntent = buildIntentUriWithPackage(null);
       const upi = buildUpiUrl();
 
-      // 1) try package-specific intent (most reliable to open the target app)
+      // 1) try package-specific intent
       let opened = await attemptOpen(targetIntent, 900);
       if (opened) { logDebug('opened package intent'); closeChooser(); return; }
 
-      // 2) try generic intent (system chooser)
+      // 2) try generic intent
       opened = await attemptOpen(genericIntent, 900);
       if (opened) { logDebug('opened generic intent'); closeChooser(); return; }
 
@@ -373,16 +364,13 @@
       opened = await attemptOpen(upi, 900);
       if (opened) { logDebug('opened via upi://'); closeChooser(); return; }
 
-      // fallback
-      logDebug('android: all attempts failed');
       closeChooser();
       showFallback();
       return;
     }
 
-    // --- iOS PATH: try app-specific schemes (gpay://, phonepe://, paytmmp://) then upi:// ---
     if (isIOS()) {
-      const deepLinks = iosDeepLinkFor(appKey); // array of candidate scheme urls
+      const deepLinks = iosDeepLinkFor(appKey);
       for (let i = 0; i < deepLinks.length; ++i) {
         const url = deepLinks[i];
         logDebug('ios: trying deep link ' + url);
@@ -394,23 +382,19 @@
       const opened = await attemptOpen(upi, 900);
       if (opened) { logDebug('ios opened via upi://'); closeChooser(); return; }
 
-      // fallback
-      logDebug('ios: all attempts failed');
       closeChooser();
       showFallback();
       return;
     }
 
-    // --- other (desktop) ---
-    // fallback to QR/instructions
+    // desktop -> fallback
     showFallback();
   }
 
-  // Non-Android direct flow when Pay clicked on non-Android devices
+  // Non-Android direct flow
   function openUpiForNonAndroid() {
     saveOrderToAdmin();
     if (isIOS()) {
-      // Open generic UPI; chooser is preferable so we still show chooser on iOS if needed
       const upi = buildUpiUrl();
       try {
         const ifr = document.createElement('iframe');
@@ -425,7 +409,6 @@
       }, 900);
       return;
     }
-    // Desktop
     showFallback();
     showToast('Use your phone: scan the QR or copy the UPI ID.');
   }
@@ -453,7 +436,6 @@
     if (upiDisplay) upiDisplay.textContent = UPI_ID;
     document.getElementById('year').textContent = new Date().getFullYear();
 
-    // Label the pay button
     if (isAndroid()) payBtn.textContent = 'Pay with UPI app';
     else if (isIOS()) payBtn.textContent = 'Pay with UPI app (iOS)';
     else payBtn.textContent = 'Pay with UPI app';
@@ -462,9 +444,7 @@
   // Attach events
   copyBtn.addEventListener('click', copyUPIId);
 
-  // When Pay button clicked: show chooser on mobile where possible
   payBtn.addEventListener('click', function (ev) {
-    // on iOS show chooser too (gives user option to choose specific app)
     if (isAndroid() || isIOS()) {
       openChooser();
     } else {
@@ -472,12 +452,10 @@
     }
   });
 
-  // chooser app buttons
   btnGPay.addEventListener('click', () => openSelectedApp('gpay'));
   btnPhonePe.addEventListener('click', () => openSelectedApp('phonepe'));
   btnPaytm.addEventListener('click', () => openSelectedApp('paytm'));
   btnOther.addEventListener('click', () => {
-    // user wants generic flow/QR
     closeChooser();
     saveOrderToAdmin();
     (async function(){
@@ -488,7 +466,6 @@
         if (await attemptOpen(upi, 900)) return;
         showFallback();
       } else if (isIOS()) {
-        // try generic upi scheme on iOS
         if (await attemptOpen(buildUpiUrl(), 900)) return;
         showFallback();
       } else {
