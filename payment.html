@@ -14,7 +14,6 @@
     }
     .action-pill { transition: all .12s ease; }
     .action-pill:active { transform: translateY(1px); }
-    .raw-link { word-break: break-all; display: none; }
   </style>
 </head>
 
@@ -29,9 +28,15 @@
 
     <!-- CONTENT -->
     <section class="p-6 grid grid-cols-1 md:grid-cols-2 gap-6">
-      
+
       <!-- LEFT SIDE -->
       <div class="text-center">
+
+        <!-- IMPORTANT ABOVE QR -->
+        <div class="mb-4 bg-green-500 text-white p-3 rounded-xl text-xs">
+          <b>IMPORTANT:</b> After payment, keep a screenshot of the confirmation — you'll need it for verification.
+        </div>
+
         <img id="qrImg" src="images/QR.jpg"
              class="w-52 h-52 rounded-xl shadow-md mx-auto object-cover"
              alt="UPI QR Code"
@@ -52,13 +57,12 @@
           Copy UPI ID
         </button>
 
-        <p class="mt-2 text-xs text-gray-600">
-          UPI ID: <span class="font-mono font-semibold" id="upiDisplay">Aroobakhan660@okicici</span>
-        </p>
+        <!-- NOTICE: UPI ID UNDER BUTTON REMOVED -->
 
         <p class="mt-3 text-xs text-gray-500">
           If payment doesn’t open, scan the QR or use the copied UPI ID.
         </p>
+
       </div>
 
       <!-- RIGHT SIDE -->
@@ -75,21 +79,7 @@
           Pay with UPI App
         </button>
 
-        <div class="mt-3 flex items-center gap-2">
-          <button id="showUpiBtn"
-                  class="action-pill inline-flex items-center gap-2 px-3 py-2 rounded-full bg-white border border-gray-200 text-sm text-gray-700 hover:bg-gray-50">
-            Show UPI link
-          </button>
-          <a id="upiLink" href="#" class="text-xs text-blue-600 underline hidden">Open UPI link</a>
-        </div>
-
-        <div id="upiRaw" class="raw-link mt-2 text-xs text-gray-500 px-1"></div>
-
-        <div class="mt-4 bg-green-500 text-white p-3 rounded-xl text-xs">
-          <b>IMPORTANT:</b> After payment, keep a screenshot of the confirmation — you'll need it for verification.
-        </div>
-
-        <!-- OPTION B: HIGH-VISIBILITY CHECKBOX -->
+        <!-- OPTION B CHECKBOX -->
         <div class="mt-6">
           <label class="flex items-start gap-3 cursor-pointer select-none border border-rose-500 p-3 rounded-lg shadow-sm">
             <input id="paidCheckbox" type="checkbox"
@@ -122,9 +112,6 @@ document.addEventListener('DOMContentLoaded', () => {
   const upiDisplay = document.getElementById('upiDisplay');
   const copyBtn = document.getElementById('copyBtn');
   const payBtn = document.getElementById('payBtn');
-  const upiLink = document.getElementById('upiLink');
-  const upiRaw = document.getElementById('upiRaw');
-  const showUpiBtn = document.getElementById('showUpiBtn');
   const prodNameEl = document.getElementById('prodName');
   const prodPriceEl = document.getElementById('prodPrice');
   const amountNoteEl = document.getElementById('amountNote');
@@ -136,7 +123,6 @@ document.addEventListener('DOMContentLoaded', () => {
 
   const UPI_ID = "Aroobakhan660@okicici";
   const PAYEE_NAME = "Customised Jewellery";
-  upiDisplay.textContent = UPI_ID;
 
   const qs = new URLSearchParams(location.search);
   const product = qs.get('product') || 'Customised Order';
@@ -171,20 +157,6 @@ document.addEventListener('DOMContentLoaded', () => {
 
   payBtn.addEventListener('click', () => {
     window.location.href = buildUpiUrl();
-  });
-
-  showUpiBtn.addEventListener('click', () => {
-    if (upiRaw.style.display === 'none' || upiRaw.style.display === '') {
-      upiRaw.textContent = buildUpiUrl();
-      upiRaw.style.display = 'block';
-      upiLink.href = buildUpiUrl();
-      upiLink.classList.remove('hidden');
-      showUpiBtn.textContent = 'Hide UPI link';
-    } else {
-      upiRaw.style.display = 'none';
-      upiLink.classList.add('hidden');
-      showUpiBtn.textContent = 'Show UPI link';
-    }
   });
 
   copyBtn.addEventListener('click', () => {
