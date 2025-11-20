@@ -27,23 +27,56 @@
     </header>
 
     <!-- CONTENT -->
-    <section class="p-6 grid grid-cols-1 md:grid-cols-2 gap-6">
+    <section class="p-6 space-y-6">
 
-      <!-- LEFT SIDE -->
-      <div class="text-center">
+      <!-- IMPORTANT NOTICE -->
+      <div class="bg-green-500 text-white p-4 rounded-xl text-base">
+        <b>IMPORTANT:</b> After payment, keep a screenshot of the confirmation — you will need it for verification.
+      </div>
 
-        <!-- IMPORTANT ABOVE QR -->
-        <div class="mb-4 bg-green-500 text-white p-3 rounded-xl text-xs">
-          <b>IMPORTANT:</b> After payment, keep a screenshot of the confirmation — you'll need it for verification.
-        </div>
+      <!-- PRODUCT DETAILS -->
+      <div>
+        <p class="text-xs text-gray-500">Product</p>
+        <p id="prodName" class="text-lg font-semibold mt-1">Product</p>
 
+        <p class="mt-4 text-xs text-gray-500">Amount</p>
+        <p id="prodPrice" class="text-3xl font-semibold">₹0.00</p>
+        <p id="amountNote" class="text-xs text-gray-500"></p>
+      </div>
+
+      <!-- PAY BUTTON -->
+      <button id="payBtn"
+              class="w-full bg-rose-600 hover:bg-rose-700 text-white font-semibold text-sm p-3 rounded-xl">
+        Pay with UPI App
+      </button>
+
+      <!-- PAYMENT CONFIRMATION CHECKBOX -->
+      <div>
+        <label class="flex items-start gap-3 cursor-pointer select-none border border-rose-500 p-4 rounded-lg shadow-sm">
+          <input id="paidCheckbox" type="checkbox"
+                 class="mt-1 w-5 h-5 text-rose-600 border-gray-300 rounded">
+          <span class="text-sm font-semibold text-gray-900">
+            I have completed the payment & want to send payment details.
+          </span>
+        </label>
+      </div>
+
+      <!-- SEND EMAIL BUTTON -->
+      <button id="sendEmailBtn"
+              style="display:none;"
+              class="w-full bg-green-600 hover:bg-green-700 text-white text-sm font-semibold p-3 rounded-xl">
+        Send Payment Details to Seller
+      </button>
+
+      <!-- QR CODE MOVED TO BOTTOM -->
+      <div class="text-center mt-8">
         <img id="qrImg" src="images/QR.jpg"
-             class="w-52 h-52 rounded-xl shadow-md mx-auto object-cover"
+             class="w-56 h-56 rounded-xl shadow-md mx-auto object-cover"
              alt="UPI QR Code"
              onerror="this.style.display='none'; document.getElementById('qrFallback').style.display='flex'">
 
         <div id="qrFallback"
-             class="w-52 h-52 rounded-xl shadow-md mx-auto flex items-center justify-center bg-gray-50 text-gray-700 p-4"
+             class="w-56 h-56 rounded-xl shadow-md mx-auto flex items-center justify-center bg-gray-50 text-gray-700 p-4"
              style="display:none;">
           <div>
             <div class="text-sm text-gray-500">QR image not found</div>
@@ -57,49 +90,14 @@
           Copy UPI ID
         </button>
 
-        <!-- NOTICE: UPI ID UNDER BUTTON REMOVED -->
-
         <p class="mt-3 text-xs text-gray-500">
           If payment doesn’t open, scan the QR or use the copied UPI ID.
         </p>
-
       </div>
 
-      <!-- RIGHT SIDE -->
-      <div>
-        <p class="text-xs text-gray-500">Product</p>
-        <p id="prodName" class="text-base font-semibold mt-1">Product</p>
-
-        <p class="mt-4 text-xs text-gray-500">Amount</p>
-        <p id="prodPrice" class="text-2xl font-semibold">₹0.00</p>
-        <p id="amountNote" class="text-xs text-gray-500"></p>
-
-        <button id="payBtn"
-                class="mt-4 w-full bg-rose-600 hover:bg-rose-700 text-white font-semibold text-sm p-3 rounded-xl">
-          Pay with UPI App
-        </button>
-
-        <!-- OPTION B CHECKBOX -->
-        <div class="mt-6">
-          <label class="flex items-start gap-3 cursor-pointer select-none border border-rose-500 p-3 rounded-lg shadow-sm">
-            <input id="paidCheckbox" type="checkbox"
-                   class="mt-1 w-5 h-5 text-rose-600 border-gray-300 rounded">
-            <span class="text-sm font-semibold text-gray-900">
-              I have completed the payment & want to send payment details.
-            </span>
-          </label>
-        </div>
-
-        <!-- SEND EMAIL BUTTON -->
-        <button id="sendEmailBtn"
-                style="display:none;"
-                class="mt-3 w-full bg-green-600 hover:bg-green-700 text-white text-sm font-semibold p-3 rounded-xl">
-          Send Payment Details to Seller
-        </button>
-
-      </div>
     </section>
 
+    <!-- FOOTER -->
     <footer class="p-4 border-t border-gray-200 text-xs text-gray-500 flex justify-between">
       <span>© <span id="year"></span> Customised Jewellery</span>
       <span>We never ask for OTP / PIN</span>
@@ -109,7 +107,6 @@
 <script>
 document.addEventListener('DOMContentLoaded', () => {
 
-  const upiDisplay = document.getElementById('upiDisplay');
   const copyBtn = document.getElementById('copyBtn');
   const payBtn = document.getElementById('payBtn');
   const prodNameEl = document.getElementById('prodName');
@@ -165,12 +162,10 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   });
 
-  // SHOW EMAIL BUTTON AFTER CHECKBOX
   paidCheckbox.addEventListener("change", () => {
     sendEmailBtn.style.display = paidCheckbox.checked ? "block" : "none";
   });
 
-  // SEND EMAIL WITH PAYMENT DETAILS
   sendEmailBtn.addEventListener("click", () => {
     const subject = encodeURIComponent(`Payment Confirmation — ${product} — ₹${amountStr}`);
     const body = encodeURIComponent(
