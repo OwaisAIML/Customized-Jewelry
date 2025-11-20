@@ -61,12 +61,21 @@
         </label>
       </div>
 
-      <!-- SEND EMAIL BUTTON -->
-      <button id="sendEmailBtn"
-              style="display:none;"
-              class="w-full bg-green-600 hover:bg-green-700 text-white text-sm font-semibold p-3 rounded-xl">
-        Send Payment Details to Seller
-      </button>
+      <!-- SEND EMAIL BUTTON + MESSAGE -->
+      <div class="space-y-2">
+        <button id="sendEmailBtn"
+                style="display:none;"
+                class="w-full bg-green-600 hover:bg-green-700 text-white text-sm font-semibold p-3 rounded-xl">
+          Send Payment Details to Seller
+        </button>
+
+        <!-- MESSAGE (now black + bold + centered) -->
+        <p id="afterSendMessage"
+           style="display:none;"
+           class="text-sm font-bold text-center text-black">
+          you will recieve confirmation reply after sending the payment details
+        </p>
+      </div>
 
       <!-- QR CODE MOVED TO BOTTOM -->
       <div class="text-center mt-8">
@@ -115,6 +124,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
   const paidCheckbox = document.getElementById("paidCheckbox");
   const sendEmailBtn = document.getElementById("sendEmailBtn");
+  const afterSendMessage = document.getElementById("afterSendMessage");
 
   document.getElementById('year').textContent = new Date().getFullYear();
 
@@ -163,7 +173,9 @@ document.addEventListener('DOMContentLoaded', () => {
   });
 
   paidCheckbox.addEventListener("change", () => {
-    sendEmailBtn.style.display = paidCheckbox.checked ? "block" : "none";
+    const show = paidCheckbox.checked;
+    sendEmailBtn.style.display = show ? "block" : "none";
+    afterSendMessage.style.display = show ? "block" : "none";
   });
 
   sendEmailBtn.addEventListener("click", () => {
@@ -180,7 +192,9 @@ UPI ID used: ${UPI_ID}
 I will attach the payment screenshot below.`
     );
 
-    window.location.href = `mailto:customisedj@gmail.com?subject=${subject}&body=${body}`;
+    const mailto = `mailto:customisedj@gmail.com?subject=${subject}&body=${body}`;
+    try { window.open(mailto, "_blank"); }
+    catch (_) { window.location.href = mailto; }
   });
 
 });
