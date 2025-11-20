@@ -50,7 +50,7 @@
       </div>
 
       <!-- Customization Form -->
-      <form id="customizeForm" class="space-y-6">
+      <form id="customizeForm" class="space-y-6" enctype="multipart/form-data">
         <input type="hidden" id="product" name="product">
         <input type="hidden" id="price" name="price">
         
@@ -79,6 +79,22 @@
 • Any reference images or special requests"></textarea>
             <p class="text-xs text-slate-500 dark:text-slate-400 mt-1">Required field. Be as detailed as possible for the best results.</p>
           </div>
+
+          <!-- Image upload -->
+          <div>
+            <label class="block text-sm font-medium mb-2">Upload a reference photo (optional)</label>
+            <input id="imageInput" type="file" accept="image/*" class="w-full text-sm" />
+            <p class="text-xs text-slate-500 dark:text-slate-400 mt-1">Upload a photo of eyes, a pattern, or any reference you want included in the piece.</p>
+
+            <!-- Preview -->
+            <div id="imagePreviewWrap" class="mt-3 hidden">
+              <div class="text-xs font-medium mb-1">Preview</div>
+              <div class="w-36 h-36 rounded-lg overflow-hidden border border-slate-200 bg-white dark:bg-slate-700 flex items-center justify-center">
+                <img id="imagePreview" alt="Preview" class="max-w-full max-h-full object-contain">
+              </div>
+              <button id="removeImageBtn" type="button" class="mt-2 text-xs text-rose-600 underline">Remove image</button>
+            </div>
+          </div>
         </div>
         
         <div class="flex gap-3 pt-4">
@@ -86,14 +102,6 @@
           <button type="submit" class="flex-1 px-6 py-3 bg-rose-600 text-white rounded-xl font-semibold hover:bg-rose-700 transition-colors">Continue to Address</button>
         </div>
       </form>
-
-      <!-- Payment Info Note -->
-      <div class="mt-6 p-4 bg-rose-50 dark:bg-rose-900/20 rounded-xl border border-rose-200 dark:border-rose-800/40">
-        <p class="text-sm text-rose-700 dark:text-rose-300 font-medium mb-2">💳 Payment Information</p>
-        <p class="text-xs text-rose-600 dark:text-rose-400">
-          After confirming your order, you'll pay securely via UPI. Our UPI ID: <strong>Aroobakhan660@okicici</strong>
-        </p>
-      </div>
 
       <p class="text-xs text-slate-500 dark:text-slate-400 mt-6 text-center">
         We'll create a free mockup for your approval before starting production.
@@ -115,7 +123,38 @@
     document.getElementById('product').value = product;
     document.getElementById('price').value = price;
 
-    // Form submission
+    // Image handling
+    const imageInput = document.getElementById('imageInput');
+    const imagePreviewWrap = document.getElementById('imagePreviewWrap');
+    const imagePreview = document.getElementById('imagePreview');
+    const removeImageBtn = document.getElementById('removeImageBtn');
+    let selectedImageData = ''; // base64 data url
+
+    imageInput.addEventListener('change', function() {
+      const file = this.files && this.files[0];
+      if (!file) {
+        selectedImageData = '';
+        imagePreviewWrap.classList.add('hidden');
+        imagePreview.src = '';
+        return;
+      }
+      const reader = new FileReader();
+      reader.onload = function(e) {
+        selectedImageData = e.target.result;
+        imagePreview.src = selectedImageData;
+        imagePreviewWrap.classList.remove('hidden');
+      };
+      reader.readAsDataURL(file);
+    });
+
+    removeImageBtn.addEventListener('click', () => {
+      imageInput.value = '';
+      selectedImageData = '';
+      imagePreview.src = '';
+      imagePreviewWrap.classList.add('hidden');
+    });
+
+    // Form submission - read image (already read via FileReader above) and redirect with params
     document.getElementById('customizeForm').addEventListener('submit', function(e) {
       e.preventDefault();
       
@@ -126,8 +165,14 @@
       for (let [key, value] of formData.entries()) {
         if (value) params.append(key, value);
       }
-      
-      // Redirect to address page
+
+      // If an image is selected, add it as `image` param (base64). Trim size if needed.
+      if (selectedImageData) {
+        // as a safety, if the data URL is huge (>200 KB) we still pass it but warn; ideally you'd send to backend.
+        params.append('image', encodeURIComponent(selectedImageData));
+      }
+
+      // Redirect to address page with all data (address page should pick up image param and store the order including `image`)
       window.location.href = 'address.html?' + params.toString();
     });
   </script>

@@ -17,6 +17,14 @@
       background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
       color: white;
     }
+    /* small thumbnail styling in table */
+    .thumb {
+      width: 48px;
+      height: 48px;
+      object-fit: cover;
+      border-radius: 6px;
+      border: 1px solid rgba(0,0,0,0.06);
+    }
   </style>
 </head>
 <body class="min-h-screen bg-gray-50">
@@ -134,6 +142,7 @@
           <thead class="bg-gray-50">
             <tr>
               <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Order ID</th>
+              <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Image</th>
               <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Product</th>
               <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Customer Name</th>
               <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Customer Phone</th>
@@ -199,12 +208,13 @@
         'shippingName', 
         'name',
         'firstName',
-        'fullName'
+        'fullName',
+        'custName'
       ];
       
       for (const field of nameFields) {
-        if (order[field] && order[field].trim()) {
-          return order[field].trim();
+        if (order[field] && String(order[field]).trim()) {
+          return String(order[field]).trim();
         }
       }
       
@@ -223,8 +233,8 @@
       ];
       
       for (const field of phoneFields) {
-        if (order[field] && order[field].trim()) {
-          return order[field].trim();
+        if (order[field] && String(order[field]).trim()) {
+          return String(order[field]).trim();
         }
       }
       
@@ -305,7 +315,7 @@
       document.getElementById('totalRevenue').textContent = `₹${totalRevenue}`;
     }
 
-    // Function to render orders table - FIXED customer details
+    // Function to render orders table - includes image thumbnail if available
     function renderOrdersTable(filterStatus = 'all') {
       const tableBody = document.getElementById('ordersTable');
       const noOrdersMessage = document.getElementById('noOrdersMessage');
@@ -326,11 +336,21 @@
         // Get customer name from all possible fields
         const customerName = getCustomerName(order);
         const customerPhone = getCustomerPhone(order);
-        
+
+        // Thumbnail (if present)
+        let thumbHTML = '<div class="text-xs text-gray-500">-</div>';
+        if (order.image) {
+          // order.image expected to be a base64 data URL or public URL
+          thumbHTML = `<img src="${order.image}" alt="ref" class="thumb" />`;
+        } else if (order.imageId && localStorage.getItem(order.imageId)) {
+          thumbHTML = `<img src="${localStorage.getItem(order.imageId)}" alt="ref" class="thumb" />`;
+        }
+
         return `
           <tr class="hover:bg-gray-50">
             <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">${order.id}</td>
-            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">${order.product}</td>
+            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">${thumbHTML}</td>
+            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">${order.product || 'Custom Order'}</td>
             <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
               ${customerName}
             </td>
@@ -360,7 +380,7 @@
       }).join('');
     }
 
-    // Function to view order details - FIXED customer details display
+    // Function to view order details - shows image if present
     function viewOrder(orderId) {
       const order = orders.find(o => o.id === orderId);
       if (!order) return;
@@ -372,6 +392,39 @@
       const customerName = getCustomerName(order);
       const customerPhone = getCustomerPhone(order);
 
+      // Prepare image HTML
+      let imageSection = '<div class="text-sm text-gray-500">No reference image provided.</div>';
+      if (order.image) {
+        imageSection = `
+          <div class="flex items-start gap-4">
+            <div class="w-48 h-48 rounded-lg overflow-hidden border border-gray-200 bg-white flex items-center justify-center">
+              <img src="${order.image}" alt="reference" class="max-w-full max-h-full object-contain">
+            </div>
+            <div class="text-sm">
+              <div><strong>Filename:</strong> ${order.imageName || 'uploaded-image'}</div>
+              <div class="mt-2">
+                <a href="${order.image}" download="${order.imageName || 'reference.png'}" class="px-3 py-2 bg-rose-600 text-white rounded text-sm inline-block hover:bg-rose-700">Download Image</a>
+              </div>
+            </div>
+          </div>
+        `;
+      } else if (order.imageId && localStorage.getItem(order.imageId)) {
+        const dataUrl = localStorage.getItem(order.imageId);
+        imageSection = `
+          <div class="flex items-start gap-4">
+            <div class="w-48 h-48 rounded-lg overflow-hidden border border-gray-200 bg-white flex items-center justify-center">
+              <img src="${dataUrl}" alt="reference" class="max-w-full max-h-full object-contain">
+            </div>
+            <div class="text-sm">
+              <div><strong>Filename:</strong> ${order.imageName || 'uploaded-image'}</div>
+              <div class="mt-2">
+                <a href="${dataUrl}" download="${order.imageName || 'reference.png'}" class="px-3 py-2 bg-rose-600 text-white rounded text-sm inline-block hover:bg-rose-700">Download Image</a>
+              </div>
+            </div>
+          </div>
+        `;
+      }
+
       details.innerHTML = `
         <div class="grid grid-cols-2 gap-4">
           <div>
@@ -380,7 +433,7 @@
               <div><strong>Order ID:</strong> ${order.id}</div>
               <div><strong>Product:</strong> ${order.product}</div>
               <div><strong>Amount:</strong> ₹${order.amount || 0}</div>
-              <div><strong>Quantity:</strong> ${order.quantity || 1}</div>
+              <div><strong>Quantity:</strong> ${order.quantity || order.qty || 1}</div>
               <div><strong>Status:</strong> <span class="capitalize">${order.status || 'pending'}</span></div>
               <div><strong>Revenue Counted:</strong> <span class="${(order.status === 'shipped' || order.status === 'delivered') ? 'text-green-600 font-semibold' : 'text-gray-500'}">
                 ${(order.status === 'shipped' || order.status === 'delivered') ? 'YES (included in revenue)' : 'NO (not shipped yet)'}
@@ -410,6 +463,13 @@
           <h4 class="font-semibold text-gray-900">Customization Details</h4>
           <div class="mt-2 p-3 bg-gray-50 rounded-lg text-sm">
             ${order.customization || order.note || order.message || 'No customization details provided'}
+          </div>
+        </div>
+
+        <div>
+          <h4 class="font-semibold text-gray-900">Reference Image</h4>
+          <div class="mt-2 text-sm">
+            ${imageSection}
           </div>
         </div>
 
@@ -470,6 +530,10 @@
       const orderIndex = orders.findIndex(o => o.id === orderId);
       if (orderIndex !== -1) {
         const deletedOrder = orders[orderIndex];
+        // If image stored separately as imageId in localStorage, remove it too
+        if (deletedOrder.imageId) {
+          localStorage.removeItem(deletedOrder.imageId);
+        }
         orders.splice(orderIndex, 1);
         localStorage.setItem('jewelleryOrders', JSON.stringify(orders));
         
