@@ -63,7 +63,7 @@
         </p>
       </div>
 
-      <!-- RIGHT SIDE: Details + Pay + WhatsApp -->
+      <!-- RIGHT SIDE: Details + Pay -->
       <div>
         <p class="text-xs text-gray-500">Product</p>
         <p id="prodName" class="text-base font-semibold mt-1">Product</p>
@@ -79,29 +79,14 @@
           Pay with UPI App
         </button>
 
-        <!-- UPI backup link -->
+        <!-- UPI backup link (kept for fallback) -->
         <a id="upiLink"
            href="#"
            class="mt-2 block text-center text-blue-600 underline text-xs break-all">
         </a>
 
-        <!-- WhatsApp confirm button -->
-        <button id="waBtn"
-                class="mt-4 w-full bg-green-600 hover:bg-green-700 text-white font-semibold text-sm p-3 rounded-xl">
-          Confirm on WhatsApp
-        </button>
-
-        <!-- WhatsApp backup link (visible text) -->
-        <a id="waLink"
-           href="#"
-           target="_blank"
-           rel="noopener noreferrer"
-           class="mt-1 block text-center text-emerald-700 underline text-[11px] break-all">
-        </a>
-
         <div class="mt-4 bg-green-500 text-white p-3 rounded-xl text-xs">
-          <b>IMPORTANT:</b> After payment, tap “Confirm on WhatsApp” and send the
-          payment screenshot so we can process your order.
+          <b>IMPORTANT:</b> After payment, please keep a screenshot of the payment confirmation — you'll need it for order verification.
         </div>
       </div>
     </section>
@@ -114,130 +99,99 @@
   </main>
 
 <script>
-  // ---------------- CONFIG ----------------
-  const UPI_ID       = "Aroobakhan660@okicici";
-  const PAYEE_NAME   = "Customised Jewellery";
+  document.addEventListener('DOMContentLoaded', () => {
+    // ---------------- CONFIG ----------------
+    const UPI_ID = "Aroobakhan660@okicici";
+    const PAYEE_NAME = "Customised Jewellery";
 
-  // 👇 CHANGE THIS TO YOUR REAL WHATSAPP NUMBER
-  // Format: countrycode + number, NO plus sign, NO spaces
-  const WHATSAPP_NUMBER = "919876543210";  // ← REPLACE THIS
+    // ---------------- DOM ----------------
+    const prodNameEl   = document.getElementById("prodName");
+    const prodPriceEl  = document.getElementById("prodPrice");
+    const amountNoteEl = document.getElementById("amountNote");
+    const copyBtn      = document.getElementById("copyBtn");
+    const upiDisplay   = document.getElementById("upiDisplay");
+    const payBtn       = document.getElementById("payBtn");
+    const upiLinkEl    = document.getElementById("upiLink");
 
-  // ---------------- DOM ----------------
-  const prodNameEl   = document.getElementById("prodName");
-  const prodPriceEl  = document.getElementById("prodPrice");
-  const amountNoteEl = document.getElementById("amountNote");
-  const copyBtn      = document.getElementById("copyBtn");
-  const upiDisplay   = document.getElementById("upiDisplay");
-  const payBtn       = document.getElementById("payBtn");
-  const upiLinkEl    = document.getElementById("upiLink");
-  const waBtn        = document.getElementById("waBtn");
-  const waLinkEl     = document.getElementById("waLink");
+    document.getElementById("year").textContent = new Date().getFullYear();
+    upiDisplay.textContent = UPI_ID;
 
-  document.getElementById("year").textContent = new Date().getFullYear();
-  upiDisplay.textContent = UPI_ID;
+    // ---------------- URL PARAMS ----------------
+    const qs = new URLSearchParams(location.search);
+    const product = qs.get("product") || "Customised Order";
+    const price   = qs.get("price")   || "";
+    const qtyRaw  = qs.get("qty")     || "1";
 
-  // ---------------- URL PARAMS ----------------
-  const qs = new URLSearchParams(location.search);
+    const qty   = parseInt(qtyRaw) || 1;
+    const num   = price ? parseFloat(price) : 0;
+    const total = qty * num;
 
-  const product = qs.get("product") || "Customised Order";
-  const price   = qs.get("price")   || "";
-  const qtyRaw  = qs.get("qty")     || "1";
+    let amountStr = "";
+    prodNameEl.textContent = product;
 
-  const qty   = parseInt(qtyRaw) || 1;
-  const num   = price ? parseFloat(price) : 0;
-  const total = qty * num;
-
-  let amountStr = "";
-  prodNameEl.textContent = product;
-
-  if (total > 0) {
-    amountStr = total.toFixed(2);
-    prodPriceEl.textContent = "₹" + amountStr;
-    if (qty > 1) {
-      amountNoteEl.textContent = `${qty} × ₹${num.toFixed(2)}`;
+    if (total > 0) {
+      amountStr = total.toFixed(2);
+      prodPriceEl.textContent = "₹" + amountStr;
+      if (qty > 1) {
+        amountNoteEl.textContent = `${qty} × ₹${num.toFixed(2)}`;
+      } else {
+        amountNoteEl.textContent = "";
+      }
+      payBtn.disabled = false;
+      payBtn.classList.remove("opacity-60", "cursor-not-allowed");
     } else {
-      amountNoteEl.textContent = "";
+      prodPriceEl.textContent = "Amount not set";
+      amountNoteEl.textContent = "Go back and choose product again so amount is added.";
+      payBtn.disabled = true;
+      payBtn.classList.add("opacity-60", "cursor-not-allowed");
     }
-    payBtn.disabled = false;
-    payBtn.classList.remove("opacity-60", "cursor-not-allowed");
-  } else {
-    prodPriceEl.textContent = "Amount not set";
-    amountNoteEl.textContent = "Go back and choose product again so amount is added.";
-    payBtn.disabled = true;
-    payBtn.classList.add("opacity-60", "cursor-not-allowed");
-  }
 
-  // ---------------- UPI LINK BUILDERS ----------------
-  function buildUpiUrl() {
-    const p = new URLSearchParams();
-    p.append("pa", UPI_ID);
-    p.append("pn", PAYEE_NAME);
-    if (amountStr) p.append("am", amountStr);
-    p.append("cu", "INR");
-    return "upi://pay?" + p.toString();
-  }
+    // ---------------- UPI LINK BUILDERS ----------------
+    function buildUpiUrl() {
+      const p = new URLSearchParams();
+      p.append("pa", UPI_ID);
+      p.append("pn", PAYEE_NAME);
+      if (amountStr) p.append("am", amountStr);
+      p.append("cu", "INR");
+      return "upi://pay?" + p.toString();
+    }
 
-  const upiUrl = buildUpiUrl();
-  if (amountStr) {
-    upiLinkEl.href = upiUrl;
-    upiLinkEl.textContent = "If the button does not work, tap this UPI link: " + upiUrl;
-  } else {
-    upiLinkEl.textContent = "UPI link will appear here when amount is set.";
-  }
-
-  // ---------------- WHATSAPP LINK ----------------
-  function buildWhatsappUrl() {
-    const displayAmount = amountStr ? `₹${amountStr}` : "(amount not auto-filled)";
-    const msg = `Hello, I have completed a payment for "${product}" of ${displayAmount} via UPI ID ${UPI_ID}. I am attaching the payment screenshot.`;
-    const encoded = encodeURIComponent(msg);
-    if (!WHATSAPP_NUMBER || WHATSAPP_NUMBER.trim().length < 6) return "";
-    return `https://wa.me/${WHATSAPP_NUMBER}?text=${encoded}`;
-  }
-
-  const whatsappUrl = buildWhatsappUrl();
-  if (whatsappUrl) {
-    waLinkEl.href = whatsappUrl;
-    waLinkEl.textContent = "Or tap here if the WhatsApp button does not open: " + whatsappUrl;
-  } else {
-    waLinkEl.textContent = "WhatsApp not configured. Edit the code to set WHATSAPP_NUMBER.";
-  }
-
-  // ---------------- COPY UPI ID ----------------
-  copyBtn.addEventListener("click", () => {
-    if (navigator.clipboard && navigator.clipboard.writeText) {
-      navigator.clipboard.writeText(UPI_ID)
-        .then(() => alert("UPI ID copied: " + UPI_ID))
-        .catch(() => alert("Copy failed, please copy manually."));
+    const upiUrl = buildUpiUrl();
+    if (amountStr) {
+      upiLinkEl.href = upiUrl;
+      upiLinkEl.textContent = "If the button does not work, tap this UPI link: " + upiUrl;
     } else {
-      alert("Copy not supported, please copy manually: " + UPI_ID);
+      upiLinkEl.textContent = "UPI link will appear here when amount is set.";
     }
-  });
 
-  // ---------------- PAY BUTTON ----------------
-  payBtn.addEventListener("click", () => {
-    if (!amountStr) {
-      alert("Amount is missing. Please go back and select the product again.");
-      return;
-    }
-    if (!upiUrl) {
-      alert("Something went wrong building the UPI link. Please refresh and try again.");
-      return;
-    }
-    // try to open the UPI app via custom scheme
-    window.location.href = upiUrl;
-  });
+    // ---------------- COPY UPI ID ----------------
+    copyBtn.addEventListener("click", () => {
+      if (navigator.clipboard && navigator.clipboard.writeText) {
+        navigator.clipboard.writeText(UPI_ID)
+          .then(() => alert("UPI ID copied: " + UPI_ID))
+          .catch(() => alert("Copy failed, please copy manually."));
+      } else {
+        alert("Copy not supported, please copy manually: " + UPI_ID);
+      }
+    });
 
-  // ---------------- WHATSAPP BUTTON ----------------
-  waBtn.addEventListener("click", () => {
-    if (!whatsappUrl) {
-      alert("WhatsApp number not configured. Edit the code and set WHATSAPP_NUMBER.");
-      return;
-    }
-    window.open(whatsappUrl, "_blank");
-  });
+    // ---------------- PAY BUTTON ----------------
+    payBtn.addEventListener("click", () => {
+      if (!amountStr) {
+        alert("Amount is missing. Please go back and select the product again.");
+        return;
+      }
+      if (!upiUrl) {
+        alert("Something went wrong building the UPI link. Please refresh and try again.");
+        return;
+      }
+      // try to open the UPI app via custom scheme (basic fallback)
+      // For best iOS support you can replace this with the multi-scheme iframe approach used earlier.
+      window.location.href = upiUrl;
+    });
 
-  // If the QR image failed to load we show the fallback (already handled by onerror). Optionally you can set the image src via JS:
-  // document.getElementById('qrImg').src = 'images/Gpay%20Scanner%20Toyiba.jpg';
+    // If the QR image failed to load we show the fallback (already handled by onerror).
+  });
 </script>
 
 </body>
