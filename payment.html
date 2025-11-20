@@ -3,11 +3,15 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Pay — Customised Jewellery (with email notification)</title>
+  <title>Pay — Customised Jewellery</title>
   <meta name="description" content="Secure UPI Payment for Customised Jewellery" />
   <script src="https://cdn.tailwindcss.com"></script>
+
   <style>
-    body { font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; background: #fff5f7; }
+    body {
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      background: #fff5f7;
+    }
     .action-pill { transition: all .12s ease; }
     .action-pill:active { transform: translateY(1px); }
     .raw-link { word-break: break-all; display: none; }
@@ -16,6 +20,7 @@
 
 <body class="min-h-screen flex items-center justify-center p-4">
   <main class="w-full max-w-xl bg-white rounded-2xl shadow-xl border border-rose-100">
+
     <!-- HEADER -->
     <header class="p-5 border-b border-gray-200">
       <h1 class="text-lg font-semibold">Complete Payment</h1>
@@ -24,13 +29,17 @@
 
     <!-- CONTENT -->
     <section class="p-6 grid grid-cols-1 md:grid-cols-2 gap-6">
-      <!-- LEFT SIDE: QR + UPI -->
+      
+      <!-- LEFT SIDE -->
       <div class="text-center">
-        <img id="qrImg" src="images/Gpay Scanner Toyiba.jpg" class="w-52 h-52 rounded-xl shadow-md mx-auto object-cover"
+        <img id="qrImg" src="images/QR.jpg"
+             class="w-52 h-52 rounded-xl shadow-md mx-auto object-cover"
              alt="UPI QR Code"
-             onerror="this.style.display='none'; document.getElementById('qrFallback').style.display='block'">
+             onerror="this.style.display='none'; document.getElementById('qrFallback').style.display='flex'">
 
-        <div id="qrFallback" class="w-52 h-52 rounded-xl shadow-md mx-auto flex items-center justify-center bg-gray-50 text-gray-700 p-4" style="display:none;">
+        <div id="qrFallback"
+             class="w-52 h-52 rounded-xl shadow-md mx-auto flex items-center justify-center bg-gray-50 text-gray-700 p-4"
+             style="display:none;">
           <div>
             <div class="text-sm text-gray-500">QR image not found</div>
             <div class="font-mono font-semibold mt-2">Aroobakhan660@okicici</div>
@@ -38,15 +47,21 @@
           </div>
         </div>
 
-        <button id="copyBtn" class="mt-4 w-full bg-rose-600 hover:bg-rose-700 text-white font-semibold text-sm p-3 rounded-xl">
+        <button id="copyBtn"
+                class="mt-4 w-full bg-rose-600 hover:bg-rose-700 text-white font-semibold text-sm p-3 rounded-xl">
           Copy UPI ID
         </button>
 
-        <p class="mt-2 text-xs text-gray-600">UPI ID: <span class="font-mono font-semibold" id="upiDisplay">Aroobakhan660@okicici</span></p>
-        <p class="mt-3 text-xs text-gray-500">If payment doesn’t open, scan the QR or use the copied UPI ID.</p>
+        <p class="mt-2 text-xs text-gray-600">
+          UPI ID: <span class="font-mono font-semibold" id="upiDisplay">Aroobakhan660@okicici</span>
+        </p>
+
+        <p class="mt-3 text-xs text-gray-500">
+          If payment doesn’t open, scan the QR or use the copied UPI ID.
+        </p>
       </div>
 
-      <!-- RIGHT SIDE: Details + Pay -->
+      <!-- RIGHT SIDE -->
       <div>
         <p class="text-xs text-gray-500">Product</p>
         <p id="prodName" class="text-base font-semibold mt-1">Product</p>
@@ -55,12 +70,14 @@
         <p id="prodPrice" class="text-2xl font-semibold">₹0.00</p>
         <p id="amountNote" class="text-xs text-gray-500"></p>
 
-        <button id="payBtn" class="mt-4 w-full bg-rose-600 hover:bg-rose-700 text-white font-semibold text-sm p-3 rounded-xl">
+        <button id="payBtn"
+                class="mt-4 w-full bg-rose-600 hover:bg-rose-700 text-white font-semibold text-sm p-3 rounded-xl">
           Pay with UPI App
         </button>
 
         <div class="mt-3 flex items-center gap-2">
-          <button id="showUpiBtn" class="action-pill inline-flex items-center gap-2 px-3 py-2 rounded-full bg-white border border-gray-200 text-sm text-gray-700 hover:bg-gray-50">
+          <button id="showUpiBtn"
+                  class="action-pill inline-flex items-center gap-2 px-3 py-2 rounded-full bg-white border border-gray-200 text-sm text-gray-700 hover:bg-gray-50">
             Show UPI link
           </button>
           <a id="upiLink" href="#" class="text-xs text-blue-600 underline hidden">Open UPI link</a>
@@ -69,8 +86,27 @@
         <div id="upiRaw" class="raw-link mt-2 text-xs text-gray-500 px-1"></div>
 
         <div class="mt-4 bg-green-500 text-white p-3 rounded-xl text-xs">
-          <b>IMPORTANT:</b> After payment, please keep a screenshot of the payment confirmation — you'll need it for order verification.
+          <b>IMPORTANT:</b> After payment, keep a screenshot of the confirmation — you'll need it for verification.
         </div>
+
+        <!-- OPTION B: HIGH-VISIBILITY CHECKBOX -->
+        <div class="mt-6">
+          <label class="flex items-start gap-3 cursor-pointer select-none border border-rose-500 p-3 rounded-lg shadow-sm">
+            <input id="paidCheckbox" type="checkbox"
+                   class="mt-1 w-5 h-5 text-rose-600 border-gray-300 rounded">
+            <span class="text-sm font-semibold text-gray-900">
+              I have completed the payment & want to send payment details.
+            </span>
+          </label>
+        </div>
+
+        <!-- SEND EMAIL BUTTON -->
+        <button id="sendEmailBtn"
+                style="display:none;"
+                class="mt-3 w-full bg-green-600 hover:bg-green-700 text-white text-sm font-semibold p-3 rounded-xl">
+          Send Payment Details to Seller
+        </button>
+
       </div>
     </section>
 
@@ -82,21 +118,7 @@
 
 <script>
 document.addEventListener('DOMContentLoaded', () => {
-  // ------------------------
-  // CONFIG - Update these
-  // ------------------------
-  // OPTION A (recommended for "no-backend" automated emailing): EmailJS
-  // Sign up at https://www.emailjs.com, create a Service and Template, then copy:
-  const EMAILJS_SERVICE_ID = "service_u9u239m";   // e.g. "service_xxx"
-  const EMAILJS_TEMPLATE_ID = "template_ab12cd3"; // e.g. "template_yyy"
-  const EMAILJS_USER_ID = "M-MmDqaCfXaATWzc_";      // a public (user) key from EmailJS dashboard
-  // The template must accept template parameters used below (product, amount, qty, upi, time, txn_note).
-  // ------------------------
-  // Recipient email:
-  const RECIPIENT_EMAIL = "customisedj@gmail.com";
-  // ------------------------
 
-  // DOM
   const upiDisplay = document.getElementById('upiDisplay');
   const copyBtn = document.getElementById('copyBtn');
   const payBtn = document.getElementById('payBtn');
@@ -107,14 +129,15 @@ document.addEventListener('DOMContentLoaded', () => {
   const prodPriceEl = document.getElementById('prodPrice');
   const amountNoteEl = document.getElementById('amountNote');
 
+  const paidCheckbox = document.getElementById("paidCheckbox");
+  const sendEmailBtn = document.getElementById("sendEmailBtn");
+
   document.getElementById('year').textContent = new Date().getFullYear();
 
-  // UPI / product defaults
   const UPI_ID = "Aroobakhan660@okicici";
   const PAYEE_NAME = "Customised Jewellery";
   upiDisplay.textContent = UPI_ID;
 
-  // URL params -> amount/product
   const qs = new URLSearchParams(location.search);
   const product = qs.get('product') || 'Customised Order';
   const price = qs.get('price') || '';
@@ -126,20 +149,17 @@ document.addEventListener('DOMContentLoaded', () => {
   let amountStr = '';
 
   prodNameEl.textContent = product;
+
   if (total > 0) {
     amountStr = total.toFixed(2);
     prodPriceEl.textContent = '₹' + amountStr;
     amountNoteEl.textContent = (qty > 1) ? `${qty} × ₹${num.toFixed(2)}` : '';
-    payBtn.disabled = false;
-    payBtn.classList.remove('opacity-60','cursor-not-allowed');
   } else {
     prodPriceEl.textContent = 'Amount not set';
     amountNoteEl.textContent = 'Go back and choose product again so amount is added.';
     payBtn.disabled = true;
-    payBtn.classList.add('opacity-60','cursor-not-allowed');
   }
 
-  // build upi:// url
   function buildUpiUrl() {
     const p = new URLSearchParams();
     p.append('pa', UPI_ID);
@@ -149,205 +169,53 @@ document.addEventListener('DOMContentLoaded', () => {
     return 'upi://pay?' + p.toString();
   }
 
-  // app-specific schemes
-  function buildSchemes() {
-    const q = buildUpiUrl().split('upi://pay?')[1] || '';
-    return [
-      `tez://upi/pay?${q}`,
-      `gpay://upi/pay?${q}`,
-      `googlepay://upi/pay?${q}`,
-      `phonepe://pay?${q}`,
-      `paytmmp://pay?${q}`,
-      `upi://pay?${q}`
-    ];
-  }
-
-  function isIOS() { return /iP(hone|od|ad)/i.test(navigator.userAgent || ''); }
-
-  function openViaIframe(uri, timeout = 1100) {
-    return new Promise((resolve) => {
-      let resolved = false;
-      const iframe = document.createElement('iframe');
-      iframe.style.display = 'none';
-      document.body.appendChild(iframe);
-
-      function cleanup(opened) {
-        if (resolved) return;
-        resolved = true;
-        try { if (iframe.parentNode) iframe.parentNode.removeChild(iframe); } catch (e) {}
-        document.removeEventListener('visibilitychange', onVis);
-        resolve(opened);
-      }
-
-      function onVis() {
-        if (document.visibilityState === 'hidden') cleanup(true);
-      }
-      document.addEventListener('visibilitychange', onVis);
-
-      try { iframe.src = uri; } catch (e) {}
-      setTimeout(() => cleanup(false), timeout);
-    });
-  }
-
-  function openViaLocation(uri, timeout = 1100) {
-    return new Promise((resolve) => {
-      let resolved = false;
-      const start = Date.now();
-      function finish(opened) {
-        if (resolved) return;
-        resolved = true;
-        window.removeEventListener('pagehide', onPageHide);
-        resolve(opened);
-      }
-      function onPageHide() { finish(true); }
-      window.addEventListener('pagehide', onPageHide);
-      try { window.location.href = uri; } catch (e) { finish(false); }
-      setTimeout(() => {
-        if (!document.hidden) finish(false); else finish(true);
-      }, timeout);
-    });
-  }
-
-  async function openUpiApp() {
-    const schemes = buildSchemes();
-    if (isIOS()) {
-      for (const s of schemes) {
-        const opened = await openViaIframe(s, 1000);
-        if (opened) return true;
-      }
-      return false;
-    } else {
-      for (const s of schemes) {
-        const opened = await openViaLocation(s, 900);
-        if (opened) return true;
-      }
-      return false;
-    }
-  }
-
-  function showFallback() {
-    const qr = document.getElementById('qrFallback');
-    if (qr) qr.style.display = 'flex';
-    upiRaw.textContent = buildUpiUrl();
-    upiRaw.style.display = 'none';
-    upiLink.href = buildUpiUrl();
-    upiLink.classList.remove('hidden');
-  }
-
-  // copy UPI id
-  copyBtn.addEventListener('click', () => {
-    if (navigator.clipboard && navigator.clipboard.writeText) {
-      navigator.clipboard.writeText(UPI_ID)
-        .then(() => alert('UPI ID copied: ' + UPI_ID))
-        .catch(() => alert('Copy failed, please copy manually.'));
-    } else {
-      alert('Copy not supported, please copy manually: ' + UPI_ID);
-    }
+  payBtn.addEventListener('click', () => {
+    window.location.href = buildUpiUrl();
   });
 
-  // show/hide raw upi link on demand
   showUpiBtn.addEventListener('click', () => {
     if (upiRaw.style.display === 'none' || upiRaw.style.display === '') {
+      upiRaw.textContent = buildUpiUrl();
       upiRaw.style.display = 'block';
+      upiLink.href = buildUpiUrl();
+      upiLink.classList.remove('hidden');
       showUpiBtn.textContent = 'Hide UPI link';
     } else {
       upiRaw.style.display = 'none';
+      upiLink.classList.add('hidden');
       showUpiBtn.textContent = 'Show UPI link';
     }
   });
 
-  // ---------- Email sending logic (EmailJS REST API) ----------
-  // Notes:
-  // - Replace EMAILJS_SERVICE_ID, EMAILJS_TEMPLATE_ID and EMAILJS_USER_ID above.
-  // - Create an EmailJS template that uses these params:
-  //    product, amount, qty, upi, time, txn_note, recipient_email
-  // - This is a client-side call to EmailJS's public endpoint; it's standard for static sites.
-  async function sendEmailNotification(details) {
-    // If EmailJS config not set, do nothing (or fallback to mailto below)
-    if (!EMAILJS_SERVICE_ID || !EMAILJS_TEMPLATE_ID || !EMAILJS_USER_ID ||
-        EMAILJS_SERVICE_ID === "YOUR_EMAILJS_SERVICE_ID") {
-      // fallback: open user's mail client with prefilled body (user must send)
-      // Comment out the following lines if you do not want mailto fallback.
-      const subject = encodeURIComponent(`Payment attempt: ${details.product} - ₹${details.amount}`);
-      const body = encodeURIComponent(`Product: ${details.product}\nAmount: ₹${details.amount}\nQuantity: ${details.qty}\nUPI ID: ${details.upi}\nTime: ${details.time}\nNote: ${details.note}\n\n(Please attach payment screenshot if paid.)`);
-      // open mail client
-      window.location.href = `mailto:${encodeURIComponent(RECIPIENT_EMAIL)}?subject=${subject}&body=${body}`;
-      return { ok: false, fallback: true };
-    }
-
-    const payload = {
-      service_id: EMAILJS_SERVICE_ID,
-      template_id: EMAILJS_TEMPLATE_ID,
-      user_id: EMAILJS_USER_ID,
-      template_params: {
-        product: details.product,
-        amount: details.amount,
-        qty: details.qty,
-        upi: details.upi,
-        time: details.time,
-        txn_note: details.note,
-        recipient_email: RECIPIENT_EMAIL
-      }
-    };
-
-    try {
-      const res = await fetch('https://api.emailjs.com/api/v1.0/email/send', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(payload)
-      });
-      if (!res.ok) {
-        const text = await res.text().catch(()=>null);
-        console.warn('EmailJS responded with non-OK:', res.status, text);
-        return { ok: false, status: res.status, text };
-      }
-      return { ok: true };
-    } catch (err) {
-      console.error('sendEmailNotification error', err);
-      return { ok: false, error: err.message || String(err) };
-    }
-  }
-
-  // attach pay button
-  payBtn.addEventListener('click', async (ev) => {
-    ev.preventDefault();
-    if (!amountStr) { alert('Amount missing. Please select a product.'); return; }
-
-    // Prepare transaction details
-    const details = {
-      product: product,
-      amount: amountStr || '0.00',
-      qty: qty,
-      upi: UPI_ID,
-      time: new Date().toLocaleString(),
-      note: 'Customer initiated payment via UPI button (keep screenshot after paying).'
-    };
-
-    // Fire-and-forget: attempt to open UPI app and also send email in background.
-    // We run both; email sending does not block the UPI open attempt.
-    try {
-      // Start email send but don't block UI for opening the UPI app
-      sendEmailNotification(details).then(result => {
-        if (result && result.ok) {
-          console.log('Email notification sent');
-        } else if (result && result.fallback) {
-          console.log('EmailJS not configured — opened mail client as fallback.');
-        } else {
-          console.warn('Email notification failed', result);
-        }
-      });
-    } catch (e) {
-      console.error('Email send initiation failed', e);
-    }
-
-    try {
-      const opened = await openUpiApp();
-      if (!opened) showFallback();
-    } catch (err) {
-      console.error('UPI open error', err);
-      showFallback();
-    }
+  copyBtn.addEventListener('click', () => {
+    navigator.clipboard.writeText(UPI_ID).then(() => {
+      alert('UPI ID copied: ' + UPI_ID);
+    });
   });
+
+  // SHOW EMAIL BUTTON AFTER CHECKBOX
+  paidCheckbox.addEventListener("change", () => {
+    sendEmailBtn.style.display = paidCheckbox.checked ? "block" : "none";
+  });
+
+  // SEND EMAIL WITH PAYMENT DETAILS
+  sendEmailBtn.addEventListener("click", () => {
+    const subject = encodeURIComponent(`Payment Confirmation — ${product} — ₹${amountStr}`);
+    const body = encodeURIComponent(
+`I have completed the payment.
+
+Product: ${product}
+Amount: ₹${amountStr}
+Quantity: ${qty}
+
+UPI ID used: ${UPI_ID}
+
+I will attach the payment screenshot below.`
+    );
+
+    window.location.href = `mailto:customisedj@gmail.com?subject=${subject}&body=${body}`;
+  });
+
 });
 </script>
 
