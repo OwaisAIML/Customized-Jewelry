@@ -1,212 +1,196 @@
 <script>
-/* --- CONFIG --- */
-const UPI_ID = "Aroobakhan660@okicici";
-const PAYEE_NAME = "Customised Jewellery";
-
-const amountStr = (function(){
-  const qs = new URLSearchParams(location.search);
-  const price = qs.get("price") || "";
-  const qty = parseInt(qs.get("qty")||"1") || 1;
-  const num = price ? parseFloat(price) : 0;
-  const total = qty * num;
-  return total > 0 ? total.toFixed(2) : "";
-})();
-
-/* --- build NPCI-style upi:// URL --- */
-function buildUpiUrl() {
-  const p = new URLSearchParams();
-  p.append("pa", UPI_ID);
-  p.append("pn", PAYEE_NAME);
-  if (amountStr) p.append("am", amountStr);
-  p.append("cu", "INR");
-  return "upi://pay?" + p.toString();
-}
-
-/* --- app-specific schemes & Android intent fallback --- */
-function buildSchemesAndIntents() {
-  const q = buildUpiUrl().split("upi://pay?")[1] || "";
-  // common app packages (may change; add more if you see others)
-  const schemes = [
-    // Google Pay (tez/gpay variants)
-    `tez://upi/pay?${q}`,
-    `gpay://upi/pay?${q}`,
-    // PhonePe
-    `phonepe://pay?${q}`,
-    // Paytm
-    `paytmmp://pay?${q}`,
-    // BHIM / generic
-    `upi://pay?${q}`
-  ];
-
-  // Android intent URI — tries to open a known package, then fallback to generic.
-  // We include a generic intent without package too.
-  // NOTE: package names are examples; trying multiple packages increases success rate.
-  const intents = [
-    // Try Google Pay package
-    `intent://pay?${q}#Intent;scheme=upi;package=com.google.android.apps.nbu.paisa.user;end`,
-    // Try PhonePe package
-    `intent://pay?${q}#Intent;scheme=upi;package=com.phonepe.app;end`,
-    // Try Paytm package
-    `intent://pay?${q}#Intent;scheme=upi;package=net.one97.paytm;end`,
-    // Generic intent
-    `intent://pay?${q}#Intent;scheme=upi;end`
-  ];
-
-  return { schemes, intents };
-}
-
-/* --- helper: whether platform is iOS --- */
-function isIOS() {
-  return /iP(hone|od|ad)/i.test(navigator.userAgent || "");
-}
-
-/* --- try open helpers --- */
-function openViaIframe(uri) {
-  return new Promise((resolve) => {
-    const iframe = document.createElement('iframe');
-    iframe.style.display = 'none';
-    document.body.appendChild(iframe);
-
-    let done = false;
-    const cleanup = () => {
-      if (!done) done = true;
-      if (iframe.parentNode) iframe.parentNode.removeChild(iframe);
-      document.removeEventListener('visibilitychange', onVis);
-      clearTimeout(timeoutId);
-      resolve({ opened: wasHidden });
-    };
-
-    // detect if user left page (app opened)
-    let wasHidden = false;
-    function onVis() {
-      if (document.visibilityState === 'hidden') {
-        wasHidden = true;
-        cleanup();
-      }
-    }
-    document.addEventListener('visibilitychange', onVis);
-
-    // set a small timeout: if page still visible after timeout we assume not opened
-    const timeoutId = setTimeout(() => cleanup(), 1200);
-
-    try {
-      iframe.src = uri;
-    } catch (e) {
-      // some browsers may throw - ignore
-    }
-  });
-}
-
-function openViaLocation(uri) {
-  return new Promise((resolve) => {
-    let done = false;
-    const start = Date.now();
-
-    function cleanup(opened) {
-      if (done) return;
-      done = true;
-      window.removeEventListener('pagehide', onPageHide);
-      resolve({ opened });
-    }
-
-    function onPageHide() {
-      // when page hides, likely the app opened
-      cleanup(true);
-    }
-    window.addEventListener('pagehide', onPageHide);
-
-    // set a fallback timeout — if still visible, consider not opened
-    setTimeout(() => {
-      const elapsed = Date.now() - start;
-      // if page still visible assume not opened
-      if (!document.hidden) cleanup(false);
-      else cleanup(true);
-    }, 1400);
-
-    // attempt to open
-    try {
-      window.location.href = uri;
-    } catch (e) {
-      // ignore
-      cleanup(false);
-    }
-  });
-}
-
-/* --- main routine: try multiple methods with early bail when page hidden --- */
-async function tryOpenUpiFlow() {
-  const { schemes, intents } = buildSchemesAndIntents();
-
-  // visibility listener for early stop
-  let didLeave = false;
-  function onVis() {
-    if (document.visibilityState === 'hidden') didLeave = true;
-  }
-  document.addEventListener('visibilitychange', onVis);
-
+document.addEventListener('DOMContentLoaded', () => {
   try {
-    // On iOS: use iframe attempts first (safer behavior in Safari)
-    if (isIOS()) {
-      for (const s of schemes) {
-        if (didLeave) return true;
-        // try scheme via iframe
-        // eslint-disable-next-line no-await-in-loop
-        const res = await openViaIframe(s);
-        if (res.opened) return true;
-      }
-      // last try generic upi:// via iframe if not already tried
-      const generic = buildUpiUrl();
-      if (!didLeave) {
-        const res = await openViaIframe(generic);
-        if (res.opened) return true;
-      }
-    } else {
-      // Android/others: try schemes via location (direct navigation), then intent fallbacks
-      for (const s of schemes) {
-        if (didLeave) return true;
-        // eslint-disable-next-line no-await-in-loop
-        const res = await openViaLocation(s);
-        if (res.opened) return true;
-      }
-      // then try intent URIs (more reliable for some Android apps)
-      for (const it of intents) {
-        if (didLeave) return true;
-        // eslint-disable-next-line no-await-in-loop
-        const res = await openViaLocation(it);
-        if (res.opened) return true;
+    /* --- CONFIG --- */
+    const UPI_ID = "Aroobakhan660@okicici";
+    const PAYEE_NAME = "Customised Jewellery";
+
+    const qs = new URLSearchParams(location.search);
+    const price = qs.get("price") || "";
+    const qty = parseInt(qs.get("qty")||"1") || 1;
+    const num = price ? parseFloat(price) : 0;
+    const total = qty * num;
+    const amountStr = total > 0 ? total.toFixed(2) : "";
+
+    /* --- simple helper to build upi:// URL --- */
+    function buildUpiUrl() {
+      const p = new URLSearchParams();
+      p.append("pa", UPI_ID);
+      p.append("pn", PAYEE_NAME);
+      if (amountStr) p.append("am", amountStr);
+      p.append("cu", "INR");
+      return "upi://pay?" + p.toString();
+    }
+
+    function buildSchemesAndIntents() {
+      const q = buildUpiUrl().split("upi://pay?")[1] || "";
+      const schemes = [
+        `tez://upi/pay?${q}`,
+        `gpay://upi/pay?${q}`,
+        `phonepe://pay?${q}`,
+        `paytmmp://pay?${q}`,
+        `upi://pay?${q}`
+      ];
+      const intents = [
+        `intent://pay?${q}#Intent;scheme=upi;package=com.google.android.apps.nbu.paisa.user;end`,
+        `intent://pay?${q}#Intent;scheme=upi;package=com.phonepe.app;end`,
+        `intent://pay?${q}#Intent;scheme=upi;package=net.one97.paytm;end`,
+        `intent://pay?${q}#Intent;scheme=upi;end`
+      ];
+      return { schemes, intents };
+    }
+
+    function isIOS() {
+      return /iP(hone|od|ad)/i.test(navigator.userAgent || "");
+    }
+
+    /* --- open via hidden iframe (iOS strategy) --- */
+    function openViaIframe(uri, timeout = 1200) {
+      return new Promise((resolve) => {
+        let resolved = false;
+        const iframe = document.createElement('iframe');
+        iframe.style.display = 'none';
+        document.body.appendChild(iframe);
+
+        const onVis = () => {
+          if (document.visibilityState === 'hidden') {
+            resolved = true;
+            cleanup(true);
+          }
+        };
+
+        const cleanup = (opened = false) => {
+          if (iframe.parentNode) iframe.parentNode.removeChild(iframe);
+          document.removeEventListener('visibilitychange', onVis);
+          if (!resolved) {
+            resolved = true;
+            resolve(opened);
+          }
+        };
+
+        document.addEventListener('visibilitychange', onVis);
+        try {
+          iframe.src = uri;
+        } catch (e) {
+          // ignore
+        }
+        // fallback timeout: assume not opened
+        setTimeout(() => cleanup(false), timeout);
+      });
+    }
+
+    /* --- open via navigation (Android strategy) --- */
+    function openViaLocation(uri, timeout = 1400) {
+      return new Promise((resolve) => {
+        let resolved = false;
+        const start = Date.now();
+
+        function cleanup(opened = false) {
+          if (resolved) return;
+          resolved = true;
+          window.removeEventListener('pagehide', onPageHide);
+          resolve(opened);
+        }
+        function onPageHide() {
+          cleanup(true);
+        }
+        window.addEventListener('pagehide', onPageHide);
+
+        try {
+          window.location.href = uri;
+        } catch (e) {
+          // ignore
+          cleanup(false);
+        }
+
+        setTimeout(() => {
+          // if still visible assume not opened
+          if (!document.hidden) cleanup(false);
+          else cleanup(true);
+        }, timeout);
+      });
+    }
+
+    /* --- main attempt routine --- */
+    async function tryOpenUpiFlow() {
+      const { schemes, intents } = buildSchemesAndIntents();
+      let didLeave = false;
+      const onVis = () => { if (document.visibilityState === 'hidden') didLeave = true; };
+      document.addEventListener('visibilitychange', onVis);
+
+      try {
+        if (isIOS()) {
+          // try app schemes via iframe on iOS
+          for (const s of schemes) {
+            if (didLeave) return true;
+            // eslint-disable-next-line no-await-in-loop
+            const opened = await openViaIframe(s, 1100);
+            if (opened) return true;
+          }
+          // final generic upi:// fallback
+          if (!didLeave) {
+            const opened = await openViaIframe(buildUpiUrl(), 1100);
+            if (opened) return true;
+          }
+        } else {
+          // Android / desktop: try schemes via location then intent URIs
+          for (const s of schemes) {
+            if (didLeave) return true;
+            // eslint-disable-next-line no-await-in-loop
+            const opened = await openViaLocation(s, 1000);
+            if (opened) return true;
+          }
+          for (const it of intents) {
+            if (didLeave) return true;
+            // eslint-disable-next-line no-await-in-loop
+            const opened = await openViaLocation(it, 1000);
+            if (opened) return true;
+          }
+        }
+        return false;
+      } finally {
+        document.removeEventListener('visibilitychange', onVis);
       }
     }
 
-    // nothing opened
-    return false;
-  } finally {
-    document.removeEventListener('visibilitychange', onVis);
-  }
-}
+    /* --- fallback UI reveal --- */
+    function showFallbackUI() {
+      try {
+        const qr = document.getElementById('qrFallback');
+        if (qr) qr.style.display = 'flex';
+        const rawContainer = document.getElementById('upiRawContainer');
+        if (rawContainer) rawContainer.textContent = buildUpiUrl();
+      } catch (e) {
+        console.error('Fallback UI error', e);
+      }
+    }
 
-/* --- fallback UI --- */
-function showFallbackUI() {
-  const qr = document.getElementById('qrFallback');
-  if (qr) qr.style.display = 'flex';
-  const rawContainer = document.getElementById('upiRawContainer');
-  if (rawContainer) rawContainer.textContent = buildUpiUrl();
-}
+    /* --- attach to pay button (safe guard if element missing) --- */
+    const payBtn = document.getElementById('payBtn');
+    if (!payBtn) {
+      console.warn('payBtn not found — UPI script not attached.');
+      return;
+    }
 
-/* --- wire into your pay button --- */
-document.getElementById('payBtn').addEventListener('click', async (e) => {
-  if (!amountStr) { alert('Amount missing. Please select product again.'); return; }
+    payBtn.addEventListener('click', async (ev) => {
+      ev.preventDefault();
+      if (!amountStr) {
+        alert('Amount missing. Please return to cart and select the product.');
+        return;
+      }
 
-  // first try open flow
-  const opened = await tryOpenUpiFlow();
+      try {
+        const opened = await tryOpenUpiFlow();
+        if (!opened) showFallbackUI();
+      } catch (err) {
+        console.error('UPI open flow error', err);
+        // show fallback so user can still pay
+        showFallbackUI();
+      }
+    });
 
-  // if not opened, show fallback (QR + raw text). If opened, user is likely in app.
-  if (!opened) {
-    showFallbackUI();
+  } catch (outerErr) {
+    console.error('Error initializing UPI script', outerErr);
   }
 });
-
-/* --- optional: helper to generate on-page QR later (client-side) --- */
-/* If you want an on-page QR for desktop/iOS scanning, I can add a tiny client-side QR generator (no external calls).
-   Tell me and I'll include it directly below; it will draw a QR for buildUpiUrl() into a provided element. */
-
 </script>
