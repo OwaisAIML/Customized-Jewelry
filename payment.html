@@ -3,14 +3,13 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Pay — Customised Jewellery</title>
+  <title>Pay — Customised Jewellery (with email notification)</title>
   <meta name="description" content="Secure UPI Payment for Customised Jewellery" />
   <script src="https://cdn.tailwindcss.com"></script>
   <style>
     body { font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; background: #fff5f7; }
     .action-pill { transition: all .12s ease; }
     .action-pill:active { transform: translateY(1px); }
-    /* ensure raw link containers wrap nicely but stay hidden */
     .raw-link { word-break: break-all; display: none; }
   </style>
 </head>
@@ -83,9 +82,19 @@
 
 <script>
 document.addEventListener('DOMContentLoaded', () => {
-  // CONFIG
-  const UPI_ID = "Aroobakhan660@okicici";
-  const PAYEE_NAME = "Customised Jewellery";
+  // ------------------------
+  // CONFIG - Update these
+  // ------------------------
+  // OPTION A (recommended for "no-backend" automated emailing): EmailJS
+  // Sign up at https://www.emailjs.com, create a Service and Template, then copy:
+  const EMAILJS_SERVICE_ID = "service_u9u239m";   // e.g. "service_xxx"
+  const EMAILJS_TEMPLATE_ID = "template_ab12cd3"; // e.g. "template_yyy"
+  const EMAILJS_USER_ID = "M-MmDqaCfXaATWzc_";      // a public (user) key from EmailJS dashboard
+  // The template must accept template parameters used below (product, amount, qty, upi, time, txn_note).
+  // ------------------------
+  // Recipient email:
+  const RECIPIENT_EMAIL = "customisedj@gmail.com";
+  // ------------------------
 
   // DOM
   const upiDisplay = document.getElementById('upiDisplay');
@@ -99,6 +108,10 @@ document.addEventListener('DOMContentLoaded', () => {
   const amountNoteEl = document.getElementById('amountNote');
 
   document.getElementById('year').textContent = new Date().getFullYear();
+
+  // UPI / product defaults
+  const UPI_ID = "Aroobakhan660@okicici";
+  const PAYEE_NAME = "Customised Jewellery";
   upiDisplay.textContent = UPI_ID;
 
   // URL params -> amount/product
@@ -136,7 +149,7 @@ document.addEventListener('DOMContentLoaded', () => {
     return 'upi://pay?' + p.toString();
   }
 
-  // app-specific schemes (try these first on iOS)
+  // app-specific schemes
   function buildSchemes() {
     const q = buildUpiUrl().split('upi://pay?')[1] || '';
     return [
@@ -149,7 +162,6 @@ document.addEventListener('DOMContentLoaded', () => {
     ];
   }
 
-  // helpers to open
   function isIOS() { return /iP(hone|od|ad)/i.test(navigator.userAgent || ''); }
 
   function openViaIframe(uri, timeout = 1100) {
@@ -205,7 +217,6 @@ document.addEventListener('DOMContentLoaded', () => {
       }
       return false;
     } else {
-      // Android / desktop: try location for each scheme
       for (const s of schemes) {
         const opened = await openViaLocation(s, 900);
         if (opened) return true;
@@ -214,11 +225,9 @@ document.addEventListener('DOMContentLoaded', () => {
     }
   }
 
-  // show fallback (QR / raw link)
   function showFallback() {
     const qr = document.getElementById('qrFallback');
     if (qr) qr.style.display = 'flex';
-    // set raw link but keep hidden until user toggles
     upiRaw.textContent = buildUpiUrl();
     upiRaw.style.display = 'none';
     upiLink.href = buildUpiUrl();
@@ -247,10 +256,90 @@ document.addEventListener('DOMContentLoaded', () => {
     }
   });
 
+  // ---------- Email sending logic (EmailJS REST API) ----------
+  // Notes:
+  // - Replace EMAILJS_SERVICE_ID, EMAILJS_TEMPLATE_ID and EMAILJS_USER_ID above.
+  // - Create an EmailJS template that uses these params:
+  //    product, amount, qty, upi, time, txn_note, recipient_email
+  // - This is a client-side call to EmailJS's public endpoint; it's standard for static sites.
+  async function sendEmailNotification(details) {
+    // If EmailJS config not set, do nothing (or fallback to mailto below)
+    if (!EMAILJS_SERVICE_ID || !EMAILJS_TEMPLATE_ID || !EMAILJS_USER_ID ||
+        EMAILJS_SERVICE_ID === "YOUR_EMAILJS_SERVICE_ID") {
+      // fallback: open user's mail client with prefilled body (user must send)
+      // Comment out the following lines if you do not want mailto fallback.
+      const subject = encodeURIComponent(`Payment attempt: ${details.product} - ₹${details.amount}`);
+      const body = encodeURIComponent(`Product: ${details.product}\nAmount: ₹${details.amount}\nQuantity: ${details.qty}\nUPI ID: ${details.upi}\nTime: ${details.time}\nNote: ${details.note}\n\n(Please attach payment screenshot if paid.)`);
+      // open mail client
+      window.location.href = `mailto:${encodeURIComponent(RECIPIENT_EMAIL)}?subject=${subject}&body=${body}`;
+      return { ok: false, fallback: true };
+    }
+
+    const payload = {
+      service_id: EMAILJS_SERVICE_ID,
+      template_id: EMAILJS_TEMPLATE_ID,
+      user_id: EMAILJS_USER_ID,
+      template_params: {
+        product: details.product,
+        amount: details.amount,
+        qty: details.qty,
+        upi: details.upi,
+        time: details.time,
+        txn_note: details.note,
+        recipient_email: RECIPIENT_EMAIL
+      }
+    };
+
+    try {
+      const res = await fetch('https://api.emailjs.com/api/v1.0/email/send', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload)
+      });
+      if (!res.ok) {
+        const text = await res.text().catch(()=>null);
+        console.warn('EmailJS responded with non-OK:', res.status, text);
+        return { ok: false, status: res.status, text };
+      }
+      return { ok: true };
+    } catch (err) {
+      console.error('sendEmailNotification error', err);
+      return { ok: false, error: err.message || String(err) };
+    }
+  }
+
   // attach pay button
   payBtn.addEventListener('click', async (ev) => {
     ev.preventDefault();
     if (!amountStr) { alert('Amount missing. Please select a product.'); return; }
+
+    // Prepare transaction details
+    const details = {
+      product: product,
+      amount: amountStr || '0.00',
+      qty: qty,
+      upi: UPI_ID,
+      time: new Date().toLocaleString(),
+      note: 'Customer initiated payment via UPI button (keep screenshot after paying).'
+    };
+
+    // Fire-and-forget: attempt to open UPI app and also send email in background.
+    // We run both; email sending does not block the UPI open attempt.
+    try {
+      // Start email send but don't block UI for opening the UPI app
+      sendEmailNotification(details).then(result => {
+        if (result && result.ok) {
+          console.log('Email notification sent');
+        } else if (result && result.fallback) {
+          console.log('EmailJS not configured — opened mail client as fallback.');
+        } else {
+          console.warn('Email notification failed', result);
+        }
+      });
+    } catch (e) {
+      console.error('Email send initiation failed', e);
+    }
+
     try {
       const opened = await openUpiApp();
       if (!opened) showFallback();
