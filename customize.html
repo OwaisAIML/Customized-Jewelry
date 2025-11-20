@@ -112,8 +112,8 @@
   <script>
     // Get URL parameters
     const urlParams = new URLSearchParams(window.location.search);
-    const product = decodeURIComponent(urlParams.get('product') || 'Custom Order');
-    const price = decodeURIComponent(urlParams.get('price') || '');
+    const product = urlParams.get('product') || 'Custom Order';
+    const price = urlParams.get('price') || '';
 
     // Update product summary
     document.getElementById('summaryProductName').textContent = product;
@@ -129,6 +129,7 @@
     const imagePreview = document.getElementById('imagePreview');
     const removeImageBtn = document.getElementById('removeImageBtn');
     let selectedImageData = ''; // base64 data url
+    let selectedImageName = '';
 
     imageInput.addEventListener('change', function() {
       const file = this.files && this.files[0];
@@ -136,8 +137,10 @@
         selectedImageData = '';
         imagePreviewWrap.classList.add('hidden');
         imagePreview.src = '';
+        selectedImageName = '';
         return;
       }
+      selectedImageName = file.name || 'reference.png';
       const reader = new FileReader();
       reader.onload = function(e) {
         selectedImageData = e.target.result;
@@ -152,27 +155,38 @@
       selectedImageData = '';
       imagePreview.src = '';
       imagePreviewWrap.classList.add('hidden');
+      selectedImageName = '';
     });
 
-    // Form submission - read image (already read via FileReader above) and redirect with params
+    // Form submission - store image in localStorage and pass imageId (short) in URL
     document.getElementById('customizeForm').addEventListener('submit', function(e) {
       e.preventDefault();
       
       const formData = new FormData(this);
       const params = new URLSearchParams();
-      
+
       // Add all form data to URL parameters
       for (let [key, value] of formData.entries()) {
         if (value) params.append(key, value);
       }
 
-      // If an image is selected, add it as `image` param (base64). Trim size if needed.
+      // If an image is selected, save it in localStorage under an id and pass only imageId
       if (selectedImageData) {
-        // as a safety, if the data URL is huge (>200 KB) we still pass it but warn; ideally you'd send to backend.
-        params.append('image', encodeURIComponent(selectedImageData));
+        // Create an id and store (prefix to avoid collisions)
+        const imageId = 'refimg_' + Date.now();
+        try {
+          localStorage.setItem(imageId, selectedImageData);
+          // keep a small index of images (optional)
+          params.append('imageId', imageId);
+          params.append('imageName', selectedImageName || 'reference.png');
+        } catch (err) {
+          // localStorage can fail if image too large — fallback: warn and continue without image
+          console.error('Could not save image to localStorage', err);
+          alert('Warning: Image too large to save locally. Try a smaller image (under ~1MB) or continue without uploading.');
+        }
       }
 
-      // Redirect to address page with all data (address page should pick up image param and store the order including `image`)
+      // Redirect to address page with params (short)
       window.location.href = 'address.html?' + params.toString();
     });
   </script>
