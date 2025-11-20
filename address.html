@@ -68,13 +68,9 @@
 
 <script>
 (function(){
-  // parse incoming params (product + customization)
   const params = new URLSearchParams(window.location.search);
-
-  // helper: get param (URLSearchParams.get already decodes percent-encoding)
   function getParam(k){ return params.get(k) || ''; }
 
-  // show summary of order and customization on top
   const summary = document.getElementById('summary');
   const name = getParam('product') || '';
   const price = getParam('price') || '';
@@ -82,8 +78,9 @@
   const custName = getParam('custName') || '';
   const note = getParam('note') || '';
 
-  // imageId can be passed as 'imageId' (preferred) or 'image' (legacy)
-  const imageId = getParam('imageId') || getParam('image') || '';
+  // image info
+  const imageId = getParam('imageId') || '';
+  const imageStore = getParam('imageStore') || ''; // 'local' or 'session'
   const imageName = getParam('imageName') || '';
 
   let lines = [`<div class="font-semibold">${name || 'Custom order'}</div>`];
@@ -95,40 +92,57 @@
   if (custName) lines.push(`<div class="text-sm text-slate-600 mt-1">Customer: ${custName}</div>`);
   if (note) lines.push(`<div class="text-sm text-slate-600 mt-2"><strong>Customization:</strong><div class="mt-1 text-xs">${note.replace(/\\n/g,'<br>')}</div></div>`);
 
-  // If there's an imageId and it's stored in localStorage, show preview
-  if (imageId && localStorage.getItem(imageId)) {
-    const dataUrl = localStorage.getItem(imageId);
+  // Try to fetch image from indicated storage
+  function fetchImage(id, store) {
+    try {
+      if (!id) return null;
+      if (store === 'session') {
+        return sessionStorage.getItem(id) || null;
+      } else if (store === 'local') {
+        return localStorage.getItem(id) || null;
+      } else {
+        // store not provided — try both
+        return localStorage.getItem(id) || sessionStorage.getItem(id) || null;
+      }
+    } catch (err) {
+      console.warn('Error fetching image from storage', err);
+      return null;
+    }
+  }
+
+  const dataUrl = fetchImage(imageId, imageStore);
+
+  if (imageId && dataUrl) {
     const safeName = imageName ? ` (${imageName})` : '';
     lines.push(`<div class="mt-3"><div class="text-xs font-medium">Reference image${safeName}</div>
       <div class="w-32 h-32 rounded-lg overflow-hidden border border-slate-200 bg-white mt-2 flex items-center justify-center">
         <img src="${dataUrl}" alt="reference" style="max-width:100%;max-height:100%;object-fit:contain;">
-      </div></div>`);
-    // ensure address form submission keeps imageId
-  } else if (imageId) {
-    // imageId provided but not in localStorage (expired/cleared) — show note
-    lines.push(`<div class="mt-3 text-xs text-rose-600">Reference image was provided but is not available locally. Ask customer to re-upload if needed.</div>`);
+      </div>
+      <div class="text-xs text-slate-500 mt-1">Image found in ${imageStore || 'storage'}. It will be attached to the order.</div>
+    </div>`);
+  } else if (imageId && !dataUrl) {
+    lines.push(`<div class="mt-3 text-xs text-rose-600">Reference image was provided but is not available (storage cleared or expired). Ask customer to re-upload if needed.</div>`);
   }
 
   summary.innerHTML = lines.join('');
 
-  // back link returns to index (or previous)
+  // back link returns to index
   document.getElementById('backLink').addEventListener('click', function(e){
     e.preventDefault();
     window.location.href = 'index.html';
   });
 
-  // on submit: validate then redirect to payment.html with ALL parameters
+  // On submit, keep the imageId & imageStore params in the outgoing URL so payment.html can save the order
   const form = document.getElementById('addressForm');
   form.addEventListener('submit', function(e){
     e.preventDefault();
     if (!form.checkValidity()) { form.reportValidity(); return; }
 
     const fd = new FormData(form);
-    
-    // Build new URLSearchParams starting from ALL existing params (short ones only)
+
+    // Build outgoing params begun from the incoming short params
     const out = new URLSearchParams(window.location.search);
 
-    // Add address fields
     out.set('shipName', fd.get('shipName') || '');
     out.set('shipPhone', fd.get('shipPhone') || '');
     out.set('addr1', fd.get('addr1') || '');
@@ -138,13 +152,13 @@
     out.set('state', fd.get('state') || '');
     out.set('pincode', fd.get('pincode') || '');
 
-    // Keep imageId and imageName if present (we didn't pass the whole base64)
+    // Keep imageId & imageStore & imageName (if present)
     if (imageId) {
       out.set('imageId', imageId);
+      if (imageStore) out.set('imageStore', imageStore);
       if (imageName) out.set('imageName', imageName);
     }
 
-    // redirect to payment page
     window.location.href = 'payment.html?' + out.toString();
   });
 })();
