@@ -1,288 +1,212 @@
-<!doctype html>
-<html lang="en">
-<head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Pay — Customised Jewellery</title>
-  <meta name="description" content="Secure UPI Payment for Customised Jewellery" />
-
-  <script src="https://cdn.tailwindcss.com"></script>
-
-  <style>
-    body {
-      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
-      background: #fff5f7;
-    }
-  </style>
-</head>
-
-<body class="min-h-screen flex items-center justify-center p-4">
-
-  <main class="w-full max-w-xl bg-white rounded-2xl shadow-xl border border-rose-100">
-    
-    <!-- HEADER -->
-    <header class="p-5 border-b border-gray-200">
-      <h1 class="text-lg font-semibold">Complete Payment</h1>
-      <p class="text-sm text-gray-500">
-        Pay securely via any UPI app (Google Pay, PhonePe, Paytm…)
-      </p>
-    </header>
-
-    <!-- CONTENT -->
-    <section class="p-6 grid grid-cols-1 md:grid-cols-2 gap-6">
-      
-      <!-- LEFT SIDE: QR + UPI -->
-      <div class="text-center">
-        <!-- Fix: filename should not contain spaces. Update path if needed. -->
-        <img src="images/Gpay-Scanner-Toyiba.jpg"
-             class="w-52 h-52 rounded-xl shadow-md mx-auto object-cover"
-             alt="UPI QR Code">
-
-        <button id="copyBtn"
-                class="mt-4 w-full bg-rose-600 hover:bg-rose-700 text-white font-semibold text-sm p-3 rounded-xl">
-          Copy UPI ID
-        </button>
-
-        <p class="mt-2 text-xs text-gray-600">
-          UPI ID: <span class="font-mono font-semibold" id="upiDisplay">Aroobakhan660@okicici</span>
-        </p>
-
-        <p class="mt-3 text-xs text-gray-500">
-          If payment doesn’t open, scan the QR or use the copied UPI ID.
-        </p>
-      </div>
-
-      <!-- RIGHT SIDE: Details + Pay + WhatsApp -->
-      <div>
-        <p class="text-xs text-gray-500">Product</p>
-        <p id="prodName" class="text-base font-semibold mt-1">Product</p>
-
-        <p class="mt-4 text-xs text-gray-500">Amount</p>
-        <p id="prodPrice" class="text-2xl font-semibold">₹0.00</p>
-
-        <p id="amountNote" class="text-xs text-gray-500"></p>
-
-        <!-- Pay button -->
-        <button id="payBtn"
-                class="mt-4 w-full bg-rose-600 hover:bg-rose-700 text-white font-semibold text-sm p-3 rounded-xl">
-          Pay with UPI App
-        </button>
-
-        <!-- UPI backup link -->
-        <a id="upiLink"
-           href="#"
-           class="mt-2 block text-center text-blue-600 underline text-xs break-all">
-        </a>
-
-        <!-- WhatsApp confirm button -->
-        <button id="waBtn"
-                class="mt-4 w-full bg-green-600 hover:bg-green-700 text-white font-semibold text-sm p-3 rounded-xl">
-          Confirm on WhatsApp
-        </button>
-
-        <!-- WhatsApp backup link (visible text) -->
-        <a id="waLink"
-           href="#"
-           target="_blank"
-           rel="noopener noreferrer"
-           class="mt-1 block text-center text-emerald-700 underline text-[11px] break-all">
-        </a>
-
-        <div class="mt-4 bg-green-500 text-white p-3 rounded-xl text-xs">
-          <b>IMPORTANT:</b> After payment, tap “Confirm on WhatsApp” and send the
-          payment screenshot so we can process your order.
-        </div>
-      </div>
-    </section>
-
-    <footer class="p-4 border-t border-gray-200 text-xs text-gray-500 flex justify-between">
-      <span>© <span id="year"></span> Customised Jewellery</span>
-      <span>We never ask for OTP / PIN</span>
-    </footer>
-
-  </main>
-
-  <!-- BUY BUTTON (placed inside body) -->
-  <div class="fixed bottom-6 right-6">
-    <button id="buyNow" class="bg-rose-600 text-white px-4 py-2 rounded-xl shadow-lg">
-      Buy Now
-    </button>
-  </div>
-
 <script>
-  // ---------------- CONFIG ----------------
-  const UPI_ID       = "Aroobakhan660@okicici";
-  const PAYEE_NAME   = "Customised Jewellery";
+/* --- CONFIG --- */
+const UPI_ID = "Aroobakhan660@okicici";
+const PAYEE_NAME = "Customised Jewellery";
 
-  // 👇 CHANGE THIS TO YOUR REAL WHATSAPP NUMBER
-  // Format: countrycode + number, NO plus sign, NO spaces
-  // For example: India 98765xxxxx  => "9198765xxxxx"
-  const WHATSAPP_NUMBER = "919876543210";  // ← REPLACE THIS
-
-  // ---------------- DOM ----------------
-  const prodNameEl   = document.getElementById("prodName");
-  const prodPriceEl  = document.getElementById("prodPrice");
-  const amountNoteEl = document.getElementById("amountNote");
-  const copyBtn      = document.getElementById("copyBtn");
-  const upiDisplay   = document.getElementById("upiDisplay");
-  const payBtn       = document.getElementById("payBtn");
-  const upiLinkEl    = document.getElementById("upiLink");
-  const waBtn        = document.getElementById("waBtn");
-  const waLinkEl     = document.getElementById("waLink");
-
-  document.getElementById("year").textContent = new Date().getFullYear();
-  upiDisplay.textContent = UPI_ID;
-
-  // ---------------- URL PARAMS ----------------
+const amountStr = (function(){
   const qs = new URLSearchParams(location.search);
-
-  const product = qs.get("product") || "Customised Order";
-  const price   = qs.get("price")   || "";
-  const qtyRaw  = qs.get("qty")     || "1";
-
-  const qty   = parseInt(qtyRaw) || 1;
-  const num   = price ? parseFloat(price) : 0;
+  const price = qs.get("price") || "";
+  const qty = parseInt(qs.get("qty")||"1") || 1;
+  const num = price ? parseFloat(price) : 0;
   const total = qty * num;
+  return total > 0 ? total.toFixed(2) : "";
+})();
 
-  let amountStr = "";
-  prodNameEl.textContent = product;
+/* --- build NPCI-style upi:// URL --- */
+function buildUpiUrl() {
+  const p = new URLSearchParams();
+  p.append("pa", UPI_ID);
+  p.append("pn", PAYEE_NAME);
+  if (amountStr) p.append("am", amountStr);
+  p.append("cu", "INR");
+  return "upi://pay?" + p.toString();
+}
 
-  if (total > 0) {
-    amountStr = total.toFixed(2);
-    prodPriceEl.textContent = "₹" + amountStr;
-    if (qty > 1) {
-      amountNoteEl.textContent = `${qty} × ₹${num.toFixed(2)}`;
-    } else {
-      amountNoteEl.textContent = "";
+/* --- app-specific schemes & Android intent fallback --- */
+function buildSchemesAndIntents() {
+  const q = buildUpiUrl().split("upi://pay?")[1] || "";
+  // common app packages (may change; add more if you see others)
+  const schemes = [
+    // Google Pay (tez/gpay variants)
+    `tez://upi/pay?${q}`,
+    `gpay://upi/pay?${q}`,
+    // PhonePe
+    `phonepe://pay?${q}`,
+    // Paytm
+    `paytmmp://pay?${q}`,
+    // BHIM / generic
+    `upi://pay?${q}`
+  ];
+
+  // Android intent URI — tries to open a known package, then fallback to generic.
+  // We include a generic intent without package too.
+  // NOTE: package names are examples; trying multiple packages increases success rate.
+  const intents = [
+    // Try Google Pay package
+    `intent://pay?${q}#Intent;scheme=upi;package=com.google.android.apps.nbu.paisa.user;end`,
+    // Try PhonePe package
+    `intent://pay?${q}#Intent;scheme=upi;package=com.phonepe.app;end`,
+    // Try Paytm package
+    `intent://pay?${q}#Intent;scheme=upi;package=net.one97.paytm;end`,
+    // Generic intent
+    `intent://pay?${q}#Intent;scheme=upi;end`
+  ];
+
+  return { schemes, intents };
+}
+
+/* --- helper: whether platform is iOS --- */
+function isIOS() {
+  return /iP(hone|od|ad)/i.test(navigator.userAgent || "");
+}
+
+/* --- try open helpers --- */
+function openViaIframe(uri) {
+  return new Promise((resolve) => {
+    const iframe = document.createElement('iframe');
+    iframe.style.display = 'none';
+    document.body.appendChild(iframe);
+
+    let done = false;
+    const cleanup = () => {
+      if (!done) done = true;
+      if (iframe.parentNode) iframe.parentNode.removeChild(iframe);
+      document.removeEventListener('visibilitychange', onVis);
+      clearTimeout(timeoutId);
+      resolve({ opened: wasHidden });
+    };
+
+    // detect if user left page (app opened)
+    let wasHidden = false;
+    function onVis() {
+      if (document.visibilityState === 'hidden') {
+        wasHidden = true;
+        cleanup();
+      }
     }
-    payBtn.disabled = false;
-    payBtn.classList.remove("opacity-60", "cursor-not-allowed");
-  } else {
-    prodPriceEl.textContent = "Amount not set";
-    amountNoteEl.textContent = "Go back and choose product again so amount is added.";
-    payBtn.disabled = true;
-    payBtn.classList.add("opacity-60", "cursor-not-allowed");
-  }
+    document.addEventListener('visibilitychange', onVis);
 
-  // ---------------- UPI LINK BUILDERS ----------------
-  // Minimal UPI custom-scheme link
-  function buildUpiUrl() {
-    const p = new URLSearchParams();
-    p.append("pa", UPI_ID);       // payee VPA
-    p.append("pn", PAYEE_NAME);   // payee name
-    if (amountStr) p.append("am", amountStr);    // amount
-    p.append("cu", "INR");        // currency
+    // set a small timeout: if page still visible after timeout we assume not opened
+    const timeoutId = setTimeout(() => cleanup(), 1200);
 
-    return "upi://pay?" + p.toString();
-  }
-
-  // Fallback HTTP UPI deep link for some devices/apps (works as a clickable link)
-  function buildUpiHttpFallback() {
-    // This is not an official standard but many UPI apps will accept the upi:// scheme.
-    // We'll also provide a QR/UPI text fallback for copy/paste.
-    return buildUpiUrl();
-  }
-
-  let upiUrl = buildUpiHttpFallback();
-  if (amountStr) {
-    upiLinkEl.href = upiUrl;
-    upiLinkEl.textContent = "If the button does not work, tap this UPI link: " + upiUrl;
-  } else {
-    upiLinkEl.textContent = "UPI link will appear here when amount is set.";
-  }
-
-  // ---------------- WHATSAPP LINK ----------------
-  function buildWhatsappUrl() {
-    // friendly amount for message
-    const displayAmount = amountStr ? `₹${amountStr}` : "(amount not auto-filled)";
-    const msg = `Hello, I have completed a payment for "${product}" of ${displayAmount} via UPI ID ${UPI_ID}. I am attaching the payment screenshot.`;
-    const encoded = encodeURIComponent(msg);
-
-    // Ensure WHATSAPP_NUMBER is valid format
-    if (!WHATSAPP_NUMBER || WHATSAPP_NUMBER.trim().length < 6) {
-      return "";
-    }
-    return `https://wa.me/${WHATSAPP_NUMBER}?text=${encoded}`;
-  }
-
-  const whatsappUrl = buildWhatsappUrl();
-  if (whatsappUrl) {
-    waLinkEl.href = whatsappUrl;
-    waLinkEl.textContent = "Or tap here if the WhatsApp button does not open: " + whatsappUrl;
-  } else {
-    waLinkEl.textContent = "WhatsApp not configured. Edit the code to set WHATSAPP_NUMBER.";
-  }
-
-  // ---------------- COPY UPI ID ----------------
-  copyBtn.addEventListener("click", () => {
-    if (navigator.clipboard && navigator.clipboard.writeText) {
-      navigator.clipboard.writeText(UPI_ID)
-        .then(() => alert("UPI ID copied: " + UPI_ID))
-        .catch(() => alert("Copy failed, please copy manually."));
-    } else {
-      alert("Copy not supported, please copy manually: " + UPI_ID);
-    }
-  });
-
-  // ---------------- PAY BUTTON ----------------
-  payBtn.addEventListener("click", (e) => {
-    if (!amountStr) {
-      alert("Amount is missing. Please go back and select the product again.");
-      return;
-    }
-
-    if (!upiUrl) {
-      alert("Something went wrong building the UPI link. Please refresh and try again.");
-      return;
-    }
-
-    // Attempt to open UPI app via custom scheme.
-    // Some browsers (esp. on desktop) may not support custom schemes; in that case the fallback link is visible above.
-    window.location.href = upiUrl;
-  });
-
-  // ---------------- WHATSAPP BUTTON ----------------
-  waBtn.addEventListener("click", () => {
-    if (!whatsappUrl) {
-      alert("WhatsApp number not configured. Edit the code and set WHATSAPP_NUMBER.");
-      return;
-    }
-    window.open(whatsappUrl, "_blank");
-  });
-
-  // ---------------- BUY SNIPPET: optional backend flow ----------------
-  // (Update BACKEND to your real backend if using order creation)
-  const BACKEND = "https://upi-checkout-backend.onrender.com";
-
-  document.getElementById('buyNow').addEventListener('click', async () => {
     try {
-      // Change productId to match the real product you want to sell
-      const payload = { productId: "ring-001", qty: 1 };
-
-      const res = await fetch(BACKEND + "/create-order", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(payload)
-      });
-
-      if (!res.ok) {
-        const err = await res.text().catch(()=>null);
-        throw new Error(err || "Order creation failed");
-      }
-
-      const j = await res.json();
-      // Redirect to backend checkout (if your backend provides it)
-      if (j && j.orderId) {
-        window.location.href = `${BACKEND}/checkout.html?orderId=${encodeURIComponent(j.orderId)}`;
-      } else {
-        alert("Order created but response missing orderId. Check backend response.");
-      }
-
-    } catch (err) {
-      alert("Error: " + err.message);
+      iframe.src = uri;
+    } catch (e) {
+      // some browsers may throw - ignore
     }
   });
-</script>
+}
 
-</body>
-</html>
+function openViaLocation(uri) {
+  return new Promise((resolve) => {
+    let done = false;
+    const start = Date.now();
+
+    function cleanup(opened) {
+      if (done) return;
+      done = true;
+      window.removeEventListener('pagehide', onPageHide);
+      resolve({ opened });
+    }
+
+    function onPageHide() {
+      // when page hides, likely the app opened
+      cleanup(true);
+    }
+    window.addEventListener('pagehide', onPageHide);
+
+    // set a fallback timeout — if still visible, consider not opened
+    setTimeout(() => {
+      const elapsed = Date.now() - start;
+      // if page still visible assume not opened
+      if (!document.hidden) cleanup(false);
+      else cleanup(true);
+    }, 1400);
+
+    // attempt to open
+    try {
+      window.location.href = uri;
+    } catch (e) {
+      // ignore
+      cleanup(false);
+    }
+  });
+}
+
+/* --- main routine: try multiple methods with early bail when page hidden --- */
+async function tryOpenUpiFlow() {
+  const { schemes, intents } = buildSchemesAndIntents();
+
+  // visibility listener for early stop
+  let didLeave = false;
+  function onVis() {
+    if (document.visibilityState === 'hidden') didLeave = true;
+  }
+  document.addEventListener('visibilitychange', onVis);
+
+  try {
+    // On iOS: use iframe attempts first (safer behavior in Safari)
+    if (isIOS()) {
+      for (const s of schemes) {
+        if (didLeave) return true;
+        // try scheme via iframe
+        // eslint-disable-next-line no-await-in-loop
+        const res = await openViaIframe(s);
+        if (res.opened) return true;
+      }
+      // last try generic upi:// via iframe if not already tried
+      const generic = buildUpiUrl();
+      if (!didLeave) {
+        const res = await openViaIframe(generic);
+        if (res.opened) return true;
+      }
+    } else {
+      // Android/others: try schemes via location (direct navigation), then intent fallbacks
+      for (const s of schemes) {
+        if (didLeave) return true;
+        // eslint-disable-next-line no-await-in-loop
+        const res = await openViaLocation(s);
+        if (res.opened) return true;
+      }
+      // then try intent URIs (more reliable for some Android apps)
+      for (const it of intents) {
+        if (didLeave) return true;
+        // eslint-disable-next-line no-await-in-loop
+        const res = await openViaLocation(it);
+        if (res.opened) return true;
+      }
+    }
+
+    // nothing opened
+    return false;
+  } finally {
+    document.removeEventListener('visibilitychange', onVis);
+  }
+}
+
+/* --- fallback UI --- */
+function showFallbackUI() {
+  const qr = document.getElementById('qrFallback');
+  if (qr) qr.style.display = 'flex';
+  const rawContainer = document.getElementById('upiRawContainer');
+  if (rawContainer) rawContainer.textContent = buildUpiUrl();
+}
+
+/* --- wire into your pay button --- */
+document.getElementById('payBtn').addEventListener('click', async (e) => {
+  if (!amountStr) { alert('Amount missing. Please select product again.'); return; }
+
+  // first try open flow
+  const opened = await tryOpenUpiFlow();
+
+  // if not opened, show fallback (QR + raw text). If opened, user is likely in app.
+  if (!opened) {
+    showFallbackUI();
+  }
+});
+
+/* --- optional: helper to generate on-page QR later (client-side) --- */
+/* If you want an on-page QR for desktop/iOS scanning, I can add a tiny client-side QR generator (no external calls).
+   Tell me and I'll include it directly below; it will draw a QR for buildUpiUrl() into a provided element. */
+
+</script>
