@@ -1,202 +1,244 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Pay — Customised Jewellery</title>
+  <meta name="description" content="Secure UPI Payment for Customised Jewellery" />
+
+  <script src="https://cdn.tailwindcss.com"></script>
+
+  <style>
+    body {
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      background: #fff5f7;
+    }
+  </style>
+</head>
+
+<body class="min-h-screen flex items-center justify-center p-4">
+
+  <main class="w-full max-w-xl bg-white rounded-2xl shadow-xl border border-rose-100">
+    
+    <!-- HEADER -->
+    <header class="p-5 border-b border-gray-200">
+      <h1 class="text-lg font-semibold">Complete Payment</h1>
+      <p class="text-sm text-gray-500">
+        Pay securely via any UPI app (Google Pay, PhonePe, Paytm…)
+      </p>
+    </header>
+
+    <!-- CONTENT -->
+    <section class="p-6 grid grid-cols-1 md:grid-cols-2 gap-6">
+      
+      <!-- LEFT SIDE: QR + UPI -->
+      <div class="text-center">
+        <!-- Use the image filename you have. If it contains spaces, browsers convert them to %20. -->
+        <img id="qrImg"
+             src="images/Gpay Scanner Toyiba.jpg"
+             class="w-52 h-52 rounded-xl shadow-md mx-auto object-cover"
+             alt="UPI QR Code"
+             onerror="this.style.display='none'; document.getElementById('qrFallback').style.display='block'">
+
+        <!-- Fallback shown when image missing -->
+        <div id="qrFallback" style="display:none;" class="w-52 h-52 rounded-xl shadow-md mx-auto flex items-center justify-center bg-gray-50 text-gray-700 p-4">
+          <div>
+            <div class="text-sm text-gray-500">QR image not found</div>
+            <div class="font-mono font-semibold mt-2">Aroobakhan660@okicici</div>
+            <div class="mt-3 text-xs text-gray-500">Use the UPI ID above or copy using the button below.</div>
+          </div>
+        </div>
+
+        <button id="copyBtn"
+                class="mt-4 w-full bg-rose-600 hover:bg-rose-700 text-white font-semibold text-sm p-3 rounded-xl">
+          Copy UPI ID
+        </button>
+
+        <p class="mt-2 text-xs text-gray-600">
+          UPI ID: <span class="font-mono font-semibold" id="upiDisplay">Aroobakhan660@okicici</span>
+        </p>
+
+        <p class="mt-3 text-xs text-gray-500">
+          If payment doesn’t open, scan the QR or use the copied UPI ID.
+        </p>
+      </div>
+
+      <!-- RIGHT SIDE: Details + Pay + WhatsApp -->
+      <div>
+        <p class="text-xs text-gray-500">Product</p>
+        <p id="prodName" class="text-base font-semibold mt-1">Product</p>
+
+        <p class="mt-4 text-xs text-gray-500">Amount</p>
+        <p id="prodPrice" class="text-2xl font-semibold">₹0.00</p>
+
+        <p id="amountNote" class="text-xs text-gray-500"></p>
+
+        <!-- Pay button -->
+        <button id="payBtn"
+                class="mt-4 w-full bg-rose-600 hover:bg-rose-700 text-white font-semibold text-sm p-3 rounded-xl">
+          Pay with UPI App
+        </button>
+
+        <!-- UPI backup link -->
+        <a id="upiLink"
+           href="#"
+           class="mt-2 block text-center text-blue-600 underline text-xs break-all">
+        </a>
+
+        <!-- WhatsApp confirm button -->
+        <button id="waBtn"
+                class="mt-4 w-full bg-green-600 hover:bg-green-700 text-white font-semibold text-sm p-3 rounded-xl">
+          Confirm on WhatsApp
+        </button>
+
+        <!-- WhatsApp backup link (visible text) -->
+        <a id="waLink"
+           href="#"
+           target="_blank"
+           rel="noopener noreferrer"
+           class="mt-1 block text-center text-emerald-700 underline text-[11px] break-all">
+        </a>
+
+        <div class="mt-4 bg-green-500 text-white p-3 rounded-xl text-xs">
+          <b>IMPORTANT:</b> After payment, tap “Confirm on WhatsApp” and send the
+          payment screenshot so we can process your order.
+        </div>
+      </div>
+    </section>
+
+    <footer class="p-4 border-t border-gray-200 text-xs text-gray-500 flex justify-between">
+      <span>© <span id="year"></span> Customised Jewellery</span>
+      <span>We never ask for OTP / PIN</span>
+    </footer>
+
+  </main>
+
 <script>
-document.addEventListener('DOMContentLoaded', () => {
-  try {
-    // ---------- CONFIG ----------
-    const UPI_ID = "Aroobakhan660@okicici";
-    const PAYEE_NAME = "Customised Jewellery";
-    const WHATSAPP_NUMBER = "919876543210"; // (kept for WA button, unchanged)
+  // ---------------- CONFIG ----------------
+  const UPI_ID       = "Aroobakhan660@okicici";
+  const PAYEE_NAME   = "Customised Jewellery";
 
-    // compute amount from query params (same logic as your page)
-    const qs = new URLSearchParams(location.search);
-    const price = qs.get("price") || "";
-    const qty = parseInt(qs.get("qty") || "1") || 1;
-    const num = price ? parseFloat(price) : 0;
-    const total = qty * num;
-    const amountStr = total > 0 ? total.toFixed(2) : "";
+  // 👇 CHANGE THIS TO YOUR REAL WHATSAPP NUMBER
+  // Format: countrycode + number, NO plus sign, NO spaces
+  const WHATSAPP_NUMBER = "919876543210";  // ← REPLACE THIS
 
-    // ---------- helpers ----------
-    function buildUpiUrl() {
-      const p = new URLSearchParams();
-      p.append("pa", UPI_ID);
-      p.append("pn", PAYEE_NAME);
-      if (amountStr) p.append("am", amountStr);
-      p.append("cu", "INR");
-      return "upi://pay?" + p.toString();
+  // ---------------- DOM ----------------
+  const prodNameEl   = document.getElementById("prodName");
+  const prodPriceEl  = document.getElementById("prodPrice");
+  const amountNoteEl = document.getElementById("amountNote");
+  const copyBtn      = document.getElementById("copyBtn");
+  const upiDisplay   = document.getElementById("upiDisplay");
+  const payBtn       = document.getElementById("payBtn");
+  const upiLinkEl    = document.getElementById("upiLink");
+  const waBtn        = document.getElementById("waBtn");
+  const waLinkEl     = document.getElementById("waLink");
+
+  document.getElementById("year").textContent = new Date().getFullYear();
+  upiDisplay.textContent = UPI_ID;
+
+  // ---------------- URL PARAMS ----------------
+  const qs = new URLSearchParams(location.search);
+
+  const product = qs.get("product") || "Customised Order";
+  const price   = qs.get("price")   || "";
+  const qtyRaw  = qs.get("qty")     || "1";
+
+  const qty   = parseInt(qtyRaw) || 1;
+  const num   = price ? parseFloat(price) : 0;
+  const total = qty * num;
+
+  let amountStr = "";
+  prodNameEl.textContent = product;
+
+  if (total > 0) {
+    amountStr = total.toFixed(2);
+    prodPriceEl.textContent = "₹" + amountStr;
+    if (qty > 1) {
+      amountNoteEl.textContent = `${qty} × ₹${num.toFixed(2)}`;
+    } else {
+      amountNoteEl.textContent = "";
     }
+    payBtn.disabled = false;
+    payBtn.classList.remove("opacity-60", "cursor-not-allowed");
+  } else {
+    prodPriceEl.textContent = "Amount not set";
+    amountNoteEl.textContent = "Go back and choose product again so amount is added.";
+    payBtn.disabled = true;
+    payBtn.classList.add("opacity-60", "cursor-not-allowed");
+  }
 
-    function buildAppSchemes() {
-      // Query part after upi://pay?
-      const q = buildUpiUrl().split("upi://pay?")[1] || "";
+  // ---------------- UPI LINK BUILDERS ----------------
+  function buildUpiUrl() {
+    const p = new URLSearchParams();
+    p.append("pa", UPI_ID);
+    p.append("pn", PAYEE_NAME);
+    if (amountStr) p.append("am", amountStr);
+    p.append("cu", "INR");
+    return "upi://pay?" + p.toString();
+  }
 
-      // Try common app-specific schemes first (order increases success chances)
-      // These are the common variants used in the wild; add/remove as you test.
-      return [
-        `tez://upi/pay?${q}`,       // older Google Pay / Tez variants
-        `gpay://upi/pay?${q}`,      // alternate Google Pay
-        `googlepay://upi/pay?${q}`, // alternate attempt
-        `phonepe://pay?${q}`,       // PhonePe
-        `paytmmp://pay?${q}`,       // Paytm
-        `upi://pay?${q}`            // generic fallback
-      ];
+  const upiUrl = buildUpiUrl();
+  if (amountStr) {
+    upiLinkEl.href = upiUrl;
+    upiLinkEl.textContent = "If the button does not work, tap this UPI link: " + upiUrl;
+  } else {
+    upiLinkEl.textContent = "UPI link will appear here when amount is set.";
+  }
+
+  // ---------------- WHATSAPP LINK ----------------
+  function buildWhatsappUrl() {
+    const displayAmount = amountStr ? `₹${amountStr}` : "(amount not auto-filled)";
+    const msg = `Hello, I have completed a payment for "${product}" of ${displayAmount} via UPI ID ${UPI_ID}. I am attaching the payment screenshot.`;
+    const encoded = encodeURIComponent(msg);
+    if (!WHATSAPP_NUMBER || WHATSAPP_NUMBER.trim().length < 6) return "";
+    return `https://wa.me/${WHATSAPP_NUMBER}?text=${encoded}`;
+  }
+
+  const whatsappUrl = buildWhatsappUrl();
+  if (whatsappUrl) {
+    waLinkEl.href = whatsappUrl;
+    waLinkEl.textContent = "Or tap here if the WhatsApp button does not open: " + whatsappUrl;
+  } else {
+    waLinkEl.textContent = "WhatsApp not configured. Edit the code to set WHATSAPP_NUMBER.";
+  }
+
+  // ---------------- COPY UPI ID ----------------
+  copyBtn.addEventListener("click", () => {
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+      navigator.clipboard.writeText(UPI_ID)
+        .then(() => alert("UPI ID copied: " + UPI_ID))
+        .catch(() => alert("Copy failed, please copy manually."));
+    } else {
+      alert("Copy not supported, please copy manually: " + UPI_ID);
     }
+  });
 
-    function buildAndroidIntents() {
-      const q = buildUpiUrl().split("upi://pay?")[1] || "";
-      return [
-        // try some packages: Google Pay, PhonePe, Paytm, then generic
-        `intent://pay?${q}#Intent;scheme=upi;package=com.google.android.apps.nbu.paisa.user;end`,
-        `intent://pay?${q}#Intent;scheme=upi;package=com.phonepe.app;end`,
-        `intent://pay?${q}#Intent;scheme=upi;package=net.one97.paytm;end`,
-        `intent://pay?${q}#Intent;scheme=upi;end`
-      ];
-    }
-
-    function isIOS() {
-      return /iP(hone|od|ad)/i.test(navigator.userAgent || "");
-    }
-
-    // ---------- open helpers ----------
-    // iOS: open via hidden iframe and watch document visibility
-    function openWithIframe(uri, timeout = 1100) {
-      return new Promise((resolve) => {
-        const iframe = document.createElement('iframe');
-        iframe.style.display = 'none';
-        let finished = false;
-
-        function cleanup(opened) {
-          if (finished) return;
-          finished = true;
-          try { if (iframe.parentNode) iframe.parentNode.removeChild(iframe); } catch (e) {}
-          document.removeEventListener('visibilitychange', onVis);
-          resolve(opened);
-        }
-
-        function onVis() {
-          if (document.visibilityState === 'hidden') {
-            cleanup(true); // user left page -> likely app opened
-          }
-        }
-        document.addEventListener('visibilitychange', onVis);
-
-        try {
-          iframe.src = uri;
-        } catch (e) {
-          // ignore possible DOM exceptions
-        }
-
-        // timeout -> assume not opened
-        setTimeout(() => cleanup(false), timeout);
-        document.body.appendChild(iframe);
-      });
-    }
-
-    // Android / desktop: open via window.location and listen for pagehide/visibility
-    function openWithLocation(uri, timeout = 1200) {
-      return new Promise((resolve) => {
-        let resolved = false;
-        const start = Date.now();
-
-        function finish(opened) {
-          if (resolved) return;
-          resolved = true;
-          window.removeEventListener('pagehide', onPageHide);
-          resolve(opened);
-        }
-        function onPageHide() { finish(true); }
-
-        window.addEventListener('pagehide', onPageHide);
-
-        try {
-          window.location.href = uri;
-        } catch (e) {
-          // ignore navigation exceptions
-          finish(false);
-        }
-
-        // fallback check after timeout
-        setTimeout(() => {
-          if (!document.hidden) finish(false);
-          else finish(true);
-        }, timeout);
-      });
-    }
-
-    // ---------- core attempt routine ----------
-    async function openUpiApp() {
-      const schemes = buildAppSchemes();
-      const intents = buildAndroidIntents();
-
-      // If iOS: prefer iframe attempts (safer)
-      if (isIOS()) {
-        for (const s of schemes) {
-          // try each scheme until one opens
-          /* eslint-disable no-await-in-loop */
-          const opened = await openWithIframe(s, 1000);
-          if (opened) return true;
-        }
-        // final try the canonical upi://pay
-        const openedFinal = await openWithIframe(buildUpiUrl(), 1000);
-        return openedFinal;
-      } else {
-        // Android/others: try direct schemes via location then intents
-        for (const s of schemes) {
-          /* eslint-disable no-await-in-loop */
-          const opened = await openWithLocation(s, 900);
-          if (opened) return true;
-        }
-        for (const it of intents) {
-          /* eslint-disable no-await-in-loop */
-          const opened = await openWithLocation(it, 900);
-          if (opened) return true;
-        }
-        return false;
-      }
-    }
-
-    // ---------- fallback UI ----------
-    function showFallback() {
-      const qr = document.getElementById('qrFallback');
-      if (qr) qr.style.display = 'flex';
-      const raw = document.getElementById('upiRawContainer');
-      if (raw) raw.textContent = buildUpiUrl();
-    }
-
-    // ---------- attach to UI safely ----------
-    const payBtn = document.getElementById('payBtn');
-    if (!payBtn) {
-      console.warn('payBtn not found — UPI open not attached');
+  // ---------------- PAY BUTTON ----------------
+  payBtn.addEventListener("click", () => {
+    if (!amountStr) {
+      alert("Amount is missing. Please go back and select the product again.");
       return;
     }
-
-    payBtn.addEventListener('click', async (ev) => {
-      ev.preventDefault();
-      if (!amountStr) { alert('Amount missing. Please select a product.'); return; }
-
-      try {
-        const opened = await openUpiApp();
-        if (!opened) showFallback();
-      } catch (err) {
-        console.error('Error opening UPI app', err);
-        showFallback();
-      }
-    });
-
-    // keep WhatsApp button logic intact and separate - won't be triggered by Pay
-    const waBtn = document.getElementById('waBtn');
-    if (waBtn) {
-      waBtn.addEventListener('click', () => {
-        const displayAmount = amountStr ? `₹${amountStr}` : "(amount not auto-filled)";
-        const msg = `Hello, I have completed a payment for \"${qs.get('product') || 'Customised Order'}\" of ${displayAmount} via UPI ID ${UPI_ID}. I am attaching the payment screenshot.`;
-        const waUrl = WHATSAPP_NUMBER && WHATSAPP_NUMBER.trim().length > 6
-          ? `https://wa.me/${WHATSAPP_NUMBER}?text=${encodeURIComponent(msg)}`
-          : null;
-        if (waUrl) window.open(waUrl, '_blank');
-        else alert('WhatsApp not configured on this page.');
-      });
+    if (!upiUrl) {
+      alert("Something went wrong building the UPI link. Please refresh and try again.");
+      return;
     }
+    // try to open the UPI app via custom scheme
+    window.location.href = upiUrl;
+  });
 
-  } catch (mainErr) {
-    console.error('UPI script failed', mainErr);
-  }
-});
+  // ---------------- WHATSAPP BUTTON ----------------
+  waBtn.addEventListener("click", () => {
+    if (!whatsappUrl) {
+      alert("WhatsApp number not configured. Edit the code and set WHATSAPP_NUMBER.");
+      return;
+    }
+    window.open(whatsappUrl, "_blank");
+  });
+
+  // If the QR image failed to load we show the fallback (already handled by onerror). Optionally you can set the image src via JS:
+  // document.getElementById('qrImg').src = 'images/Gpay%20Scanner%20Toyiba.jpg';
 </script>
+
+</body>
+</html>
