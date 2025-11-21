@@ -6,20 +6,17 @@
   <title>Pay — Customised Jewellery</title>
   <meta name="description" content="Secure UPI Payment for Customised Jewellery" />
   <script src="https://cdn.tailwindcss.com"></script>
-
   <style>
-    body {
-      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
-      background: #fff5f7;
-    }
+    body { font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; background: #fff5f7; }
     .action-pill { transition: all .12s ease; }
     .action-pill:active { transform: translateY(1px); }
+    /* ensure raw link containers wrap nicely but stay hidden */
+    .raw-link { word-break: break-all; display: none; }
   </style>
 </head>
 
 <body class="min-h-screen flex items-center justify-center p-4">
   <main class="w-full max-w-xl bg-white rounded-2xl shadow-xl border border-rose-100">
-
     <!-- HEADER -->
     <header class="p-5 border-b border-gray-200">
       <h1 class="text-lg font-semibold">Complete Payment</h1>
@@ -27,66 +24,14 @@
     </header>
 
     <!-- CONTENT -->
-    <section class="p-6 space-y-6">
-
-      <!-- IMPORTANT NOTICE -->
-      <div class="bg-green-500 text-white p-4 rounded-xl text-base">
-        <b>IMPORTANT:</b> After payment, keep a screenshot of the confirmation — you will need it for verification.
-      </div>
-
-      <!-- PRODUCT DETAILS -->
-      <div>
-        <p class="text-xs text-gray-500">Product</p>
-        <p id="prodName" class="text-lg font-semibold mt-1">Product</p>
-
-        <p class="mt-4 text-xs text-gray-500">Amount</p>
-        <p id="prodPrice" class="text-3xl font-semibold">₹0.00</p>
-        <p id="amountNote" class="text-xs text-gray-500"></p>
-      </div>
-
-      <!-- PAY BUTTON -->
-      <button id="payBtn"
-              class="w-full bg-rose-600 hover:bg-rose-700 text-white font-semibold text-sm p-3 rounded-xl">
-        Pay with UPI App
-      </button>
-
-      <!-- PAYMENT CONFIRMATION CHECKBOX -->
-      <div>
-        <label class="flex items-start gap-3 cursor-pointer select-none border border-rose-500 p-4 rounded-lg shadow-sm">
-          <input id="paidCheckbox" type="checkbox"
-                 class="mt-1 w-5 h-5 text-rose-600 border-gray-300 rounded">
-          <span class="text-sm font-semibold text-gray-900">
-            I have completed the payment & want to send payment details.
-          </span>
-        </label>
-      </div>
-
-      <!-- SEND EMAIL BUTTON + MESSAGE -->
-      <div class="space-y-2">
-        <button id="sendEmailBtn"
-                style="display:none;"
-                class="w-full bg-green-600 hover:bg-green-700 text-white text-sm font-semibold p-3 rounded-xl">
-          Send Payment Details to Seller
-        </button>
-
-        <!-- MESSAGE (now black + bold + centered) -->
-        <p id="afterSendMessage"
-           style="display:none;"
-           class="text-sm font-bold text-center text-black">
-          you will recieve confirmation reply after sending the payment details
-        </p>
-      </div>
-
-      <!-- QR CODE MOVED TO BOTTOM -->
-      <div class="text-center mt-8">
-        <img id="qrImg" src="images/QR.jpg"
-             class="w-56 h-56 rounded-xl shadow-md mx-auto object-cover"
+    <section class="p-6 grid grid-cols-1 md:grid-cols-2 gap-6">
+      <!-- LEFT SIDE: QR + UPI -->
+      <div class="text-center">
+        <img id="qrImg" src="images/Gpay Scanner Toyiba.jpg" class="w-52 h-52 rounded-xl shadow-md mx-auto object-cover"
              alt="UPI QR Code"
-             onerror="this.style.display='none'; document.getElementById('qrFallback').style.display='flex'">
+             onerror="this.style.display='none'; document.getElementById('qrFallback').style.display='block'">
 
-        <div id="qrFallback"
-             class="w-56 h-56 rounded-xl shadow-md mx-auto flex items-center justify-center bg-gray-50 text-gray-700 p-4"
-             style="display:none;">
+        <div id="qrFallback" class="w-52 h-52 rounded-xl shadow-md mx-auto flex items-center justify-center bg-gray-50 text-gray-700 p-4" style="display:none;">
           <div>
             <div class="text-sm text-gray-500">QR image not found</div>
             <div class="font-mono font-semibold mt-2">Aroobakhan660@okicici</div>
@@ -94,19 +39,42 @@
           </div>
         </div>
 
-        <button id="copyBtn"
-                class="mt-4 w-full bg-rose-600 hover:bg-rose-700 text-white font-semibold text-sm p-3 rounded-xl">
+        <button id="copyBtn" class="mt-4 w-full bg-rose-600 hover:bg-rose-700 text-white font-semibold text-sm p-3 rounded-xl">
           Copy UPI ID
         </button>
 
-        <p class="mt-3 text-xs text-gray-500">
-          If payment doesn’t open, scan the QR or use the copied UPI ID.
-        </p>
+        <p class="mt-2 text-xs text-gray-600">UPI ID: <span class="font-mono font-semibold" id="upiDisplay">Aroobakhan660@okicici</span></p>
+        <p class="mt-3 text-xs text-gray-500">If payment doesn’t open, scan the QR or use the copied UPI ID.</p>
       </div>
 
+      <!-- RIGHT SIDE: Details + Pay -->
+      <div>
+        <p class="text-xs text-gray-500">Product</p>
+        <p id="prodName" class="text-base font-semibold mt-1">Product</p>
+
+        <p class="mt-4 text-xs text-gray-500">Amount</p>
+        <p id="prodPrice" class="text-2xl font-semibold">₹0.00</p>
+        <p id="amountNote" class="text-xs text-gray-500"></p>
+
+        <button id="payBtn" class="mt-4 w-full bg-rose-600 hover:bg-rose-700 text-white font-semibold text-sm p-3 rounded-xl">
+          Pay with UPI App
+        </button>
+
+        <div class="mt-3 flex items-center gap-2">
+          <button id="showUpiBtn" class="action-pill inline-flex items-center gap-2 px-3 py-2 rounded-full bg-white border border-gray-200 text-sm text-gray-700 hover:bg-gray-50">
+            Show UPI link
+          </button>
+          <a id="upiLink" href="#" class="text-xs text-blue-600 underline hidden">Open UPI link</a>
+        </div>
+
+        <div id="upiRaw" class="raw-link mt-2 text-xs text-gray-500 px-1"></div>
+
+        <div class="mt-4 bg-green-500 text-white p-3 rounded-xl text-xs">
+          <b>IMPORTANT:</b> After payment, please keep a screenshot of the payment confirmation — you'll need it for order verification.
+        </div>
+      </div>
     </section>
 
-    <!-- FOOTER -->
     <footer class="p-4 border-t border-gray-200 text-xs text-gray-500 flex justify-between">
       <span>© <span id="year"></span> Customised Jewellery</span>
       <span>We never ask for OTP / PIN</span>
@@ -115,22 +83,25 @@
 
 <script>
 document.addEventListener('DOMContentLoaded', () => {
+  // CONFIG
+  const UPI_ID = "Aroobakhan660@okicici";
+  const PAYEE_NAME = "Customised Jewellery";
 
+  // DOM
+  const upiDisplay = document.getElementById('upiDisplay');
   const copyBtn = document.getElementById('copyBtn');
   const payBtn = document.getElementById('payBtn');
+  const upiLink = document.getElementById('upiLink');
+  const upiRaw = document.getElementById('upiRaw');
+  const showUpiBtn = document.getElementById('showUpiBtn');
   const prodNameEl = document.getElementById('prodName');
   const prodPriceEl = document.getElementById('prodPrice');
   const amountNoteEl = document.getElementById('amountNote');
 
-  const paidCheckbox = document.getElementById("paidCheckbox");
-  const sendEmailBtn = document.getElementById("sendEmailBtn");
-  const afterSendMessage = document.getElementById("afterSendMessage");
-
   document.getElementById('year').textContent = new Date().getFullYear();
+  upiDisplay.textContent = UPI_ID;
 
-  const UPI_ID = "Aroobakhan660@okicici";
-  const PAYEE_NAME = "Customised Jewellery";
-
+  // URL params -> amount/product
   const qs = new URLSearchParams(location.search);
   const product = qs.get('product') || 'Customised Order';
   const price = qs.get('price') || '';
@@ -142,17 +113,20 @@ document.addEventListener('DOMContentLoaded', () => {
   let amountStr = '';
 
   prodNameEl.textContent = product;
-
   if (total > 0) {
     amountStr = total.toFixed(2);
     prodPriceEl.textContent = '₹' + amountStr;
     amountNoteEl.textContent = (qty > 1) ? `${qty} × ₹${num.toFixed(2)}` : '';
+    payBtn.disabled = false;
+    payBtn.classList.remove('opacity-60','cursor-not-allowed');
   } else {
     prodPriceEl.textContent = 'Amount not set';
     amountNoteEl.textContent = 'Go back and choose product again so amount is added.';
     payBtn.disabled = true;
+    payBtn.classList.add('opacity-60','cursor-not-allowed');
   }
 
+  // build upi:// url
   function buildUpiUrl() {
     const p = new URLSearchParams();
     p.append('pa', UPI_ID);
@@ -162,41 +136,129 @@ document.addEventListener('DOMContentLoaded', () => {
     return 'upi://pay?' + p.toString();
   }
 
-  payBtn.addEventListener('click', () => {
-    window.location.href = buildUpiUrl();
-  });
+  // app-specific schemes (try these first on iOS)
+  function buildSchemes() {
+    const q = buildUpiUrl().split('upi://pay?')[1] || '';
+    return [
+      `tez://upi/pay?${q}`,
+      `gpay://upi/pay?${q}`,
+      `googlepay://upi/pay?${q}`,
+      `phonepe://pay?${q}`,
+      `paytmmp://pay?${q}`,
+      `upi://pay?${q}`
+    ];
+  }
 
-  copyBtn.addEventListener('click', () => {
-    navigator.clipboard.writeText(UPI_ID).then(() => {
-      alert('UPI ID copied: ' + UPI_ID);
+  // helpers to open
+  function isIOS() { return /iP(hone|od|ad)/i.test(navigator.userAgent || ''); }
+
+  function openViaIframe(uri, timeout = 1100) {
+    return new Promise((resolve) => {
+      let resolved = false;
+      const iframe = document.createElement('iframe');
+      iframe.style.display = 'none';
+      document.body.appendChild(iframe);
+
+      function cleanup(opened) {
+        if (resolved) return;
+        resolved = true;
+        try { if (iframe.parentNode) iframe.parentNode.removeChild(iframe); } catch (e) {}
+        document.removeEventListener('visibilitychange', onVis);
+        resolve(opened);
+      }
+
+      function onVis() {
+        if (document.visibilityState === 'hidden') cleanup(true);
+      }
+      document.addEventListener('visibilitychange', onVis);
+
+      try { iframe.src = uri; } catch (e) {}
+      setTimeout(() => cleanup(false), timeout);
     });
+  }
+
+  function openViaLocation(uri, timeout = 1100) {
+    return new Promise((resolve) => {
+      let resolved = false;
+      const start = Date.now();
+      function finish(opened) {
+        if (resolved) return;
+        resolved = true;
+        window.removeEventListener('pagehide', onPageHide);
+        resolve(opened);
+      }
+      function onPageHide() { finish(true); }
+      window.addEventListener('pagehide', onPageHide);
+      try { window.location.href = uri; } catch (e) { finish(false); }
+      setTimeout(() => {
+        if (!document.hidden) finish(false); else finish(true);
+      }, timeout);
+    });
+  }
+
+  async function openUpiApp() {
+    const schemes = buildSchemes();
+    if (isIOS()) {
+      for (const s of schemes) {
+        const opened = await openViaIframe(s, 1000);
+        if (opened) return true;
+      }
+      return false;
+    } else {
+      // Android / desktop: try location for each scheme
+      for (const s of schemes) {
+        const opened = await openViaLocation(s, 900);
+        if (opened) return true;
+      }
+      return false;
+    }
+  }
+
+  // show fallback (QR / raw link)
+  function showFallback() {
+    const qr = document.getElementById('qrFallback');
+    if (qr) qr.style.display = 'flex';
+    // set raw link but keep hidden until user toggles
+    upiRaw.textContent = buildUpiUrl();
+    upiRaw.style.display = 'none';
+    upiLink.href = buildUpiUrl();
+    upiLink.classList.remove('hidden');
+  }
+
+  // copy UPI id
+  copyBtn.addEventListener('click', () => {
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+      navigator.clipboard.writeText(UPI_ID)
+        .then(() => alert('UPI ID copied: ' + UPI_ID))
+        .catch(() => alert('Copy failed, please copy manually.'));
+    } else {
+      alert('Copy not supported, please copy manually: ' + UPI_ID);
+    }
   });
 
-  paidCheckbox.addEventListener("change", () => {
-    const show = paidCheckbox.checked;
-    sendEmailBtn.style.display = show ? "block" : "none";
-    afterSendMessage.style.display = show ? "block" : "none";
+  // show/hide raw upi link on demand
+  showUpiBtn.addEventListener('click', () => {
+    if (upiRaw.style.display === 'none' || upiRaw.style.display === '') {
+      upiRaw.style.display = 'block';
+      showUpiBtn.textContent = 'Hide UPI link';
+    } else {
+      upiRaw.style.display = 'none';
+      showUpiBtn.textContent = 'Show UPI link';
+    }
   });
 
-  sendEmailBtn.addEventListener("click", () => {
-    const subject = encodeURIComponent(`Payment Confirmation — ${product} — ₹${amountStr}`);
-    const body = encodeURIComponent(
-`I have completed the payment.
-
-Product: ${product}
-Amount: ₹${amountStr}
-Quantity: ${qty}
-
-UPI ID used: ${UPI_ID}
-
-I will attach the payment screenshot below.`
-    );
-
-    const mailto = `mailto:customisedj@gmail.com?subject=${subject}&body=${body}`;
-    try { window.open(mailto, "_blank"); }
-    catch (_) { window.location.href = mailto; }
+  // attach pay button
+  payBtn.addEventListener('click', async (ev) => {
+    ev.preventDefault();
+    if (!amountStr) { alert('Amount missing. Please select a product.'); return; }
+    try {
+      const opened = await openUpiApp();
+      if (!opened) showFallback();
+    } catch (err) {
+      console.error('UPI open error', err);
+      showFallback();
+    }
   });
-
 });
 </script>
 
