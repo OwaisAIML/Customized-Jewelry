@@ -14,6 +14,8 @@
     }
     .action-pill { transition: all .12s ease; }
     .action-pill:active { transform: translateY(1px); }
+    /* subtle transition for fallback reveal */
+    #qrFallback, #qrImg { transition: opacity .18s ease; }
   </style>
 </head>
 
@@ -79,7 +81,8 @@
 
       <!-- QR CODE MOVED TO BOTTOM -->
       <div class="text-center mt-8">
-        <img id="qrImg" src="images/QR.jpg"
+        <!-- using the local file path (system will convert path to URL on deploy) -->
+        <img id="qrImg" src="/mnt/data/Customised Jewellery Website/images/QR.jpg"
              class="w-56 h-56 rounded-xl shadow-md mx-auto object-cover"
              alt="UPI QR Code"
              onerror="this.style.display='none'; document.getElementById('qrFallback').style.display='flex'">
@@ -162,15 +165,103 @@ document.addEventListener('DOMContentLoaded', () => {
     return 'upi://pay?' + p.toString();
   }
 
+  // Platform detection
+  const ua = navigator.userAgent || '';
+  const isIOS = /iPad|iPhone|iPod/.test(ua) || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
+  const isAndroid = /Android/.test(ua);
+
+  // Attempt to open UPI in a way that works on Android and iOS:
+  // - On Android: direct location change is usually fine.
+  // - On iOS: create a hidden iframe and attempt to navigate; then if document becomes hidden (user switched to app) we assume success.
+  //   Otherwise, after a small timeout show the QR fallback.
   payBtn.addEventListener('click', () => {
-    window.location.href = buildUpiUrl();
+    const upiUrl = buildUpiUrl();
+
+    // Record visibility change to detect whether the app was opened
+    let opened = false;
+    function handleVisibility() {
+      // If page becomes hidden, assume user switched to the UPI app
+      if (document.hidden) {
+        opened = true;
+      }
+    }
+
+    document.addEventListener('visibilitychange', handleVisibility);
+
+    // Try iframe method first (works for some iOS versions)
+    try {
+      const iframe = document.createElement('iframe');
+      iframe.style.display = 'none';
+      iframe.src = upiUrl;
+      document.body.appendChild(iframe);
+
+      // If iframe method fails silently, fallback to location change shortly after
+      setTimeout(() => {
+        // remove iframe
+        try { document.body.removeChild(iframe); } catch (e) {}
+        if (!opened) {
+          // try to open via location change (helps some browsers)
+          window.location.href = upiUrl;
+        }
+      }, 600);
+    } catch (e) {
+      // as a fallback
+      window.location.href = upiUrl;
+    }
+
+    // After a short timeout, if not opened, show QR fallback for manual scanning
+    setTimeout(() => {
+      document.removeEventListener('visibilitychange', handleVisibility);
+      if (!opened) {
+        // reveal the QR fallback if the QR image failed to load or is hidden
+        const qrImg = document.getElementById('qrImg');
+        const qrFallback = document.getElementById('qrFallback');
+        // If QR image is present and visible, ensure it's visible; otherwise show fallback block
+        if (qrImg && qrImg.complete && qrImg.naturalWidth !== 0) {
+          // image exists, ensure it's visible (it usually is)
+          qrImg.style.opacity = '1';
+          qrFallback.style.display = 'none';
+        } else {
+          qrFallback.style.display = 'flex';
+        }
+        // Also inform the user
+        alert('If your UPI app did not open, please scan the QR or copy the UPI ID and open your UPI app manually.');
+      }
+    }, 1200); // small delay to allow the app to open on fast devices
   });
 
+  // Clipboard copy with fallback for older iOS
   copyBtn.addEventListener('click', () => {
-    navigator.clipboard.writeText(UPI_ID).then(() => {
-      alert('UPI ID copied: ' + UPI_ID);
-    });
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+      navigator.clipboard.writeText(UPI_ID).then(() => {
+        alert('UPI ID copied: ' + UPI_ID);
+      }).catch(() => {
+        // fallback to textarea method
+        fallbackCopy(UPI_ID);
+      });
+    } else {
+      fallbackCopy(UPI_ID);
+    }
   });
+
+  function fallbackCopy(text) {
+    const ta = document.createElement('textarea');
+    ta.value = text;
+    // place off-screen
+    ta.style.position = 'fixed';
+    ta.style.left = '-9999px';
+    document.body.appendChild(ta);
+    ta.focus();
+    ta.select();
+    try {
+      const ok = document.execCommand('copy');
+      if (ok) alert('UPI ID copied: ' + text);
+      else alert('Copy failed. Please select and copy manually: ' + text);
+    } catch (e) {
+      alert('Copy not supported. Please select and copy manually: ' + text);
+    }
+    document.body.removeChild(ta);
+  }
 
   paidCheckbox.addEventListener("change", () => {
     const show = paidCheckbox.checked;
