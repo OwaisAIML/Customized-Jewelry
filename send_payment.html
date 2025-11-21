@@ -1,0 +1,136 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Send Payment Details — Customised Jewellery</title>
+  <meta name="description" content="Send payment details to the seller" />
+  <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="min-h-screen flex items-center justify-center p-4 bg-gray-50">
+  <main class="w-full max-w-xl bg-white rounded-2xl shadow-lg border p-6">
+    <header class="mb-4">
+      <h1 class="text-xl font-semibold">Send Payment Details</h1>
+      <p class="text-sm text-gray-500">We will verify your payment and confirm your order.</p>
+    </header>
+
+    <form id="paymentForm" class="space-y-4" autocomplete="off" novalidate>
+      <div>
+        <label class="text-xs text-gray-600">Your name</label>
+        <input id="name" name="name" type="text" class="mt-1 block w-full border rounded-md p-2" placeholder="Your full name" required>
+      </div>
+
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
+        <div>
+          <label class="text-xs text-gray-600">Amount (₹)</label>
+          <input id="amount" name="amount" type="text" class="mt-1 block w-full border rounded-md p-2" placeholder="e.g. 1499.00">
+        </div>
+
+        <div>
+          <label class="text-xs text-gray-600">Attach screenshot</label>
+          <input id="screenshot" name="screenshot" type="file" class="mt-1 block w-full" accept="image/*">
+          <p class="font-semibold text-xs mt-1">Upload your transaction screenshot</p>
+        </div>
+      </div>
+
+      <div>
+        <label class="text-xs text-gray-600">UPI ID you paid to</label>
+        <input id="upi" name="upi" type="text" class="mt-1 block w-full border rounded-md p-2 font-mono" placeholder="Aroobakhan660@okicici">
+      </div>
+
+      <div>
+        <label class="text-xs text-gray-600">Product / Order (optional)</label>
+        <input id="product" name="product" type="text" class="mt-1 block w-full border rounded-md p-2" placeholder="Product name or order ID">
+      </div>
+
+      <div>
+        <label class="text-xs text-gray-600">Additional note (optional)</label>
+        <textarea id="note" name="note" class="mt-1 block w-full border rounded-md p-2" rows="3" placeholder="Any extra details..."></textarea>
+      </div>
+
+      <div class="flex gap-3 items-center">
+        <button id="sendMailBtn" type="submit" class="bg-rose-600 hover:bg-rose-700 text-white px-4 py-2 rounded-xl font-semibold">
+          Send payment details
+        </button>
+        <span id="afterSendNote" class="text-sm font-semibold text-gray-700 hidden">You will receive a confirmation reply after sending the payment details</span>
+      </div>
+    </form>
+
+    <footer class="mt-6 text-xs text-gray-500">
+      <div>Make sure the amount and the UPI ID match the payment you made.</div>
+    </footer>
+  </main>
+
+<script>
+/* Configuration */
+const BUSINESS_EMAIL = "customisedj@gmail.com"; // <-- CHANGE THIS
+
+document.addEventListener('DOMContentLoaded', () => {
+  const params = new URLSearchParams(location.search);
+
+  const nameInput = document.getElementById('name');
+  const productInput = document.getElementById('product');
+  const amountInput = document.getElementById('amount');
+  const upiInput = document.getElementById('upi');
+  const noteInput = document.getElementById('note');
+  const form = document.getElementById('paymentForm');
+  const afterSendNote = document.getElementById('afterSendNote');
+
+  // Prefill name from ?name or localStorage
+  let sourcedName = '';
+  if (params.get('name')) {
+    sourcedName = params.get('name');
+  } else if (localStorage.getItem('customerName')) {
+    sourcedName = localStorage.getItem('customerName');
+  }
+
+  if (sourcedName) {
+    nameInput.value = sourcedName;
+    nameInput.readOnly = true;
+    nameInput.classList.add('bg-gray-100');
+  }
+
+  // Prefill other values
+  if (params.get('product')) productInput.value = params.get('product');
+  if (params.get('amount')) amountInput.value = params.get('amount');
+  if (params.get('price') && !params.get('amount')) amountInput.value = params.get('price');
+  if (params.get('upi')) upiInput.value = params.get('upi');
+
+  form.addEventListener('submit', (ev) => {
+    ev.preventDefault();
+
+    const name = nameInput.value.trim();
+    const amount = amountInput.value.trim();
+    const upi = upiInput.value.trim();
+    const product = productInput.value.trim();
+    const note = noteInput.value.trim();
+
+    if (!name) {
+      alert('Name is required. It should be fetched from the previous page, but you can enter it manually.');
+      nameInput.focus();
+      return;
+    }
+
+    // Build email
+    const subject = encodeURIComponent(`Payment details — ${product || 'Customised Order'}`);
+
+    let body = `Name: ${name}\n`;
+    if (product) body += `Product / Order: ${product}\n`;
+    if (amount) body += `Amount: ₹${amount}\n`;
+    if (upi) body += `Paid to (UPI ID): ${upi}\n`;
+    if (note) body += `\nAdditional note:\n${note}\n`;
+
+    body += `\n---\nPlease confirm when payment is verified.\n`;
+
+    const mailto = `mailto:${encodeURIComponent(BUSINESS_EMAIL)}?subject=${subject}&body=${encodeURIComponent(body)}`;
+
+    // Open email client
+    window.location.href = mailto;
+
+    // show confirmation note
+    afterSendNote.classList.remove('hidden');
+  });
+});
+</script>
+</body>
+</html>

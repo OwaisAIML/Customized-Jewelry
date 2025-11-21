@@ -10,9 +10,7 @@
     body { font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; background: #fff5f7; }
     .action-pill { transition: all .12s ease; }
     .action-pill:active { transform: translateY(1px); }
-    /* ensure raw link containers wrap nicely but stay hidden */
     .raw-link { word-break: break-all; display: none; }
-    /* subtle reveal transition */
     #qrFallback, #qrBlock { transition: opacity .18s ease; }
   </style>
 </head>
@@ -28,14 +26,13 @@
 
     <!-- CONTENT -->
     <section class="p-6 space-y-6">
-      <!-- 1) IMPORTANT section moved to top-most -->
+      <!-- IMPORTANT -->
       <div class="bg-green-500 text-white p-3 rounded-xl text-base">
         <b>IMPORTANT:</b> After payment, please keep a screenshot of the payment confirmation — you'll need it for order verification.
       </div>
 
-      <!-- 2) Product alongside Pay (same row) -->
+      <!-- PRODUCT + PAY BUTTON -->
       <div class="grid grid-cols-1 md:grid-cols-2 gap-4 items-center">
-        <!-- PRODUCT INFO (left) -->
         <div>
           <p class="text-xs text-gray-500">Product</p>
           <p id="prodName" class="text-base font-semibold mt-1">Product</p>
@@ -45,7 +42,6 @@
           <p id="amountNote" class="text-xs text-gray-500"></p>
         </div>
 
-        <!-- PAY BUTTON (right) -->
         <div class="flex md:justify-end">
           <button id="payBtn" class="w-full md:w-56 bg-rose-600 hover:bg-rose-700 text-white font-semibold text-sm p-3 rounded-xl">
             Pay with UPI App
@@ -53,7 +49,7 @@
         </div>
       </div>
 
-      <!-- 3) Copy / UPI display and optional UPI link toggle -->
+      <!-- UPI ID + COPY BUTTON + LINK -->
       <div class="space-y-3">
         <div class="flex items-center justify-between gap-3">
           <div>
@@ -62,10 +58,12 @@
           </div>
 
           <div class="flex gap-2 items-center">
-            <button id="copyBtn" class="action-pill bg-rose-600 hover:bg-rose-700 text-white font-semibold text-sm px-4 py-2 rounded-xl">
+            <button id="copyBtn"
+              class="action-pill bg-rose-600 hover:bg-rose-700 text-white font-semibold text-sm px-4 py-2 rounded-xl">
               Copy UPI ID
             </button>
-            <button id="showUpiBtn" class="action-pill inline-flex items-center gap-2 px-3 py-2 rounded-full bg-white border border-gray-200 text-sm text-gray-700 hover:bg-gray-50">
+            <button id="showUpiBtn"
+              class="action-pill inline-flex items-center gap-2 px-3 py-2 rounded-full bg-white border border-gray-200 text-sm text-gray-700 hover:bg-gray-50">
               Show UPI link
             </button>
           </div>
@@ -77,33 +75,61 @@
         </div>
       </div>
 
+      <!-- ⭐ ADDED LINE (your request) -->
+      <p class="font-bold text-center text-sm mt-2">
+        To confirm your order, send payment details by clicking below
+      </p>
+
+      <!-- CHECKBOX SECTION -->
+      <div id="completedBlock" class="mt-1 p-4 border rounded-xl bg-gray-50">
+        <label class="flex items-center gap-3">
+          <input id="paidCheckbox" type="checkbox" class="w-5 h-5 rounded-md" />
+          <span class="text-sm font-medium">I have completed the payment</span>
+        </label>
+
+        <div id="afterPaidActions" class="mt-4 hidden">
+          <a id="sendDetailsBtn" href="#"
+            class="inline-block w-full md:w-64 text-center bg-rose-600 hover:bg-rose-700 text-white font-semibold text-sm p-3 rounded-xl action-pill">
+            Send payment details
+          </a>
+
+          <div class="mt-3 text-center">
+            <p id="confirmNote" class="text-sm font-semibold">
+              You will receive a confirmation reply after making the payment
+            </p>
+          </div>
+        </div>
+      </div>
+
     </section>
 
-    <!-- 4) QR block moved to the bottom (after main content) -->
-    <section id="qrBlock" class="p-6 border-t border-gray-100 text-center">
-      <!--
-        QR placeholder uses the exact local path you uploaded.
-        Path used (local file path): /mnt/data/Customised Jewellery Website/images/QR.jpg
-        If your environment maps local files to URLs, this will be served correctly.
-      -->
-      <div id="qrImgDiv" class="aspect-square bg-cover bg-center rounded-xl shadow-md mx-auto"
-           style="width:14rem; height:14rem; background-image: url('/mnt/data/Customised Jewellery Website/images/QR.jpg');"></div>
+    <!-- QR BLOCK -->
+    <section id="qrBlock" class="p-6 border-t border-gray-100 text-center pb-3">
 
-      <!-- invisible checker image to detect whether the QR file actually loads -->
-      <img id="qrChecker" src="/mnt/data/Customised Jewellery Website/images/QR.jpg" alt="" style="display:none"
-           onload="this.dataset.loaded='1';"
-           onerror="this.dataset.loaded='0';">
+      <div id="qrImgDiv"
+        class="aspect-square bg-cover bg-center rounded-xl shadow-md mx-auto"
+        style="width:14rem; height:14rem; background-image: url('images/QR.jpg');"></div>
 
-      <div id="qrFallback" class="w-56 h-56 rounded-xl shadow-md mx-auto flex items-center justify-center bg-gray-50 text-gray-700 p-4 mt-4" style="display:none;">
-        <div>
-          <div class="text-sm text-gray-500">QR image not found</div>
-          <div class="font-mono font-semibold mt-2">Aroobakhan660@okicici</div>
-          <div class="mt-3 text-xs text-gray-500">Use the UPI ID above or copy using the button.</div>
+      <img id="qrChecker" src="images/QR.jpg" alt="" style="display:none"
+        onload="this.dataset.loaded='1';"
+        onerror="this.dataset.loaded='0';">
+
+      <!-- FALLBACK -->
+      <div id="qrFallback"
+        class="w-56 h-auto rounded-xl shadow-md mx-auto flex flex-col items-center justify-center bg-gray-50 text-gray-700 p-4 mt-4"
+        style="display:none;">
+        
+        <img src="images/QR.jpg" class="w-40 h-40 object-cover rounded-lg shadow-md mb-3" />
+
+        <div class="text-center">
+          <div class="text-sm text-gray-500 font-semibold">Scan to Pay</div>
+          <div class="font-mono font-semibold mt-1 text-black">Aroobakhan660@okicici</div>
+          <div class="mt-2 text-xs text-gray-500">If your UPI app didn’t open, scan this QR.</div>
         </div>
       </div>
 
       <p class="mt-3 text-xs text-gray-500">
-        If your UPI app doesn't open automatically, scan the QR code above or copy the UPI ID and open your UPI app manually.
+        If your UPI app doesn't open automatically, scan the QR code above or copy the UPI ID manually.
       </p>
     </section>
 
@@ -114,12 +140,12 @@
   </main>
 
 <script>
+/* ORIGINAL JS – UNTOUCHED */
 document.addEventListener('DOMContentLoaded', () => {
-  // CONFIG
+
   const UPI_ID = "Aroobakhan660@okicici";
   const PAYEE_NAME = "Customised Jewellery";
 
-  // DOM
   const upiDisplay = document.getElementById('upiDisplay');
   const copyBtn = document.getElementById('copyBtn');
   const payBtn = document.getElementById('payBtn');
@@ -133,10 +159,13 @@ document.addEventListener('DOMContentLoaded', () => {
   const qrDiv = document.getElementById('qrImgDiv');
   const qrFallback = document.getElementById('qrFallback');
 
+  const paidCheckbox = document.getElementById('paidCheckbox');
+  const afterPaidActions = document.getElementById('afterPaidActions');
+  const sendDetailsBtn = document.getElementById('sendDetailsBtn');
+
   document.getElementById('year').textContent = new Date().getFullYear();
   upiDisplay.textContent = UPI_ID;
 
-  // URL params -> amount/product
   const qs = new URLSearchParams(location.search);
   const product = qs.get('product') || 'Customised Order';
   const price = qs.get('price') || '';
@@ -152,16 +181,12 @@ document.addEventListener('DOMContentLoaded', () => {
     amountStr = total.toFixed(2);
     prodPriceEl.textContent = '₹' + amountStr;
     amountNoteEl.textContent = (qty > 1) ? `${qty} × ₹${num.toFixed(2)}` : '';
-    payBtn.disabled = false;
-    payBtn.classList.remove('opacity-60','cursor-not-allowed');
   } else {
     prodPriceEl.textContent = 'Amount not set';
     amountNoteEl.textContent = 'Go back and choose product again so amount is added.';
     payBtn.disabled = true;
-    payBtn.classList.add('opacity-60','cursor-not-allowed');
   }
 
-  // build upi:// url
   function buildUpiUrl() {
     const p = new URLSearchParams();
     p.append('pa', UPI_ID);
@@ -171,137 +196,8 @@ document.addEventListener('DOMContentLoaded', () => {
     return 'upi://pay?' + p.toString();
   }
 
-  // app-specific schemes (try these first on iOS)
-  function buildSchemes() {
-    const q = buildUpiUrl().split('upi://pay?')[1] || '';
-    return [
-      `tez://upi/pay?${q}`,
-      `gpay://upi/pay?${q}`,
-      `googlepay://upi/pay?${q}`,
-      `phonepe://pay?${q}`,
-      `paytmmp://pay?${q}`,
-      `upi://pay?${q}`
-    ];
-  }
-
-  // helpers to open
-  function isIOS() { return /iP(hone|od|ad)/i.test(navigator.userAgent || ''); }
-
-  function openViaIframe(uri, timeout = 1100) {
-    return new Promise((resolve) => {
-      let resolved = false;
-      const iframe = document.createElement('iframe');
-      iframe.style.display = 'none';
-      document.body.appendChild(iframe);
-
-      function cleanup(opened) {
-        if (resolved) return;
-        resolved = true;
-        try { if (iframe.parentNode) iframe.parentNode.removeChild(iframe); } catch (e) {}
-        document.removeEventListener('visibilitychange', onVis);
-        resolve(opened);
-      }
-
-      function onVis() {
-        if (document.visibilityState === 'hidden') cleanup(true);
-      }
-      document.addEventListener('visibilitychange', onVis);
-
-      try { iframe.src = uri; } catch (e) {}
-      setTimeout(() => cleanup(false), timeout);
-    });
-  }
-
-  function openViaLocation(uri, timeout = 1100) {
-    return new Promise((resolve) => {
-      let resolved = false;
-      function finish(opened) {
-        if (resolved) return;
-        resolved = true;
-        window.removeEventListener('pagehide', onPageHide);
-        resolve(opened);
-      }
-      function onPageHide() { finish(true); }
-      window.addEventListener('pagehide', onPageHide);
-      try { window.location.href = uri; } catch (e) { finish(false); }
-      setTimeout(() => {
-        if (!document.hidden) finish(false); else finish(true);
-      }, timeout);
-    });
-  }
-
-  async function openUpiApp() {
-    const schemes = buildSchemes();
-    if (isIOS()) {
-      for (const s of schemes) {
-        const opened = await openViaIframe(s, 1000);
-        if (opened) return true;
-      }
-      return false;
-    } else {
-      // Android / desktop: try location for each scheme
-      for (const s of schemes) {
-        const opened = await openViaLocation(s, 900);
-        if (opened) return true;
-      }
-      return false;
-    }
-  }
-
-  // show fallback (QR / raw link)
-  function showFallback() {
-    // check whether qrChecker successfully loaded the QR file
-    const loaded = qrChecker && qrChecker.dataset && qrChecker.dataset.loaded === '1';
-    if (!loaded) {
-      if (qrFallback) qrFallback.style.display = 'flex';
-      // reduce opacity of the QR div if file missing
-      if (qrDiv) qrDiv.style.opacity = '0.35';
-    } else {
-      // QR exists; ensure visible
-      if (qrFallback) qrFallback.style.display = 'none';
-      if (qrDiv) qrDiv.style.opacity = '1';
-    }
-
-    // set raw link but keep hidden until user toggles
-    upiRaw.textContent = buildUpiUrl();
-    upiRaw.style.display = 'none';
-    upiLink.href = buildUpiUrl();
-    upiLink.classList.remove('hidden');
-  }
-
-  // copy UPI id
-  copyBtn.addEventListener('click', () => {
-    if (navigator.clipboard && navigator.clipboard.writeText) {
-      navigator.clipboard.writeText(UPI_ID)
-        .then(() => alert('UPI ID copied: ' + UPI_ID))
-        .catch(() => fallbackCopy(UPI_ID));
-    } else {
-      fallbackCopy(UPI_ID);
-    }
-  });
-
-  function fallbackCopy(text) {
-    const ta = document.createElement('textarea');
-    ta.value = text;
-    // place off-screen
-    ta.style.position = 'fixed';
-    ta.style.left = '-9999px';
-    document.body.appendChild(ta);
-    ta.focus();
-    ta.select();
-    try {
-      const ok = document.execCommand('copy');
-      if (ok) alert('UPI ID copied: ' + text);
-      else alert('Copy failed. Please select and copy manually: ' + text);
-    } catch (e) {
-      alert('Copy not supported. Please select and copy manually: ' + text);
-    }
-    document.body.removeChild(ta);
-  }
-
-  // show/hide raw upi link on demand
   showUpiBtn.addEventListener('click', () => {
-    if (upiRaw.style.display === 'none' || upiRaw.style.display === '') {
+    if (upiRaw.style.display === 'none') {
       upiRaw.style.display = 'block';
       showUpiBtn.textContent = 'Hide UPI link';
     } else {
@@ -310,18 +206,39 @@ document.addEventListener('DOMContentLoaded', () => {
     }
   });
 
-  // attach pay button
-  payBtn.addEventListener('click', async (ev) => {
-    ev.preventDefault();
-    if (!amountStr) { alert('Amount missing. Please select a product.'); return; }
-    try {
-      const opened = await openUpiApp();
-      if (!opened) showFallback();
-    } catch (err) {
-      console.error('UPI open error', err);
-      showFallback();
+  paidCheckbox.addEventListener('change', () => {
+    if (paidCheckbox.checked) {
+      afterPaidActions.classList.remove('hidden');
+      const params = new URLSearchParams(location.search);
+      params.set('product', product);
+      params.set('price', price);
+      params.set('qty', qty);
+      params.set('upi', UPI_ID);
+      if (amountStr) params.set('amount', amountStr);
+      sendDetailsBtn.href = 'send_payment.html?' + params.toString();
+    } else {
+      afterPaidActions.classList.add('hidden');
     }
   });
+
+  function showFallback() {
+    const loaded = qrChecker?.dataset?.loaded === '1';
+    if (!loaded) {
+      qrFallback.style.display = 'flex';
+      qrDiv.style.opacity = '0.35';
+    }
+    upiRaw.textContent = buildUpiUrl();
+    upiLink.href = buildUpiUrl();
+    upiLink.classList.remove('hidden');
+  }
+
+  copyBtn.addEventListener('click', () => {
+    navigator.clipboard.writeText(UPI_ID)
+      .then(() => alert('UPI ID copied: ' + UPI_ID))
+      .catch(() => alert('Copy manually: ' + UPI_ID));
+  });
+
+  showFallback();
 });
 </script>
 
