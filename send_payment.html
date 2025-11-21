@@ -6,6 +6,10 @@
   <title>Send Payment Details — Customised Jewellery</title>
   <meta name="description" content="Send payment details to the seller" />
   <script src="https://cdn.tailwindcss.com"></script>
+  <style>
+    /* small helper to make the shipping block scroll nicely on small screens */
+    .summary-box { max-height: 10rem; overflow:auto; white-space:pre-wrap; }
+  </style>
 </head>
 <body class="min-h-screen flex items-center justify-center p-4 bg-gray-50">
   <main class="w-full max-w-xl bg-white rounded-2xl shadow-lg border p-6">
@@ -16,8 +20,13 @@
 
     <!-- ATTENTION MESSAGE ADDED -->
     <p class="font-bold text-red-600 mb-4 text-center">
-      Please attach the transaction screenshot in mail after sending the details.
+      Please attach the transaction screenshot in the mail after sending the details.
     </p>
+
+    <!-- SHIPPING SUMMARY (prefilled from URL if present) -->
+    <section id="shippingSummary" class="mb-4 p-3 rounded-lg border border-slate-200 bg-slate-50">
+      <!-- JS will populate this -->
+    </section>
 
     <form id="paymentForm" class="space-y-4" autocomplete="off" novalidate>
       <div>
@@ -31,7 +40,7 @@
           <input id="amount" name="amount" type="text" class="mt-1 block w-full border rounded-md p-2" placeholder="e.g. 1499.00">
         </div>
 
-        <!-- REMOVED THE FILE UPLOAD SECTION -->
+        <!-- file upload removed on purpose -->
       </div>
 
       <div>
@@ -64,7 +73,7 @@
 
 <script>
 /* Configuration */
-const BUSINESS_EMAIL = "customisedj@gmail.com"; // <-- CHANGE THIS
+const BUSINESS_EMAIL = "customisedj@gmail.com"; // <-- CHANGE THIS to your receiving email
 
 document.addEventListener('DOMContentLoaded', () => {
   const params = new URLSearchParams(location.search);
@@ -76,10 +85,15 @@ document.addEventListener('DOMContentLoaded', () => {
   const noteInput = document.getElementById('note');
   const form = document.getElementById('paymentForm');
   const afterSendNote = document.getElementById('afterSendNote');
+  const shippingSummary = document.getElementById('shippingSummary');
 
-  // Prefill name from ?name or localStorage
+  // --- Prefill name from ?shipName, ?custName, ?name or localStorage
   let sourcedName = '';
-  if (params.get('name')) {
+  if (params.get('shipName')) {
+    sourcedName = params.get('shipName');
+  } else if (params.get('custName')) {
+    sourcedName = params.get('custName');
+  } else if (params.get('name')) {
     sourcedName = params.get('name');
   } else if (localStorage.getItem('customerName')) {
     sourcedName = localStorage.getItem('customerName');
@@ -91,11 +105,56 @@ document.addEventListener('DOMContentLoaded', () => {
     nameInput.classList.add('bg-gray-100');
   }
 
-  // Prefill other values
+  // Prefill other values (if present)
   if (params.get('product')) productInput.value = params.get('product');
   if (params.get('amount')) amountInput.value = params.get('amount');
   if (params.get('price') && !params.get('amount')) amountInput.value = params.get('price');
   if (params.get('upi')) upiInput.value = params.get('upi');
+
+  if (params.get('note')) {
+    // if note came from previous steps (customization), append it
+    const existing = noteInput.value || '';
+    noteInput.value = (existing ? existing + '\n' : '') + params.get('note');
+  }
+
+  // --- Read shipping fields passed from address.html and show summary
+  const shipName = params.get('shipName') || '';
+  const shipPhone = params.get('shipPhone') || '';
+  const addr1 = params.get('addr1') || '';
+  const addr2 = params.get('addr2') || '';
+  const city = params.get('city') || '';
+  const district = params.get('district') || '';
+  const state = params.get('state') || '';
+  const pincode = params.get('pincode') || '';
+
+  function buildShippingText() {
+    if (!shipName && !shipPhone && !addr1 && !city && !state && !pincode) {
+      return '<div class="text-sm text-gray-600">No shipping details provided yet. You can add them from the checkout page.</div>';
+    }
+    const lines = [];
+    if (shipName) lines.push(`<div class="font-semibold">${escapeHtml(shipName)}</div>`);
+    if (shipPhone) lines.push(`<div class="text-xs text-gray-600">Phone: ${escapeHtml(shipPhone)}</div>`);
+    const addrLines = [];
+    if (addr1) addrLines.push(escapeHtml(addr1));
+    if (addr2) addrLines.push(escapeHtml(addr2));
+    if (city || district || state || pincode) {
+      const parts = [city, district, state, pincode].filter(Boolean).join(', ');
+      if (parts) addrLines.push(escapeHtml(parts));
+    }
+    if (addrLines.length) lines.push(`<div class="mt-2 text-xs text-gray-700">${addrLines.join('<br>')}</div>`);
+    return lines.join('');
+  }
+
+  // simple HTML escape helper
+  function escapeHtml(str) {
+    return String(str)
+      .replace(/&/g, '&amp;')
+      .replace(/"/g, '&quot;')
+      .replace(/</g, '&lt;')
+      .replace(/>/g, '&gt;');
+  }
+
+  shippingSummary.innerHTML = buildShippingText();
 
   form.addEventListener('submit', (ev) => {
     ev.preventDefault();
@@ -112,16 +171,31 @@ document.addEventListener('DOMContentLoaded', () => {
       return;
     }
 
-    // Build email
+    // Build email subject
     const subject = encodeURIComponent(`Payment details — ${product || 'Customised Order'}`);
 
+    // Build email body including shipping details
     let body = `Name: ${name}\n`;
     if (product) body += `Product / Order: ${product}\n`;
     if (amount) body += `Amount: ₹${amount}\n`;
     if (upi) body += `Paid to (UPI ID): ${upi}\n`;
+
+    // Shipping details (if present)
+    if (shipName || shipPhone || addr1 || addr2 || city || district || state || pincode) {
+      body += `\nShipping details:\n`;
+      if (shipName) body += `  Recipient: ${shipName}\n`;
+      if (shipPhone) body += `  Phone: ${shipPhone}\n`;
+      if (addr1) body += `  Address line 1: ${addr1}\n`;
+      if (addr2) body += `  Address line 2: ${addr2}\n`;
+      if (city) body += `  City: ${city}\n`;
+      if (district) body += `  District: ${district}\n`;
+      if (state) body += `  State: ${state}\n`;
+      if (pincode) body += `  Pincode: ${pincode}\n`;
+    }
+
     if (note) body += `\nAdditional note:\n${note}\n`;
 
-    body += `\n---\nPlease confirm when payment is verified.\n`;
+    body += `\n---\nPlease confirm when payment is verified.\n\nPlease note: attach the transaction screenshot to this email before you press send.\n`;
 
     const mailto = `mailto:${encodeURIComponent(BUSINESS_EMAIL)}?subject=${subject}&body=${encodeURIComponent(body)}`;
 
