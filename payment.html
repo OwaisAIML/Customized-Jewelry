@@ -166,7 +166,7 @@
         </div>
       </section>
 
-      <!-- HIDDEN DUPLICATE (left as in original, not used but kept for compatibility) -->
+      <!-- HIDDEN DUPLICATE (kept as in original) -->
       <section style="display:none;">
         <div id="qrFallback"
           class="w-56 h-auto rounded-xl shadow-md mx-auto flex flex-col items-center justify-center bg-gray-50 text-gray-700 p-4 mt-4">
@@ -183,7 +183,7 @@
         </p>
       </section>
 
-      <!-- AFTER PAYMENT CONFIRMATION SECTION (matches existing JS, just styled nicely) -->
+      <!-- AFTER PAYMENT CONFIRMATION SECTION -->
       <section class="px-6 pb-5 pt-2 bg-white border-t border-slate-100">
         <div class="mt-3 space-y-3">
           <label class="flex items-start gap-2 text-xs sm:text-sm text-slate-700 cursor-pointer">
@@ -233,7 +233,7 @@
     </div>
   </main>
 
-  <!-- ✅ PAYMENT FLOW SCRIPT — UNCHANGED LOGIC -->
+  <!-- ✅ PAYMENT FLOW SCRIPT -->
   <script>
   /* 
     GOOGLE FORM PREFILL CONFIG
@@ -256,8 +256,6 @@
   const ENTRY_STATE    = "entry.1992370307";  // State
   const ENTRY_PINCODE  = "entry.2086390809";  // Pincode
   const ENTRY_NOTE     = "entry.245768923";   // Additional notes
-
-  /* ORIGINAL JS – payment flow kept, with added auto-redirect after returning from UPI */
 
   document.addEventListener('DOMContentLoaded', () => {
 
@@ -301,7 +299,8 @@
     const district  = qs.get('district') || '';
     const state     = qs.get('state') || '';
     const pincode   = qs.get('pincode') || '';
-    const extraNote = qs.get('note') || '';
+    const extraNote = qs.get('note') || '';      // customisation details
+    const hasPhoto  = qs.get('hasPhoto') || '';  // YES / NO from customise.html
 
     const qty = parseInt(qtyRaw) || 1;
     const num = price ? parseFloat(price) : 0;
@@ -428,11 +427,28 @@
       if (ENTRY_STATE    && state)       formParams.set(ENTRY_STATE, state);
       if (ENTRY_PINCODE  && pincode)     formParams.set(ENTRY_PINCODE, pincode);
 
+      // 👇 Updated: include customisation details, quantity, and "has reference photo"
       let noteCombined = "";
-      if (extraNote) noteCombined += extraNote;
+
+      // 1) Customisation details from customise.html
+      if (extraNote) {
+        noteCombined += "Customisation details: " + extraNote;
+      }
+
+      // 2) Quantity
       if (qty) {
         noteCombined += (noteCombined ? "\n" : "") + "Quantity: " + qty;
       }
+
+      // 3) Reference photo info
+      if (hasPhoto === "YES") {
+        noteCombined += (noteCombined ? "\n" : "") +
+          "Customer has a reference photo (to be uploaded in this form).";
+      } else if (hasPhoto === "NO") {
+        noteCombined += (noteCombined ? "\n" : "") +
+          "Customer does not have a reference photo.";
+      }
+
       if (ENTRY_NOTE && noteCombined) {
         formParams.set(ENTRY_NOTE, noteCombined);
       }
@@ -447,7 +463,6 @@
       if (confirmNote) {
         confirmNote.textContent = "Redirecting you to confirmation form...";
       }
-      // small delay for better UX
       setTimeout(() => {
         window.location.href = url;
       }, 100);
@@ -477,7 +492,6 @@
         redirectToForm();
       }
 
-      // Listen for when user returns from UPI app (tab becomes visible again)
       function onVisibilityChange() {
         if (!document.hidden) {
           document.removeEventListener('visibilitychange', onVisibilityChange);
@@ -491,7 +505,6 @@
         const opened = await openUpiApp();
         if (!opened) {
           document.removeEventListener('visibilitychange', onVisibilityChange);
-          // fallback to showing raw link / QR
           showFallback();
           alert('No UPI app detected or app didn\'t open. Use the QR code or copy the UPI ID to pay.');
         }
@@ -503,7 +516,7 @@
       }
     });
 
-    // When customer ticks "I have completed the payment" (backup option)
+    // Checkbox backup flow
     paidCheckbox.addEventListener('change', () => {
       if (paidCheckbox.checked) {
         afterPaidActions.classList.remove('hidden');
@@ -535,7 +548,6 @@
           .then(() => alert('UPI ID copied: ' + UPI_ID))
           .catch(() => alert('Copy manually: ' + UPI_ID));
       } else {
-        // fallback copy
         const ta = document.createElement('textarea');
         ta.value = UPI_ID;
         ta.style.position = 'fixed';
