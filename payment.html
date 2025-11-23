@@ -7,7 +7,10 @@
   <meta name="description" content="Secure UPI Payment for Customised Jewellery" />
   <script src="https://cdn.tailwindcss.com"></script>
   <style>
-    body { font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; background: #fff5f7; }
+    body {
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      background: radial-gradient(circle at top left, #ffe4ec 0, #fff5f7 30%, #fff 70%);
+    }
     .action-pill { transition: all .12s ease; }
     .action-pill:active { transform: translateY(1px); }
     .raw-link { word-break: break-all; display: none; }
@@ -16,433 +19,543 @@
 </head>
 
 <body class="min-h-screen flex items-center justify-center p-4">
-  <main class="w-full max-w-xl bg-white rounded-2xl shadow-xl border border-rose-100">
+  <main class="w-full max-w-xl relative">
+    <!-- soft glow background -->
+    <div class="pointer-events-none absolute -inset-6 rounded-[2.25rem] bg-gradient-to-br from-rose-100/60 via-amber-50/40 to-rose-50/10 blur-2xl opacity-80"></div>
 
-    <!-- HEADER -->
-    <header class="p-5 border-b border-gray-200">
-      <h1 class="text-lg font-semibold">Complete Payment</h1>
-      <p class="text-sm text-gray-500">Pay securely via any UPI app (Google Pay, PhonePe, Paytm…)</p>
-    </header>
+    <div class="relative bg-white/90 backdrop-blur rounded-3xl shadow-2xl border border-rose-100 overflow-hidden">
 
-    <!-- CONTENT -->
-    <section class="p-6 space-y-6">
-      <!-- IMPORTANT -->
-      <div class="bg-green-500 text-white p-3 rounded-xl text-base">
-        <b>IMPORTANT:</b> After payment, please keep a screenshot of the payment confirmation — you'll need it for order verification.
-      </div>
-
-      <!-- PRODUCT + PAY BUTTON -->
-      <div class="grid grid-cols-1 md:grid-cols-2 gap-4 items-center">
-        <div>
-          <p class="text-xs text-gray-500">Product</p>
-          <p id="prodName" class="text-base font-semibold mt-1">Product</p>
-
-          <p class="mt-4 text-xs text-gray-500">Amount</p>
-          <p id="prodPrice" class="text-2xl font-semibold">₹0.00</p>
-          <p id="amountNote" class="text-xs text-gray-500"></p>
-        </div>
-
-        <div class="flex md:justify-end">
-          <button id="payBtn" class="w-full md:w-56 bg-rose-600 hover:bg-rose-700 text-white font-semibold text-sm p-3 rounded-xl">
-            Pay with UPI App
-          </button>
-        </div>
-      </div>
-
-      <!-- UPI ID + COPY BUTTON + LINK -->
-      <div class="space-y-3">
+      <!-- HEADER / BRAND BAR -->
+      <header class="px-6 pt-5 pb-4 border-b border-rose-100 bg-gradient-to-r from-rose-50/70 via-white to-amber-50/60">
         <div class="flex items-center justify-between gap-3">
-          <div>
-            <p class="text-xs text-gray-500">UPI ID</p>
-            <p class="font-mono font-semibold text-sm" id="upiDisplay">Aroobakhan660@okicici</p>
+          <div class="flex items-center gap-3">
+            <div class="w-10 h-10 rounded-2xl bg-gradient-to-br from-rose-500 to-rose-300 flex items-center justify-center shadow-md ring-1 ring-rose-100/60">
+              <span class="text-xs font-semibold text-white tracking-tight">CJ</span>
+            </div>
+            <div>
+              <p class="text-xs font-semibold uppercase tracking-[0.16em] text-rose-500">Secure UPI Payment</p>
+              <h1 class="text-base font-semibold text-slate-900">Customised Jewellery</h1>
+            </div>
+          </div>
+          <div class="hidden sm:flex flex-col items-end gap-1">
+            <span class="inline-flex items-center gap-1 rounded-full bg-emerald-50 text-emerald-700 text-[11px] font-medium px-3 py-1 border border-emerald-100">
+              <span class="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></span>
+              Payment protected • UPI
+            </span>
+            <span class="text-[11px] text-slate-400">Step 2 of 2 · Pay</span>
+          </div>
+        </div>
+      </header>
+
+      <!-- CONTENT -->
+      <section class="px-6 py-6 space-y-6">
+
+        <!-- IMPORTANT NOTE -->
+        <div class="flex gap-3 items-start rounded-2xl bg-amber-50 border border-amber-100 px-3.5 py-3">
+          <div class="mt-[2px] flex h-7 w-7 items-center justify-center rounded-full bg-amber-100 text-amber-700 text-xs font-semibold">
+            !
+          </div>
+          <div class="text-sm text-amber-900">
+            <p class="font-semibold">Important</p>
+            <p class="text-xs sm:text-[13px] mt-1">
+              After successful payment, <span class="font-medium">please take a screenshot</span> of the payment confirmation.
+              You’ll need it for order verification.
+            </p>
+          </div>
+        </div>
+
+        <!-- PRODUCT + AMOUNT + PAY BUTTON -->
+        <div class="grid grid-cols-1 md:grid-cols-[1.3fr,1fr] gap-5 items-center">
+          <!-- Product Summary -->
+          <div class="rounded-2xl border border-slate-100 bg-slate-50/60 px-4 py-4">
+            <p class="text-[11px] font-medium tracking-[0.18em] uppercase text-slate-500">Order Summary</p>
+            <p id="prodName" class="mt-2 text-sm font-semibold text-slate-900">Product</p>
+
+            <div class="mt-4 flex items-end justify-between gap-3">
+              <div>
+                <p class="text-[11px] uppercase tracking-[0.18em] text-slate-500">Amount</p>
+                <p id="prodPrice" class="mt-1 text-2xl font-semibold text-slate-900">₹0.00</p>
+                <p id="amountNote" class="mt-1 text-xs text-slate-500"></p>
+              </div>
+              <div class="hidden sm:flex flex-col items-end gap-1 text-[11px] text-slate-400">
+                <span>UPI: Google Pay / PhonePe / Paytm</span>
+                <span>No extra charges</span>
+              </div>
+            </div>
           </div>
 
-          <div class="flex gap-2 items-center">
-            <button id="copyBtn"
-              class="action-pill bg-rose-600 hover:bg-rose-700 text-white font-semibold text-sm px-4 py-2 rounded-xl">
-              Copy UPI ID
+          <!-- Pay CTA -->
+          <div class="flex flex-col items-stretch gap-3">
+            <button
+              id="payBtn"
+              class="w-full bg-rose-600 hover:bg-rose-700 text-white font-semibold text-sm py-3.5 px-4 rounded-2xl shadow-md shadow-rose-500/30 flex items-center justify-center gap-2 transition">
+              <span>Pay with UPI App</span>
+              <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" viewBox="0 0 20 20" fill="currentColor">
+                <path d="M10.75 4.75a.75.75 0 0 0-1.5 0v6.638L7.3 9.438a.75.75 0 1 0-1.06 1.06l3.25 3.25a.75.75 0 0 0 1.06 0l3.25-3.25a.75.75 0 1 0-1.06-1.06l-1.95 1.95V4.75Z"/>
+              </svg>
             </button>
-            <button id="showUpiBtn"
-              class="action-pill inline-flex items-center gap-2 px-3 py-2 rounded-full bg-white border border-gray-200 text-sm text-gray-700 hover:bg-gray-50">
-              Show UPI link
-            </button>
+            <p class="text-[11px] text-slate-400 text-center">
+              Your UPI app will open. Complete the payment there and return to this page.
+            </p>
           </div>
         </div>
 
-        <div class="mt-1">
-          <a id="upiLink" href="#" class="text-xs text-blue-600 underline hidden">Open UPI link</a>
-          <div id="upiRaw" class="raw-link mt-2 text-xs text-gray-500 px-1"></div>
+        <!-- UPI ID + COPY + LINK -->
+        <div class="rounded-2xl border border-slate-100 bg-white px-4 py-4 space-y-3">
+          <div class="flex flex-wrap items-center justify-between gap-3">
+            <div>
+              <p class="text-[11px] uppercase tracking-[0.18em] text-slate-500">Pay to UPI ID</p>
+              <p id="upiDisplay" class="mt-1 font-mono font-semibold text-[13px] text-slate-900">
+                Aroobakhan660@okicici
+              </p>
+            </div>
+
+            <div class="flex flex-wrap gap-2 items-center justify-end">
+              <button
+                id="copyBtn"
+                class="action-pill inline-flex items-center gap-1.5 bg-rose-600 hover:bg-rose-700 text-white font-medium text-xs px-3.5 py-2 rounded-full shadow-sm shadow-rose-500/30">
+                <svg xmlns="http://www.w3.org/2000/svg" class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none">
+                  <rect x="9" y="9" width="10" height="10" rx="2" stroke="currentColor" stroke-width="1.5"/>
+                  <path d="M15 9V7C15 5.895 14.105 5 13 5H7C5.895 5 5 5.895 5 7V13C5 14.105 5.895 15 7 15H9" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+                </svg>
+                Copy UPI ID
+              </button>
+
+              <button
+                id="showUpiBtn"
+                class="action-pill inline-flex items-center gap-1.5 px-3 py-2 rounded-full bg-slate-50 border border-slate-200 text-[11px] font-medium text-slate-700 hover:bg-slate-100">
+                Show UPI link
+              </button>
+            </div>
+          </div>
+
+          <div class="mt-1 space-y-1.5 text-xs">
+            <a id="upiLink" href="#" class="text-rose-600 underline hidden text-[11px]">
+              Open UPI link directly
+            </a>
+            <div id="upiRaw" class="raw-link mt-1 text-[11px] text-slate-500 px-1"></div>
+          </div>
         </div>
-      </div>
+      </section>
 
-     
+      <!-- QR BLOCK -->
+      <section id="qrBlock" class="px-6 pt-0 pb-4 border-t border-slate-100 bg-slate-50/70">
+        <div class="pt-4 flex flex-col items-center text-center">
+          <p class="text-[11px] font-medium tracking-[0.18em] uppercase text-slate-500">Alternative Method</p>
+          <p class="mt-1 text-xs text-slate-500">
+            If your UPI app doesn’t open automatically, scan the QR code below or copy the UPI ID manually.
+          </p>
 
-    <!-- QR BLOCK -->
-    <section id="qrBlock" class="p-6 border-t border-gray-100 text-center pb-3">
+          <!-- FALLBACK QR -->
+          <div
+            id="qrFallback"
+            class="mt-4 w-full max-w-xs rounded-2xl shadow-md mx-auto flex flex-col items-center justify-center bg-white text-gray-700 p-4 border border-slate-100">
 
-      <!-- FALLBACK QR (this is your bottom QR and stays visible always) -->
-      <div id="qrFallback"
-        class="w-56 h-auto rounded-xl shadow-md mx-auto flex flex-col items-center justify-center bg-gray-50 text-gray-700 p-4 mt-4">
+            <div class="rounded-2xl bg-slate-50 p-2 mb-3 border border-slate-100">
+              <img src="images/QR.jpg" class="w-40 h-40 object-cover rounded-xl shadow-sm" />
+            </div>
 
-        <img src="images/QR.jpg" class="w-40 h-40 object-cover rounded-lg shadow-md mb-3" />
-
-        <div class="text-center">
-          <div class="text-sm text-gray-500 font-semibold">Scan to Pay</div>
-          <div class="font-mono font-semibold mt-1 text-black">Aroobakhan660@okicici</div>
-          <div class="mt-2 text-xs text-gray-500">If your UPI app didn’t open, scan this QR.</div>
+            <div class="text-center space-y-1">
+              <div class="text-sm text-slate-600 font-semibold">Scan to Pay</div>
+              <div class="font-mono font-semibold mt-1 text-slate-900 text-xs">Aroobakhan660@okicici</div>
+              <div class="mt-1 text-[11px] text-slate-500">
+                Use any UPI app (Google Pay, PhonePe, Paytm, etc.).
+              </div>
+            </div>
+          </div>
         </div>
-      </div>
+      </section>
 
-      <p class="mt-3 text-xs text-gray-500">
-        If your UPI app doesn't open automatically, scan the QR code above or copy the UPI ID manually.
-      </p>
-    </section>
-
-    <!-- (this second fallback block is left as in your file, though it’s redundant) -->
-    <section style="display:none;">
-      <div id="qrFallback"
-        class="w-56 h-auto rounded-xl shadow-md mx-auto flex flex-col items-center justify-center bg-gray-50 text-gray-700 p-4 mt-4">
-        <img src="images/QR.jpg" class="w-40 h-40 object-cover rounded-lg shadow-md mb-3" />
-        <div class="text-center">
-          <div class="text-sm text-gray-500 font-semibold">Scan to Pay</div>
-          <div class="font-mono font-semibold mt-1 text-black">Aroobakhan660@okicici</div>
-          <div class="mt-2 text-xs text-gray-500">If your UPI app didn’t open, scan this QR.</div>
+      <!-- HIDDEN DUPLICATE (left as in original, not used but kept for compatibility) -->
+      <section style="display:none;">
+        <div id="qrFallback"
+          class="w-56 h-auto rounded-xl shadow-md mx-auto flex flex-col items-center justify-center bg-gray-50 text-gray-700 p-4 mt-4">
+          <img src="images/QR.jpg" class="w-40 h-40 object-cover rounded-lg shadow-md mb-3" />
+          <div class="text-center">
+            <div class="text-sm text-gray-500 font-semibold">Scan to Pay</div>
+            <div class="font-mono font-semibold mt-1 text-black">Aroobakhan660@okicici</div>
+            <div class="mt-2 text-xs text-gray-500">If your UPI app didn’t open, scan this QR.</div>
+          </div>
         </div>
-      </div>
 
-      <p class="mt-3 text-xs text-gray-500">
-        If your UPI app doesn't open automatically, scan the QR code above or copy the UPI ID manually.
-      </p>
-    </section>
+        <p class="mt-3 text-xs text-gray-500">
+          If your UPI app doesn't open automatically, scan the QR code above or copy the UPI ID manually.
+        </p>
+      </section>
 
-    <footer class="p-4 border-t border-gray-200 text-xs text-gray-500 flex justify-between">
-      <span>© <span id="year"></span> Customised Jewellery</span>
-      <span>We never ask for OTP / PIN</span>
-    </footer>
+      <!-- AFTER PAYMENT CONFIRMATION SECTION (matches existing JS, just styled nicely) -->
+      <section class="px-6 pb-5 pt-2 bg-white border-t border-slate-100">
+        <div class="mt-3 space-y-3">
+          <label class="flex items-start gap-2 text-xs sm:text-sm text-slate-700 cursor-pointer">
+            <input
+              id="paidCheckbox"
+              type="checkbox"
+              class="mt-1 h-4 w-4 rounded border-slate-300 text-rose-600 focus:ring-rose-500">
+            <span>
+              I have completed the payment in my UPI app.<br>
+              <span class="text-[11px] text-slate-500">
+                Tick this after payment to send your payment details for confirmation.
+              </span>
+            </span>
+          </label>
+
+          <div
+            id="afterPaidActions"
+            class="hidden mt-2 rounded-2xl border border-emerald-100 bg-emerald-50/70 px-4 py-3 space-y-2">
+            <p class="text-xs sm:text-sm text-emerald-900 font-medium">
+              Final step: send your payment details
+            </p>
+            <p class="text-[11px] text-emerald-800">
+              We’ll prefill a short confirmation form with your order details. Just attach your
+              payment screenshot and submit.
+            </p>
+            <div class="flex flex-wrap items-center gap-3">
+              <a
+                id="sendDetailsBtn"
+                href="#"
+                class="inline-flex items-center justify-center gap-2 rounded-full bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-semibold px-4 py-2.5 shadow-sm shadow-emerald-500/30">
+                Send payment details
+                <svg xmlns="http://www.w3.org/2000/svg" class="w-3.5 h-3.5" viewBox="0 0 20 20" fill="currentColor">
+                  <path d="M5 10.75a.75.75 0 0 1 .75-.75h6.638l-2.95-2.95a.75.75 0 1 1 1.06-1.06l4.25 4.25a.75.75 0 0 1 0 1.06l-4.25 4.25a.75.75 0 1 1-1.06-1.06l2.95-2.95H5.75A.75.75 0 0 1 5 10.75Z"/>
+                </svg>
+              </a>
+              <p id="confirmNote" class="text-[11px] text-emerald-800"></p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- FOOTER -->
+      <footer class="px-6 py-3.5 border-t border-slate-100 bg-slate-50/70 text-[11px] text-slate-500 flex items-center justify-between">
+        <span>© <span id="year"></span> Customised Jewellery</span>
+        <span class="text-[11px] font-medium">We never ask for OTP / PIN</span>
+      </footer>
+    </div>
   </main>
 
-<script>
-/* 
-  GOOGLE FORM PREFILL CONFIG
-  Form: https://docs.google.com/forms/d/e/1FAIpQLSc5NSP8ls95OO_r2FtSwqY82lPMPak5yFB5d8s7zXVwVBvoRg/viewform
-*/
-const FORM_BASE_URL = "https://docs.google.com/forms/d/e/1FAIpQLSc5NSP8ls95OO_r2FtSwqY82lPMPak5yFB5d8s7zXVwVBvoRg/viewform?usp=pp_url";
+  <!-- ✅ PAYMENT FLOW SCRIPT — UNCHANGED LOGIC -->
+  <script>
+  /* 
+    GOOGLE FORM PREFILL CONFIG
+    Form: https://docs.google.com/forms/d/e/1FAIpQLSc5NSP8ls95OO_r2FtSwqY82lPMPak5yFB5d8s7zXVwVBvoRg/viewform
+  */
+  const FORM_BASE_URL = "https://docs.google.com/forms/d/e/1FAIpQLSc5NSP8ls95OO_r2FtSwqY82lPMPak5yFB5d8s7zXVwVBvoRg/viewform?usp=pp_url";
 
-/* 
-  Mapping entry IDs to fields.
-*/
-const ENTRY_NAME     = "entry.1636037417";  // Customer name
-const ENTRY_PHONE    = "entry.1430716324";  // Phone number
-const ENTRY_EMAIL    = "entry.492204872";   // Email address
-const ENTRY_PRODUCT  = "entry.654496774";   // Order / Product name
-const ENTRY_AMOUNT   = "entry.1992363313";  // Amount paid
-const ENTRY_UPI      = "entry.760318084";   // Paid to UPI ID
-const ENTRY_ADDRESS  = "entry.1375765497";  // Address (line 1 + line 2)
-const ENTRY_CITY     = "entry.335886306";   // City
-const ENTRY_DISTRICT = "entry.2105814248";  // District
-const ENTRY_STATE    = "entry.1992370307";  // State
-const ENTRY_PINCODE  = "entry.2086390809";  // Pincode
-const ENTRY_NOTE     = "entry.245768923";   // Additional notes
+  /* 
+    Mapping entry IDs to fields.
+  */
+  const ENTRY_NAME     = "entry.1636037417";  // Customer name
+  const ENTRY_PHONE    = "entry.1430716324";  // Phone number
+  const ENTRY_EMAIL    = "entry.492204872";   // Email address
+  const ENTRY_PRODUCT  = "entry.654496774";   // Order / Product name
+  const ENTRY_AMOUNT   = "entry.1992363313";  // Amount paid
+  const ENTRY_UPI      = "entry.760318084";   // Paid to UPI ID
+  const ENTRY_ADDRESS  = "entry.1375765497";  // Address (line 1 + line 2)
+  const ENTRY_CITY     = "entry.335886306";   // City
+  const ENTRY_DISTRICT = "entry.2105814248";  // District
+  const ENTRY_STATE    = "entry.1992370307";  // State
+  const ENTRY_PINCODE  = "entry.2086390809";  // Pincode
+  const ENTRY_NOTE     = "entry.245768923";   // Additional notes
 
-/* ORIGINAL JS – payment flow kept, with added auto-redirect after returning from UPI */
+  /* ORIGINAL JS – payment flow kept, with added auto-redirect after returning from UPI */
 
-document.addEventListener('DOMContentLoaded', () => {
+  document.addEventListener('DOMContentLoaded', () => {
 
-  const UPI_ID = "Aroobakhan660@okicici";
-  const PAYEE_NAME = "Customised Jewellery";
+    const UPI_ID = "Aroobakhan660@okicici";
+    const PAYEE_NAME = "Customised Jewellery";
 
-  const upiDisplay = document.getElementById('upiDisplay');
-  const copyBtn = document.getElementById('copyBtn');
-  const payBtn = document.getElementById('payBtn');
-  const upiLink = document.getElementById('upiLink');
-  const upiRaw = document.getElementById('upiRaw');
-  const showUpiBtn = document.getElementById('showUpiBtn');
-  const prodNameEl = document.getElementById('prodName');
-  const prodPriceEl = document.getElementById('prodPrice');
-  const amountNoteEl = document.getElementById('amountNote');
-  const qrChecker = document.getElementById('qrChecker');
-  const qrDiv = document.getElementById('qrImgDiv');
-  const qrFallback = document.getElementById('qrFallback');
+    const upiDisplay = document.getElementById('upiDisplay');
+    const copyBtn = document.getElementById('copyBtn');
+    const payBtn = document.getElementById('payBtn');
+    const upiLink = document.getElementById('upiLink');
+    const upiRaw = document.getElementById('upiRaw');
+    const showUpiBtn = document.getElementById('showUpiBtn');
+    const prodNameEl = document.getElementById('prodName');
+    const prodPriceEl = document.getElementById('prodPrice');
+    const amountNoteEl = document.getElementById('amountNote');
+    const qrChecker = document.getElementById('qrChecker');
+    const qrDiv = document.getElementById('qrImgDiv');
+    const qrFallback = document.getElementById('qrFallback');
 
-  const paidCheckbox = document.getElementById('paidCheckbox');
-  const afterPaidActions = document.getElementById('afterPaidActions');
-  const sendDetailsBtn = document.getElementById('sendDetailsBtn');
-  const confirmNote = document.getElementById('confirmNote');
+    const paidCheckbox = document.getElementById('paidCheckbox');
+    const afterPaidActions = document.getElementById('afterPaidActions');
+    const sendDetailsBtn = document.getElementById('sendDetailsBtn');
+    const confirmNote = document.getElementById('confirmNote');
 
-  document.getElementById('year').textContent = new Date().getFullYear();
-  upiDisplay.textContent = UPI_ID;
+    document.getElementById('year').textContent = new Date().getFullYear();
+    upiDisplay.textContent = UPI_ID;
 
-  const qs = new URLSearchParams(location.search);
-  const product = qs.get('product') || 'Customised Order';
-  const price = qs.get('price') || '';
-  const qtyRaw = qs.get('qty') || '1';
+    const qs = new URLSearchParams(location.search);
+    const product = qs.get('product') || 'Customised Order';
+    const price = qs.get('price') || '';
+    const qtyRaw = qs.get('qty') || '1';
 
-  // Possible extra details from previous pages (address.html etc.)
-  const shipName  = qs.get('shipName') || '';
-  const custName  = qs.get('custName') || qs.get('name') || shipName;
-  const custPhone = qs.get('shipPhone') || qs.get('phone') || '';
-  const custEmail = qs.get('email') || '';
-  const addr1     = qs.get('addr1') || '';
-  const addr2     = qs.get('addr2') || '';
-  const city      = qs.get('city') || '';
-  const district  = qs.get('district') || '';
-  const state     = qs.get('state') || '';
-  const pincode   = qs.get('pincode') || '';
-  const extraNote = qs.get('note') || '';
+    // Possible extra details from previous pages (address.html etc.)
+    const shipName  = qs.get('shipName') || '';
+    const custName  = qs.get('custName') || qs.get('name') || shipName;
+    const custPhone = qs.get('shipPhone') || qs.get('phone') || '';
+    const custEmail = qs.get('email') || '';
+    const addr1     = qs.get('addr1') || '';
+    const addr2     = qs.get('addr2') || '';
+    const city      = qs.get('city') || '';
+    const district  = qs.get('district') || '';
+    const state     = qs.get('state') || '';
+    const pincode   = qs.get('pincode') || '';
+    const extraNote = qs.get('note') || '';
 
-  const qty = parseInt(qtyRaw) || 1;
-  const num = price ? parseFloat(price) : 0;
-  const total = qty * num;
-  let amountStr = '';
+    const qty = parseInt(qtyRaw) || 1;
+    const num = price ? parseFloat(price) : 0;
+    const total = qty * num;
+    let amountStr = '';
 
-  prodNameEl.textContent = product;
-  if (total > 0) {
-    amountStr = total.toFixed(2);
-    prodPriceEl.textContent = '₹' + amountStr;
-    amountNoteEl.textContent = (qty > 1) ? `${qty} × ₹${num.toFixed(2)}` : '';
-    payBtn.disabled = false;
-    payBtn.classList.remove('opacity-60','cursor-not-allowed');
-  } else {
-    prodPriceEl.textContent = 'Amount not set';
-    amountNoteEl.textContent = 'Go back and choose product again so amount is added.';
-    payBtn.disabled = true;
-    payBtn.classList.add('opacity-60','cursor-not-allowed');
-  }
+    prodNameEl.textContent = product;
+    if (total > 0) {
+      amountStr = total.toFixed(2);
+      prodPriceEl.textContent = '₹' + amountStr;
+      amountNoteEl.textContent = (qty > 1) ? `${qty} × ₹${num.toFixed(2)}` : '';
+      payBtn.disabled = false;
+      payBtn.classList.remove('opacity-60','cursor-not-allowed');
+    } else {
+      prodPriceEl.textContent = 'Amount not set';
+      amountNoteEl.textContent = 'Go back and choose product again so amount is added.';
+      payBtn.disabled = true;
+      payBtn.classList.add('opacity-60','cursor-not-allowed');
+    }
 
-  function buildUpiUrl() {
-    const p = new URLSearchParams();
-    p.append('pa', UPI_ID);
-    p.append('pn', PAYEE_NAME);
-    if (amountStr) p.append('am', amountStr);
-    p.append('cu', 'INR');
-    return 'upi://pay?' + p.toString();
-  }
+    function buildUpiUrl() {
+      const p = new URLSearchParams();
+      p.append('pa', UPI_ID);
+      p.append('pn', PAYEE_NAME);
+      if (amountStr) p.append('am', amountStr);
+      p.append('cu', 'INR');
+      return 'upi://pay?' + p.toString();
+    }
 
-  // Build common app-specific URI variants so more apps will respond
-  function buildSchemes() {
-    const q = buildUpiUrl().split('upi://pay?')[1] || '';
-    return [
-      `tez://upi/pay?${q}`,
-      `gpay://upi/pay?${q}`,
-      `googlepay://upi/pay?${q}`,
-      `phonepe://pay?${q}`,
-      `paytmmp://pay?${q}`,
-      `upi://pay?${q}`
-    ];
-  }
+    // Build common app-specific URI variants so more apps will respond
+    function buildSchemes() {
+      const q = buildUpiUrl().split('upi://pay?')[1] || '';
+      return [
+        `tez://upi/pay?${q}`,
+        `gpay://upi/pay?${q}`,
+        `googlepay://upi/pay?${q}`,
+        `phonepe://pay?${q}`,
+        `paytmmp://pay?${q}`,
+        `upi://pay?${q}`
+      ];
+    }
 
-  // detect iOS
-  function isIOS() { return /iP(hone|od|ad)/i.test(navigator.userAgent || ''); }
+    // detect iOS
+    function isIOS() { return /iP(hone|od|ad)/i.test(navigator.userAgent || ''); }
 
-  // Try opening via an iframe (uses visibilitychange to detect if app opened on iOS)
-  function openViaIframe(uri, timeout = 1000) {
-    return new Promise((resolve) => {
-      let resolved = false;
-      const iframe = document.createElement('iframe');
-      iframe.style.display = 'none';
-      document.body.appendChild(iframe);
+    // Try opening via an iframe (uses visibilitychange to detect if app opened on iOS)
+    function openViaIframe(uri, timeout = 1000) {
+      return new Promise((resolve) => {
+        let resolved = false;
+        const iframe = document.createElement('iframe');
+        iframe.style.display = 'none';
+        document.body.appendChild(iframe);
 
-      function cleanup(opened) {
-        if (resolved) return;
-        resolved = true;
-        try { iframe.parentNode && iframe.parentNode.removeChild(iframe); } catch (e) {}
-        document.removeEventListener('visibilitychange', onVis);
-        resolve(opened);
+        function cleanup(opened) {
+          if (resolved) return;
+          resolved = true;
+          try { iframe.parentNode && iframe.parentNode.removeChild(iframe); } catch (e) {}
+          document.removeEventListener('visibilitychange', onVis);
+          resolve(opened);
+        }
+
+        function onVis() {
+          if (document.visibilityState === 'hidden') cleanup(true);
+        }
+        document.addEventListener('visibilitychange', onVis);
+
+        try { iframe.src = uri; } catch (e) {}
+        setTimeout(() => cleanup(false), timeout);
+      });
+    }
+
+    // Try opening by changing window.location (used on Android / desktop)
+    function openViaLocation(uri, timeout = 900) {
+      return new Promise((resolve) => {
+        let resolved = false;
+        function finish(opened) {
+          if (resolved) return;
+          resolved = true;
+          window.removeEventListener('pagehide', onPageHide);
+          resolve(opened);
+        }
+        function onPageHide() { finish(true); }
+        window.addEventListener('pagehide', onPageHide);
+        try { window.location.href = uri; } catch (e) { finish(false); }
+        setTimeout(() => {
+          if (!document.hidden) finish(false); else finish(true);
+        }, timeout);
+      });
+    }
+
+    // Attempt to open installed UPI apps using a sequence of schemes
+    async function openUpiApp() {
+      const schemes = buildSchemes();
+      if (isIOS()) {
+        for (const s of schemes) {
+          const opened = await openViaIframe(s, 900);
+          if (opened) return true;
+        }
+        return false;
+      } else {
+        for (const s of schemes) {
+          const opened = await openViaLocation(s, 900);
+          if (opened) return true;
+        }
+        return false;
+      }
+    }
+
+    // Helper: build prefilled Google Form URL
+    function buildPrefillUrl() {
+      const formParams = new URLSearchParams();
+
+      if (ENTRY_NAME     && custName)  formParams.set(ENTRY_NAME, custName);
+      if (ENTRY_PHONE    && custPhone) formParams.set(ENTRY_PHONE, custPhone);
+      if (ENTRY_EMAIL    && custEmail) formParams.set(ENTRY_EMAIL, custEmail);
+      if (ENTRY_PRODUCT  && product)   formParams.set(ENTRY_PRODUCT, product);
+      if (ENTRY_AMOUNT   && amountStr) formParams.set(ENTRY_AMOUNT, amountStr);
+      if (ENTRY_UPI      && UPI_ID)    formParams.set(ENTRY_UPI, UPI_ID);
+
+      const fullAddress = [addr1, addr2].filter(Boolean).join(', ');
+      if (ENTRY_ADDRESS  && fullAddress) formParams.set(ENTRY_ADDRESS, fullAddress);
+      if (ENTRY_CITY     && city)        formParams.set(ENTRY_CITY, city);
+      if (ENTRY_DISTRICT && district)    formParams.set(ENTRY_DISTRICT, district);
+      if (ENTRY_STATE    && state)       formParams.set(ENTRY_STATE, state);
+      if (ENTRY_PINCODE  && pincode)     formParams.set(ENTRY_PINCODE, pincode);
+
+      let noteCombined = "";
+      if (extraNote) noteCombined += extraNote;
+      if (qty) {
+        noteCombined += (noteCombined ? "\n" : "") + "Quantity: " + qty;
+      }
+      if (ENTRY_NOTE && noteCombined) {
+        formParams.set(ENTRY_NOTE, noteCombined);
       }
 
-      function onVis() {
-        if (document.visibilityState === 'hidden') cleanup(true);
-      }
-      document.addEventListener('visibilitychange', onVis);
+      return FORM_BASE_URL + "&" + formParams.toString();
+    }
 
-      try { iframe.src = uri; } catch (e) {}
-      setTimeout(() => cleanup(false), timeout);
-    });
-  }
-
-  // Try opening by changing window.location (used on Android / desktop)
-  function openViaLocation(uri, timeout = 900) {
-    return new Promise((resolve) => {
-      let resolved = false;
-      function finish(opened) {
-        if (resolved) return;
-        resolved = true;
-        window.removeEventListener('pagehide', onPageHide);
-        resolve(opened);
+    // Auto-redirect to Google Form after returning from UPI app
+    function redirectToForm() {
+      const url = buildPrefillUrl();
+      if (!url) return;
+      if (confirmNote) {
+        confirmNote.textContent = "Redirecting you to confirmation form...";
       }
-      function onPageHide() { finish(true); }
-      window.addEventListener('pagehide', onPageHide);
-      try { window.location.href = uri; } catch (e) { finish(false); }
+      // small delay for better UX
       setTimeout(() => {
-        if (!document.hidden) finish(false); else finish(true);
-      }, timeout);
+        window.location.href = url;
+      }, 100);
+    }
+
+    // show/hide raw upi link on demand
+    showUpiBtn.addEventListener('click', () => {
+      if (upiRaw.style.display === 'none' || upiRaw.style.display === '') {
+        upiRaw.style.display = 'block';
+        showUpiBtn.textContent = 'Hide UPI link';
+      } else {
+        upiRaw.style.display = 'none';
+        showUpiBtn.textContent = 'Show UPI link';
+      }
     });
-  }
 
-  // Attempt to open installed UPI apps using a sequence of schemes
-  async function openUpiApp() {
-    const schemes = buildSchemes();
-    if (isIOS()) {
-      for (const s of schemes) {
-        const opened = await openViaIframe(s, 900);
-        if (opened) return true;
+    // Pay button — open UPI app and then auto-redirect to Google Form when user returns
+    payBtn.addEventListener('click', async (ev) => {
+      ev.preventDefault();
+      if (!amountStr) { alert('Amount missing. Please select a product.'); return; }
+
+      let hasRedirected = false;
+
+      function doRedirectOnce() {
+        if (hasRedirected) return;
+        hasRedirected = true;
+        redirectToForm();
       }
-      return false;
-    } else {
-      for (const s of schemes) {
-        const opened = await openViaLocation(s, 900);
-        if (opened) return true;
+
+      // Listen for when user returns from UPI app (tab becomes visible again)
+      function onVisibilityChange() {
+        if (!document.hidden) {
+          document.removeEventListener('visibilitychange', onVisibilityChange);
+          doRedirectOnce();
+        }
       }
-      return false;
-    }
-  }
 
-  // Helper: build prefilled Google Form URL
-  function buildPrefillUrl() {
-    const formParams = new URLSearchParams();
+      document.addEventListener('visibilitychange', onVisibilityChange);
 
-    if (ENTRY_NAME     && custName)  formParams.set(ENTRY_NAME, custName);
-    if (ENTRY_PHONE    && custPhone) formParams.set(ENTRY_PHONE, custPhone);
-    if (ENTRY_EMAIL    && custEmail) formParams.set(ENTRY_EMAIL, custEmail);
-    if (ENTRY_PRODUCT  && product)   formParams.set(ENTRY_PRODUCT, product);
-    if (ENTRY_AMOUNT   && amountStr) formParams.set(ENTRY_AMOUNT, amountStr);
-    if (ENTRY_UPI      && UPI_ID)    formParams.set(ENTRY_UPI, UPI_ID);
-
-    const fullAddress = [addr1, addr2].filter(Boolean).join(', ');
-    if (ENTRY_ADDRESS  && fullAddress) formParams.set(ENTRY_ADDRESS, fullAddress);
-    if (ENTRY_CITY     && city)        formParams.set(ENTRY_CITY, city);
-    if (ENTRY_DISTRICT && district)    formParams.set(ENTRY_DISTRICT, district);
-    if (ENTRY_STATE    && state)       formParams.set(ENTRY_STATE, state);
-    if (ENTRY_PINCODE  && pincode)     formParams.set(ENTRY_PINCODE, pincode);
-
-    let noteCombined = "";
-    if (extraNote) noteCombined += extraNote;
-    if (qty) {
-      noteCombined += (noteCombined ? "\n" : "") + "Quantity: " + qty;
-    }
-    if (ENTRY_NOTE && noteCombined) {
-      formParams.set(ENTRY_NOTE, noteCombined);
-    }
-
-    return FORM_BASE_URL + "&" + formParams.toString();
-  }
-
-  // Auto-redirect to Google Form after returning from UPI app
-  function redirectToForm() {
-    const url = buildPrefillUrl();
-    if (!url) return;
-    if (confirmNote) {
-      confirmNote.textContent = "Redirecting you to confirmation form...";
-    }
-    // small delay for better UX
-    setTimeout(() => {
-      window.location.href = url;
-    }, 100);
-  }
-
-  // show/hide raw upi link on demand
-  showUpiBtn.addEventListener('click', () => {
-    if (upiRaw.style.display === 'none' || upiRaw.style.display === '') {
-      upiRaw.style.display = 'block';
-      showUpiBtn.textContent = 'Hide UPI link';
-    } else {
-      upiRaw.style.display = 'none';
-      showUpiBtn.textContent = 'Show UPI link';
-    }
-  });
-
-  // Pay button — open UPI app and then auto-redirect to Google Form when user returns
-  payBtn.addEventListener('click', async (ev) => {
-    ev.preventDefault();
-    if (!amountStr) { alert('Amount missing. Please select a product.'); return; }
-
-    let hasRedirected = false;
-
-    function doRedirectOnce() {
-      if (hasRedirected) return;
-      hasRedirected = true;
-      redirectToForm();
-    }
-
-    // Listen for when user returns from UPI app (tab becomes visible again)
-    function onVisibilityChange() {
-      if (!document.hidden) {
-        document.removeEventListener('visibilitychange', onVisibilityChange);
-        doRedirectOnce();
-      }
-    }
-
-    document.addEventListener('visibilitychange', onVisibilityChange);
-
-    try {
-      const opened = await openUpiApp();
-      if (!opened) {
-        document.removeEventListener('visibilitychange', onVisibilityChange);
-        // fallback to showing raw link / QR
-        showFallback();
-        alert('No UPI app detected or app didn\'t open. Use the QR code or copy the UPI ID to pay.');
-      }
-    } catch (err) {
-      console.error('UPI open error', err);
-      document.removeEventListener('visibilitychange', onVisibilityChange);
-      showFallback();
-      alert('Unable to open UPI app on this device. Use the QR code or copy the UPI ID to pay.');
-    }
-  });
-
-  // When customer ticks "I have completed the payment" (backup option)
-  paidCheckbox.addEventListener('change', () => {
-    if (paidCheckbox.checked) {
-      afterPaidActions.classList.remove('hidden');
-      const prefillUrl = buildPrefillUrl();
-      sendDetailsBtn.href = prefillUrl;
-    } else {
-      afterPaidActions.classList.add('hidden');
-      sendDetailsBtn.href = "#";
-    }
-  });
-
-  function showFallback() {
-    const loaded = qrChecker?.dataset?.loaded === '1';
-    if (!loaded) {
-      if (qrFallback) qrFallback.style.display = 'flex';
-      if (qrDiv) qrDiv.style.opacity = '0.35';
-    } else {
-      if (qrFallback) qrFallback.style.display = 'none';
-      if (qrDiv) qrDiv.style.opacity = '1';
-    }
-    upiRaw.textContent = buildUpiUrl();
-    upiLink.href = buildUpiUrl();
-    upiLink.classList.remove('hidden');
-  }
-
-  copyBtn.addEventListener('click', () => {
-    if (navigator.clipboard && navigator.clipboard.writeText) {
-      navigator.clipboard.writeText(UPI_ID)
-        .then(() => alert('UPI ID copied: ' + UPI_ID))
-        .catch(() => alert('Copy manually: ' + UPI_ID));
-    } else {
-      // fallback copy
-      const ta = document.createElement('textarea');
-      ta.value = UPI_ID;
-      ta.style.position = 'fixed';
-      ta.style.left = '-9999px';
-      document.body.appendChild(ta);
-      ta.focus();
-      ta.select();
       try {
-        document.execCommand('copy');
-        alert('UPI ID copied: ' + UPI_ID);
-      } catch (e) {
-        alert('Copy manually: ' + UPI_ID);
+        const opened = await openUpiApp();
+        if (!opened) {
+          document.removeEventListener('visibilitychange', onVisibilityChange);
+          // fallback to showing raw link / QR
+          showFallback();
+          alert('No UPI app detected or app didn\'t open. Use the QR code or copy the UPI ID to pay.');
+        }
+      } catch (err) {
+        console.error('UPI open error', err);
+        document.removeEventListener('visibilitychange', onVisibilityChange);
+        showFallback();
+        alert('Unable to open UPI app on this device. Use the QR code or copy the UPI ID to pay.');
       }
-      document.body.removeChild(ta);
-    }
-  });
+    });
 
-  showFallback();
-});
-</script>
+    // When customer ticks "I have completed the payment" (backup option)
+    paidCheckbox.addEventListener('change', () => {
+      if (paidCheckbox.checked) {
+        afterPaidActions.classList.remove('hidden');
+        const prefillUrl = buildPrefillUrl();
+        sendDetailsBtn.href = prefillUrl;
+      } else {
+        afterPaidActions.classList.add('hidden');
+        sendDetailsBtn.href = "#";
+      }
+    });
+
+    function showFallback() {
+      const loaded = qrChecker?.dataset?.loaded === '1';
+      if (!loaded) {
+        if (qrFallback) qrFallback.style.display = 'flex';
+        if (qrDiv) qrDiv.style.opacity = '0.35';
+      } else {
+        if (qrFallback) qrFallback.style.display = 'none';
+        if (qrDiv) qrDiv.style.opacity = '1';
+      }
+      upiRaw.textContent = buildUpiUrl();
+      upiLink.href = buildUpiUrl();
+      upiLink.classList.remove('hidden');
+    }
+
+    copyBtn.addEventListener('click', () => {
+      if (navigator.clipboard && navigator.clipboard.writeText) {
+        navigator.clipboard.writeText(UPI_ID)
+          .then(() => alert('UPI ID copied: ' + UPI_ID))
+          .catch(() => alert('Copy manually: ' + UPI_ID));
+      } else {
+        // fallback copy
+        const ta = document.createElement('textarea');
+        ta.value = UPI_ID;
+        ta.style.position = 'fixed';
+        ta.style.left = '-9999px';
+        document.body.appendChild(ta);
+        ta.focus();
+        ta.select();
+        try {
+          document.execCommand('copy');
+          alert('UPI ID copied: ' + UPI_ID);
+        } catch (e) {
+          alert('Copy manually: ' + UPI_ID);
+        }
+        document.body.removeChild(ta);
+      }
+    });
+
+    showFallback();
+  });
+  </script>
 
 </body>
 </html>
