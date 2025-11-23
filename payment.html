@@ -151,13 +151,12 @@
 <script>
 /* 
   GOOGLE FORM PREFILL CONFIG
-  Form: https://docs.google.com/forms/d/e/1FAIpQLSc5NSP8ls95OO_r2FtSwqY82lPMPak5yFB5d8s7XVwVBvoRg/viewform
+  Form: https://docs.google.com/forms/d/e/1FAIpQLSc5NSP8ls95OO_r2FtSwqY82lPMPak5yFB5d8s7zXVwVBvoRg/viewform
 */
-const FORM_BASE_URL = "https://docs.google.com/forms/d/e/1FAIpQLSc5NSP8ls95OO_r2FtSwqY82lPMPak5yFB5d8s7zXVwVBvoRg/viewform?usp=sharing&ouid=101618358081853829063";
+const FORM_BASE_URL = "https://docs.google.com/forms/d/e/1FAIpQLSc5NSP8ls95OO_r2FtSwqY82lPMPak5yFB5d8s7zXVwVBvoRg/viewform?usp=pp_url";
 
 /* 
-  Mapping entry IDs to fields (based on your console screenshot & typical order).
-  If a field pre-fills wrongly, just swap IDs here – the rest of the code stays the same.
+  Mapping entry IDs to fields.
 */
 const ENTRY_NAME     = "entry.1636037417";  // Customer name
 const ENTRY_PHONE    = "entry.1430716324";  // Phone number
@@ -172,7 +171,7 @@ const ENTRY_STATE    = "entry.1992370307";  // State
 const ENTRY_PINCODE  = "entry.2086390809";  // Pincode
 const ENTRY_NOTE     = "entry.245768923";   // Additional notes
 
-/* ORIGINAL JS – your payment flow is unchanged below */
+/* ORIGINAL JS – payment flow kept, with added auto-redirect after returning from UPI */
 
 document.addEventListener('DOMContentLoaded', () => {
 
@@ -195,6 +194,7 @@ document.addEventListener('DOMContentLoaded', () => {
   const paidCheckbox = document.getElementById('paidCheckbox');
   const afterPaidActions = document.getElementById('afterPaidActions');
   const sendDetailsBtn = document.getElementById('sendDetailsBtn');
+  const confirmNote = document.getElementById('confirmNote');
 
   document.getElementById('year').textContent = new Date().getFullYear();
   upiDisplay.textContent = UPI_ID;
@@ -324,6 +324,49 @@ document.addEventListener('DOMContentLoaded', () => {
     }
   }
 
+  // Helper: build prefilled Google Form URL
+  function buildPrefillUrl() {
+    const formParams = new URLSearchParams();
+
+    if (ENTRY_NAME     && custName)  formParams.set(ENTRY_NAME, custName);
+    if (ENTRY_PHONE    && custPhone) formParams.set(ENTRY_PHONE, custPhone);
+    if (ENTRY_EMAIL    && custEmail) formParams.set(ENTRY_EMAIL, custEmail);
+    if (ENTRY_PRODUCT  && product)   formParams.set(ENTRY_PRODUCT, product);
+    if (ENTRY_AMOUNT   && amountStr) formParams.set(ENTRY_AMOUNT, amountStr);
+    if (ENTRY_UPI      && UPI_ID)    formParams.set(ENTRY_UPI, UPI_ID);
+
+    const fullAddress = [addr1, addr2].filter(Boolean).join(', ');
+    if (ENTRY_ADDRESS  && fullAddress) formParams.set(ENTRY_ADDRESS, fullAddress);
+    if (ENTRY_CITY     && city)        formParams.set(ENTRY_CITY, city);
+    if (ENTRY_DISTRICT && district)    formParams.set(ENTRY_DISTRICT, district);
+    if (ENTRY_STATE    && state)       formParams.set(ENTRY_STATE, state);
+    if (ENTRY_PINCODE  && pincode)     formParams.set(ENTRY_PINCODE, pincode);
+
+    let noteCombined = "";
+    if (extraNote) noteCombined += extraNote;
+    if (qty) {
+      noteCombined += (noteCombined ? "\n" : "") + "Quantity: " + qty;
+    }
+    if (ENTRY_NOTE && noteCombined) {
+      formParams.set(ENTRY_NOTE, noteCombined);
+    }
+
+    return FORM_BASE_URL + "&" + formParams.toString();
+  }
+
+  // Auto-redirect to Google Form after returning from UPI app
+  function redirectToForm() {
+    const url = buildPrefillUrl();
+    if (!url) return;
+    if (confirmNote) {
+      confirmNote.textContent = "Redirecting you to confirmation form...";
+    }
+    // small delay for better UX
+    setTimeout(() => {
+      window.location.href = url;
+    }, 1500);
+  }
+
   // show/hide raw upi link on demand
   showUpiBtn.addEventListener('click', () => {
     if (upiRaw.style.display === 'none' || upiRaw.style.display === '') {
@@ -335,59 +378,51 @@ document.addEventListener('DOMContentLoaded', () => {
     }
   });
 
-  // Pay button — now tries to open UPI apps and falls back to QR/raw link if not opened
+  // Pay button — open UPI app and then auto-redirect to Google Form when user returns
   payBtn.addEventListener('click', async (ev) => {
     ev.preventDefault();
     if (!amountStr) { alert('Amount missing. Please select a product.'); return; }
+
+    let hasRedirected = false;
+
+    function doRedirectOnce() {
+      if (hasRedirected) return;
+      hasRedirected = true;
+      redirectToForm();
+    }
+
+    // Listen for when user returns from UPI app (tab becomes visible again)
+    function onVisibilityChange() {
+      if (!document.hidden) {
+        document.removeEventListener('visibilitychange', onVisibilityChange);
+        doRedirectOnce();
+      }
+    }
+
+    document.addEventListener('visibilitychange', onVisibilityChange);
+
     try {
       const opened = await openUpiApp();
       if (!opened) {
+        document.removeEventListener('visibilitychange', onVisibilityChange);
         // fallback to showing raw link / QR
         showFallback();
-        // also show small guidance
         alert('No UPI app detected or app didn\'t open. Use the QR code or copy the UPI ID to pay.');
       }
     } catch (err) {
       console.error('UPI open error', err);
+      document.removeEventListener('visibilitychange', onVisibilityChange);
       showFallback();
       alert('Unable to open UPI app on this device. Use the QR code or copy the UPI ID to pay.');
     }
   });
 
-  // When customer ticks "I have completed the payment"
+  // When customer ticks "I have completed the payment" (backup option)
   paidCheckbox.addEventListener('change', () => {
     if (paidCheckbox.checked) {
       afterPaidActions.classList.remove('hidden');
-
-      // Build prefilled Google Form URL
-      const formParams = new URLSearchParams();
-
-      if (ENTRY_NAME     && custName)  formParams.set(ENTRY_NAME, custName);
-      if (ENTRY_PHONE    && custPhone) formParams.set(ENTRY_PHONE, custPhone);
-      if (ENTRY_EMAIL    && custEmail) formParams.set(ENTRY_EMAIL, custEmail);
-      if (ENTRY_PRODUCT  && product)   formParams.set(ENTRY_PRODUCT, product);
-      if (ENTRY_AMOUNT   && amountStr) formParams.set(ENTRY_AMOUNT, amountStr);
-      if (ENTRY_UPI      && UPI_ID)    formParams.set(ENTRY_UPI, UPI_ID);
-
-      const fullAddress = [addr1, addr2].filter(Boolean).join(', ');
-      if (ENTRY_ADDRESS  && fullAddress) formParams.set(ENTRY_ADDRESS, fullAddress);
-      if (ENTRY_CITY     && city)        formParams.set(ENTRY_CITY, city);
-      if (ENTRY_DISTRICT && district)    formParams.set(ENTRY_DISTRICT, district);
-      if (ENTRY_STATE    && state)       formParams.set(ENTRY_STATE, state);
-      if (ENTRY_PINCODE  && pincode)     formParams.set(ENTRY_PINCODE, pincode);
-
-      let noteCombined = "";
-      if (extraNote) noteCombined += extraNote;
-      if (qty) {
-        noteCombined += (noteCombined ? "\n" : "") + "Quantity: " + qty;
-      }
-      if (ENTRY_NOTE && noteCombined) {
-        formParams.set(ENTRY_NOTE, noteCombined);
-      }
-
-      const prefillUrl = FORM_BASE_URL + "&" + formParams.toString();
+      const prefillUrl = buildPrefillUrl();
       sendDetailsBtn.href = prefillUrl;
-
     } else {
       afterPaidActions.classList.add('hidden');
       sendDetailsBtn.href = "#";
