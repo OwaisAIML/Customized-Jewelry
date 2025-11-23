@@ -89,6 +89,7 @@
 
         <div id="afterPaidActions" class="mt-4 hidden">
           <a id="sendDetailsBtn" href="#"
+            target="_blank" rel="noopener noreferrer"
             class="inline-block w-full md:w-64 text-center bg-rose-600 hover:bg-rose-700 text-white font-semibold text-sm p-3 rounded-xl action-pill">
             Send payment details
           </a>
@@ -104,37 +105,31 @@
     </section>
 
     <!-- QR BLOCK -->
-    <!-- QR BLOCK -->
-<section id="qrBlock" class="p-6 border-t border-gray-100 text-center pb-3">
+    <section id="qrBlock" class="p-6 border-t border-gray-100 text-center pb-3">
 
-  <!-- REMOVED TOP QR: qrImgDiv + qrChecker -->
-
-  <!-- FALLBACK QR (this is your bottom QR and stays visible always) -->
-  <div id="qrFallback"
-    class="w-56 h-auto rounded-xl shadow-md mx-auto flex flex-col items-center justify-center bg-gray-50 text-gray-700 p-4 mt-4">
-
-    <img src="images/QR.jpg" class="w-40 h-40 object-cover rounded-lg shadow-md mb-3" />
-
-    <div class="text-center">
-      <div class="text-sm text-gray-500 font-semibold">Scan to Pay</div>
-      <div class="font-mono font-semibold mt-1 text-black">Aroobakhan660@okicici</div>
-      <div class="mt-2 text-xs text-gray-500">If your UPI app didn’t open, scan this QR.</div>
-    </div>
-  </div>
-
-  <p class="mt-3 text-xs text-gray-500">
-    If your UPI app doesn't open automatically, scan the QR code above or copy the UPI ID manually.
-  </p>
-</section>
-
-
-      <!-- FALLBACK -->
+      <!-- FALLBACK QR (this is your bottom QR and stays visible always) -->
       <div id="qrFallback"
-        class="w-56 h-auto rounded-xl shadow-md mx-auto flex flex-col items-center justify-center bg-gray-50 text-gray-700 p-4 mt-4"
-        style="display:none;">
-        
+        class="w-56 h-auto rounded-xl shadow-md mx-auto flex flex-col items-center justify-center bg-gray-50 text-gray-700 p-4 mt-4">
+
         <img src="images/QR.jpg" class="w-40 h-40 object-cover rounded-lg shadow-md mb-3" />
 
+        <div class="text-center">
+          <div class="text-sm text-gray-500 font-semibold">Scan to Pay</div>
+          <div class="font-mono font-semibold mt-1 text-black">Aroobakhan660@okicici</div>
+          <div class="mt-2 text-xs text-gray-500">If your UPI app didn’t open, scan this QR.</div>
+        </div>
+      </div>
+
+      <p class="mt-3 text-xs text-gray-500">
+        If your UPI app doesn't open automatically, scan the QR code above or copy the UPI ID manually.
+      </p>
+    </section>
+
+    <!-- (this second fallback block is left as in your file, though it’s redundant) -->
+    <section style="display:none;">
+      <div id="qrFallback"
+        class="w-56 h-auto rounded-xl shadow-md mx-auto flex flex-col items-center justify-center bg-gray-50 text-gray-700 p-4 mt-4">
+        <img src="images/QR.jpg" class="w-40 h-40 object-cover rounded-lg shadow-md mb-3" />
         <div class="text-center">
           <div class="text-sm text-gray-500 font-semibold">Scan to Pay</div>
           <div class="font-mono font-semibold mt-1 text-black">Aroobakhan660@okicici</div>
@@ -154,8 +149,30 @@
   </main>
 
 <script>
-/* ORIGINAL JS – UPDATED only to make the "Pay with UPI App" button actually open UPI apps.
-   Structure and variable names are preserved; nothing else in page structure changed. */
+/* 
+  GOOGLE FORM PREFILL CONFIG
+  Form: https://docs.google.com/forms/d/e/1FAIpQLSc5NSP8ls95OO_r2FtSwqY82lPMPak5yFB5d8s7XVwVBvoRg/viewform
+*/
+const FORM_BASE_URL = "https://docs.google.com/forms/d/e/1FAIpQLSc5NSP8ls95OO_r2FtSwqY82lPMPak5yFB5d8s7zXVwVBvoRg/viewform?usp=sharing&ouid=101618358081853829063";
+
+/* 
+  Mapping entry IDs to fields (based on your console screenshot & typical order).
+  If a field pre-fills wrongly, just swap IDs here – the rest of the code stays the same.
+*/
+const ENTRY_NAME     = "entry.1636037417";  // Customer name
+const ENTRY_PHONE    = "entry.1430716324";  // Phone number
+const ENTRY_EMAIL    = "entry.492204872";   // Email address
+const ENTRY_PRODUCT  = "entry.654496774";   // Order / Product name
+const ENTRY_AMOUNT   = "entry.1992363313";  // Amount paid
+const ENTRY_UPI      = "entry.760318084";   // Paid to UPI ID
+const ENTRY_ADDRESS  = "entry.1375765497";  // Address (line 1 + line 2)
+const ENTRY_CITY     = "entry.335886306";   // City
+const ENTRY_DISTRICT = "entry.2105814248";  // District
+const ENTRY_STATE    = "entry.1992370307";  // State
+const ENTRY_PINCODE  = "entry.2086390809";  // Pincode
+const ENTRY_NOTE     = "entry.245768923";   // Additional notes
+
+/* ORIGINAL JS – your payment flow is unchanged below */
 
 document.addEventListener('DOMContentLoaded', () => {
 
@@ -186,6 +203,19 @@ document.addEventListener('DOMContentLoaded', () => {
   const product = qs.get('product') || 'Customised Order';
   const price = qs.get('price') || '';
   const qtyRaw = qs.get('qty') || '1';
+
+  // Possible extra details from previous pages (address.html etc.)
+  const shipName  = qs.get('shipName') || '';
+  const custName  = qs.get('custName') || qs.get('name') || shipName;
+  const custPhone = qs.get('shipPhone') || qs.get('phone') || '';
+  const custEmail = qs.get('email') || '';
+  const addr1     = qs.get('addr1') || '';
+  const addr2     = qs.get('addr2') || '';
+  const city      = qs.get('city') || '';
+  const district  = qs.get('district') || '';
+  const state     = qs.get('state') || '';
+  const pincode   = qs.get('pincode') || '';
+  const extraNote = qs.get('note') || '';
 
   const qty = parseInt(qtyRaw) || 1;
   const num = price ? parseFloat(price) : 0;
@@ -324,18 +354,43 @@ document.addEventListener('DOMContentLoaded', () => {
     }
   });
 
+  // When customer ticks "I have completed the payment"
   paidCheckbox.addEventListener('change', () => {
     if (paidCheckbox.checked) {
       afterPaidActions.classList.remove('hidden');
-      const params = new URLSearchParams(location.search);
-      params.set('product', product);
-      params.set('price', price);
-      params.set('qty', qty);
-      params.set('upi', UPI_ID);
-      if (amountStr) params.set('amount', amountStr);
-      sendDetailsBtn.href = 'send_payment.html?' + params.toString();
+
+      // Build prefilled Google Form URL
+      const formParams = new URLSearchParams();
+
+      if (ENTRY_NAME     && custName)  formParams.set(ENTRY_NAME, custName);
+      if (ENTRY_PHONE    && custPhone) formParams.set(ENTRY_PHONE, custPhone);
+      if (ENTRY_EMAIL    && custEmail) formParams.set(ENTRY_EMAIL, custEmail);
+      if (ENTRY_PRODUCT  && product)   formParams.set(ENTRY_PRODUCT, product);
+      if (ENTRY_AMOUNT   && amountStr) formParams.set(ENTRY_AMOUNT, amountStr);
+      if (ENTRY_UPI      && UPI_ID)    formParams.set(ENTRY_UPI, UPI_ID);
+
+      const fullAddress = [addr1, addr2].filter(Boolean).join(', ');
+      if (ENTRY_ADDRESS  && fullAddress) formParams.set(ENTRY_ADDRESS, fullAddress);
+      if (ENTRY_CITY     && city)        formParams.set(ENTRY_CITY, city);
+      if (ENTRY_DISTRICT && district)    formParams.set(ENTRY_DISTRICT, district);
+      if (ENTRY_STATE    && state)       formParams.set(ENTRY_STATE, state);
+      if (ENTRY_PINCODE  && pincode)     formParams.set(ENTRY_PINCODE, pincode);
+
+      let noteCombined = "";
+      if (extraNote) noteCombined += extraNote;
+      if (qty) {
+        noteCombined += (noteCombined ? "\n" : "") + "Quantity: " + qty;
+      }
+      if (ENTRY_NOTE && noteCombined) {
+        formParams.set(ENTRY_NOTE, noteCombined);
+      }
+
+      const prefillUrl = FORM_BASE_URL + "&" + formParams.toString();
+      sendDetailsBtn.href = prefillUrl;
+
     } else {
       afterPaidActions.classList.add('hidden');
+      sendDetailsBtn.href = "#";
     }
   });
 
