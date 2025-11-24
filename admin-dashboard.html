@@ -13,6 +13,23 @@
       font-family: 'Poppins', sans-serif;
       background: #f8fafc;
     }
+    @media (max-width: 640px) {
+      header .flex.justify-between {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 0.75rem;
+      }
+      header .flex.items-center.space-x-4:last-child {
+        width: 100%;
+        justify-content: space-between;
+      }
+      .stats-grid {
+        grid-template-columns: 1fr !important;
+      }
+      .iframe-wrap {
+        height: 60vh !important;
+      }
+    }
   </style>
 </head>
 <body class="min-h-screen bg-gray-50">
@@ -29,7 +46,7 @@
           </div>
           <div>
             <h1 class="text-xl font-bold text-gray-900">Admin Dashboard</h1>
-            <p class="text-sm text-gray-600" id="welcomeMessage">Welcome back!</p>
+            <p class="text-sm text-gray-600" id="welcomeMessage">Welcome!</p>
           </div>
         </div>
         <div class="flex items-center space-x-4">
@@ -43,15 +60,16 @@
   </header>
 
   <!-- Main Content -->
-  <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+  <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-8">
     <!-- Info note -->
     <div class="mb-4 p-4 bg-blue-50 border border-blue-200 rounded-xl text-sm text-blue-800">
       <strong>Live Orders</strong><br>
       Stats below are calculated from your Google Form responses sheet.
+      On very small screens, scroll or pinch/zoom to see the table.
     </div>
 
     <!-- Mini Stats Header -->
-    <section class="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-6">
+    <section class="grid stats-grid grid-cols-1 sm:grid-cols-3 gap-4 mb-6">
       <div class="rounded-2xl bg-white shadow-sm border border-slate-100 p-4 flex flex-col">
         <span class="text-xs font-semibold tracking-[0.12em] uppercase text-slate-500">Total Orders</span>
         <span id="statTotalOrders" class="mt-2 text-3xl font-bold text-slate-900">–</span>
@@ -71,9 +89,14 @@
       </div>
     </section>
 
+    <!-- Error message for stats -->
+    <div id="statsError" class="hidden mb-4 p-3 rounded-lg bg-red-50 border border-red-200 text-xs text-red-700">
+      Could not load stats from sheet. You can still see all orders in the table below.
+    </div>
+
     <!-- Spreadsheet Card -->
     <div class="bg-white rounded-2xl shadow-lg overflow-hidden">
-      <div class="px-6 py-4 border-b border-gray-200 flex items-center justify-between">
+      <div class="px-4 sm:px-6 py-3 sm:py-4 border-b border-gray-200 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
         <div>
           <h2 class="text-lg font-semibold text-gray-900">Orders Spreadsheet</h2>
           <p class="text-xs text-gray-500 mt-1">
@@ -96,7 +119,7 @@
         </div>
       </div>
 
-      <div class="w-full" style="height: 700px; background:#f9fafb;">
+      <div class="w-full iframe-wrap" style="height: 70vh; background:#f9fafb;">
         <iframe
           id="sheetFrame"
           src="https://docs.google.com/spreadsheets/d/e/2PACX-1vRJqEbSgkTdyynVMK3AWae5tJCi43d8DLS7KbPNLyhi5M3B86pf-Gc13vPFhz3-86_8xYkgCTyvYwtK/pubhtml?gid=848603174&single=true&widget=true&headers=false"
@@ -110,93 +133,121 @@
   </main>
 
   <script>
-    // 🔗 1) PASTE YOUR WEB APP URL FROM APPS SCRIPT HERE:
-    const DASHBOARD_API_URL = "https://script.google.com/macros/s/AKfycbzDgKA-4tQmfl5tLYZbmKZuMc2m1Yuc0OT9T9OZMSVvG_fszjvN39PVtZtl0zDPPabo/exec"; // e.g. https://script.google.com/macros/s/XXXXX/exec
+    // 1) Apps Script stats API URL
+    const DASHBOARD_API_URL = "https://script.google.com/macros/s/AKfycbzDgKA-4tQmfl5tLYZbmKZuMc2m1Yuc0OT9T9OZMSVvG_fszjvN39PVtZtl0zDPPabo/exec";
 
-    // 🔗 2) Your published sheet URL (same as iframe src)
+    // 2) Published sheet URL (same as iframe src)
     const SHEET_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vRJqEbSgkTdyynVMK3AWae5tJCi43d8DLS7KbPNLyhi5M3B86pf-Gc13vPFhz3-86_8xYkgCTyvYwtK/pubhtml?gid=848603174&single=true&widget=true&headers=false";
 
-    // ---------- AUTH CHECK ----------
-    const session = JSON.parse(localStorage.getItem('adminSession') || '{}');
-    if (!session.loggedIn) {
-      window.location.href = 'admin-login.html';
-    }
+    document.addEventListener('DOMContentLoaded', function () {
+      // Date
+      var dateEl = document.getElementById('currentDate');
+      if (dateEl) {
+        dateEl.textContent = new Date().toLocaleDateString('en-IN', {
+          weekday: 'long',
+          year: 'numeric',
+          month: 'long',
+          day: 'numeric'
+        });
+      }
 
-    // Date + welcome
-    document.getElementById('currentDate').textContent = new Date().toLocaleDateString('en-IN', {
-      weekday: 'long',
-      year: 'numeric',
-      month: 'long',
-      day: 'numeric'
+      // Try to show username if stored, but DON'T redirect anywhere
+      try {
+        var sessionRaw = localStorage.getItem('adminSession') || '{}';
+        var session = JSON.parse(sessionRaw);
+        if (session && session.username) {
+          var welcomeEl = document.getElementById('welcomeMessage');
+          if (welcomeEl) {
+            welcomeEl.textContent = 'Welcome, ' + session.username + '!';
+          }
+        }
+      } catch (e) {
+        // ignore
+      }
+
+      // Logout just clears session and goes to login page
+      var logoutBtn = document.getElementById('logoutBtn');
+      if (logoutBtn) {
+        logoutBtn.addEventListener('click', function () {
+          localStorage.removeItem('adminSession');
+          window.location.href = 'admin-login.html';
+        });
+      }
+
+      // Open sheet in new tab
+      var openBtn = document.getElementById('openSheetBtn');
+      if (openBtn) {
+        openBtn.addEventListener('click', function () {
+          window.open(SHEET_URL, '_blank');
+        });
+      }
+
+      // Reload iframe
+      var reloadBtn = document.getElementById('reloadSheetBtn');
+      if (reloadBtn) {
+        reloadBtn.addEventListener('click', function () {
+          var frame = document.getElementById('sheetFrame');
+          if (frame) frame.src = SHEET_URL;
+        });
+      }
+
+      // Load stats
+      loadStats();
     });
-    document.getElementById('welcomeMessage').textContent = session.username
-      ? `Welcome, ${session.username}!`
-      : 'Welcome back!';
 
-    // Logout
-    document.getElementById('logoutBtn').addEventListener('click', function () {
-      localStorage.removeItem('adminSession');
-      window.location.href = 'admin-login.html';
-    });
+    function loadStats() {
+      var totalEl   = document.getElementById('statTotalOrders');
+      var todayEl   = document.getElementById('statOrdersToday');
+      var revEl     = document.getElementById('statTotalRevenue');
+      var errorBox  = document.getElementById('statsError');
 
-    // Open sheet in new tab
-    document.getElementById('openSheetBtn').addEventListener('click', function () {
-      window.open(SHEET_URL, '_blank');
-    });
+      if (!totalEl || !todayEl || !revEl) return;
 
-    // Reload iframe
-    document.getElementById('reloadSheetBtn').addEventListener('click', function () {
-      const frame = document.getElementById('sheetFrame');
-      if (frame) frame.src = SHEET_URL;
-    });
-
-    // ---------- FETCH STATS FROM APPS SCRIPT ----------
-    async function loadStats() {
-      const totalEl   = document.getElementById('statTotalOrders');
-      const todayEl   = document.getElementById('statOrdersToday');
-      const revEl     = document.getElementById('statTotalRevenue');
-
-      // Default “loading” state
       totalEl.textContent = '…';
       todayEl.textContent = '…';
       revEl.textContent   = '…';
 
-      if (!DASHBOARD_API_URL || DASHBOARD_API_URL === "PASTE_YOUR_WEB_APP_URL_HERE") {
+      if (!DASHBOARD_API_URL) {
         totalEl.textContent = '—';
         todayEl.textContent = '—';
         revEl.textContent   = '—';
-        console.warn('Dashboard API URL not set');
+        if (errorBox) errorBox.classList.remove('hidden');
         return;
       }
 
-      try {
-        const res = await fetch(DASHBOARD_API_URL, { cache: 'no-store' });
-        if (!res.ok) throw new Error('HTTP ' + res.status);
-        const data = await res.json();
-
-        const totalOrders  = data.totalOrders ?? 0;
-        const ordersToday  = data.ordersToday ?? 0;
-        const totalRevenue = data.totalRevenue ?? 0;
-        const currency     = data.currency || 'INR';
-
-        totalEl.textContent = totalOrders;
-        todayEl.textContent = ordersToday;
-        revEl.textContent   = (currency === 'INR' ? '₹' : (currency + ' ')) + totalRevenue.toFixed(0);
-      } catch (err) {
-        console.error('Failed to load stats', err);
+      if (typeof fetch !== 'function') {
+        // Very old browser – just fail gracefully
         totalEl.textContent = '—';
         todayEl.textContent = '—';
         revEl.textContent   = '—';
+        if (errorBox) errorBox.classList.remove('hidden');
+        return;
       }
-    }
 
-    loadStats();
+      fetch(DASHBOARD_API_URL, { cache: 'no-store' })
+        .then(function (res) {
+          if (!res.ok) throw new Error('HTTP ' + res.status);
+          return res.json();
+        })
+        .then(function (data) {
+          var totalOrders  = (data && typeof data.totalOrders === 'number') ? data.totalOrders : 0;
+          var ordersToday  = (data && typeof data.ordersToday === 'number') ? data.ordersToday : 0;
+          var totalRevenue = (data && typeof data.totalRevenue === 'number') ? data.totalRevenue : 0;
+          var currency     = (data && data.currency) ? data.currency : 'INR';
 
-    // Optional: auto-logout after 24 hours
-    if (session.loginTime && Date.now() - session.loginTime > 24 * 60 * 60 * 1000) {
-      alert('Session expired. Please login again.');
-      localStorage.removeItem('adminSession');
-      window.location.href = 'admin-login.html';
+          totalEl.textContent = totalOrders;
+          todayEl.textContent = ordersToday;
+
+          var prefix = (currency === 'INR') ? '₹' : (currency + ' ');
+          revEl.textContent = prefix + Math.round(totalRevenue);
+        })
+        .catch(function (err) {
+          console.log('Failed to load stats', err);
+          totalEl.textContent = '—';
+          todayEl.textContent = '—';
+          revEl.textContent   = '—';
+          if (errorBox) errorBox.classList.remove('hidden');
+        });
     }
   </script>
 </body>
