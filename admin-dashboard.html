@@ -13,22 +13,10 @@
       font-family: 'Poppins', sans-serif;
       background: #f8fafc;
     }
-    .stats-card {
-      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-      color: white;
-    }
-    /* small thumbnail styling in table */
-    .thumb {
-      width: 48px;
-      height: 48px;
-      object-fit: cover;
-      border-radius: 6px;
-      border: 1px solid rgba(0,0,0,0.06);
-    }
   </style>
 </head>
 <body class="min-h-screen bg-gray-50">
-  
+
   <!-- Header -->
   <header class="bg-white shadow-sm border-b border-gray-200">
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -46,9 +34,6 @@
         </div>
         <div class="flex items-center space-x-4">
           <span id="currentDate" class="text-sm text-gray-600"></span>
-          <button onclick="showChangePassword()" class="px-4 py-2 text-sm bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors">
-            Change Password
-          </button>
           <button id="logoutBtn" class="px-4 py-2 text-sm bg-rose-600 text-white rounded-lg hover:bg-rose-700 transition-colors">
             Logout
           </button>
@@ -57,560 +42,162 @@
     </div>
   </header>
 
-  <!-- Change Password Modal -->
-  <div id="passwordModal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 hidden">
-    <div class="bg-white rounded-xl p-6 max-w-md w-full mx-4">
-      <h3 class="text-lg font-bold mb-4">Change Password</h3>
-      <form id="changePasswordForm" class="space-y-4">
-        <div>
-          <label class="block text-sm font-medium mb-1">Current Password</label>
-          <input type="password" name="currentPassword" required 
-                 class="w-full px-3 py-2 border border-gray-300 rounded">
-        </div>
-        <div>
-          <label class="block text-sm font-medium mb-1">New Password</label>
-          <input type="password" name="newPassword" required 
-                 class="w-full px-3 py-2 border border-gray-300 rounded"
-                 minlength="6">
-        </div>
-        <div class="flex gap-3">
-          <button type="button" onclick="hideChangePassword()" class="flex-1 py-2 border border-gray-300 rounded">
-            Cancel
-          </button>
-          <button type="submit" class="flex-1 py-2 bg-rose-600 text-white rounded">
-            Change
-          </button>
-        </div>
-      </form>
-    </div>
-  </div>
-
   <!-- Main Content -->
   <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-    <!-- Stats Overview -->
-    <div class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
-      <div class="stats-card rounded-2xl p-6 shadow-lg">
-        <div class="text-3xl font-bold" id="totalOrders">0</div>
-        <div class="text-rose-100">Total Orders</div>
-      </div>
-      <div class="stats-card rounded-2xl p-6 shadow-lg">
-        <div class="text-3xl font-bold" id="pendingOrders">0</div>
-        <div class="text-rose-100">Pending</div>
-      </div>
-      <div class="stats-card rounded-2xl p-6 shadow-lg">
-        <div class="text-3xl font-bold" id="completedOrders">0</div>
-        <div class="text-rose-100">Completed</div>
-      </div>
-      <div class="stats-card rounded-2xl p-6 shadow-lg">
-        <div class="text-3xl font-bold" id="totalRevenue">₹0</div>
-        <div class="text-rose-100">Confirmed Revenue</div>
-      </div>
+    <!-- Info note -->
+    <div class="mb-4 p-4 bg-blue-50 border border-blue-200 rounded-xl text-sm text-blue-800">
+      <strong>Live Orders</strong><br>
+      Stats below are calculated from your Google Form responses sheet.
     </div>
 
-    <!-- Revenue Info -->
-    <div class="mb-6 p-4 bg-yellow-50 border border-yellow-200 rounded-xl">
-      <div class="flex items-center gap-2 text-yellow-800 text-sm">
-        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
-        </svg>
-        <span><strong>Note:</strong> Revenue only includes shipped and delivered orders. Pending orders are not counted in revenue.</span>
+    <!-- Mini Stats Header -->
+    <section class="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-6">
+      <div class="rounded-2xl bg-white shadow-sm border border-slate-100 p-4 flex flex-col">
+        <span class="text-xs font-semibold tracking-[0.12em] uppercase text-slate-500">Total Orders</span>
+        <span id="statTotalOrders" class="mt-2 text-3xl font-bold text-slate-900">–</span>
+        <span class="mt-1 text-xs text-slate-500">All time</span>
       </div>
-    </div>
 
-    <!-- Orders Table -->
+      <div class="rounded-2xl bg-white shadow-sm border border-slate-100 p-4 flex flex-col">
+        <span class="text-xs font-semibold tracking-[0.12em] uppercase text-slate-500">Orders Today</span>
+        <span id="statOrdersToday" class="mt-2 text-3xl font-bold text-slate-900">–</span>
+        <span class="mt-1 text-xs text-slate-500">Based on Timestamp</span>
+      </div>
+
+      <div class="rounded-2xl bg-white shadow-sm border border-slate-100 p-4 flex flex-col">
+        <span class="text-xs font-semibold tracking-[0.12em] uppercase text-slate-500">Total Revenue</span>
+        <span id="statTotalRevenue" class="mt-2 text-3xl font-bold text-emerald-700">–</span>
+        <span class="mt-1 text-xs text-slate-500">Sum of “Amount Paid”</span>
+      </div>
+    </section>
+
+    <!-- Spreadsheet Card -->
     <div class="bg-white rounded-2xl shadow-lg overflow-hidden">
-      <div class="px-6 py-4 border-b border-gray-200">
-        <div class="flex justify-between items-center">
-          <h2 class="text-lg font-semibold text-gray-900">Recent Orders</h2>
-          <div class="flex space-x-2">
-            <select id="statusFilter" class="border border-gray-300 rounded-lg px-3 py-2 text-sm">
-              <option value="all">All Status</option>
-              <option value="pending">Pending</option>
-              <option value="confirmed">Confirmed</option>
-              <option value="shipped">Shipped</option>
-              <option value="delivered">Delivered</option>
-            </select>
-            <button id="refreshBtn" class="px-4 py-2 bg-rose-600 text-white rounded-lg hover:bg-rose-700 transition-colors text-sm">
-              Refresh
-            </button>
-          </div>
+      <div class="px-6 py-4 border-b border-gray-200 flex items-center justify-between">
+        <div>
+          <h2 class="text-lg font-semibold text-gray-900">Orders Spreadsheet</h2>
+          <p class="text-xs text-gray-500 mt-1">
+            Any new form submission will appear here automatically.
+          </p>
+        </div>
+        <div class="flex gap-2">
+          <button
+            type="button"
+            id="openSheetBtn"
+            class="px-3 py-1.5 text-xs bg-rose-600 text-white rounded-lg hover:bg-rose-700">
+            Open in new tab
+          </button>
+          <button
+            type="button"
+            id="reloadSheetBtn"
+            class="px-3 py-1.5 text-xs bg-slate-100 text-slate-700 rounded-lg hover:bg-slate-200">
+            Reload
+          </button>
         </div>
       </div>
 
-      <div class="overflow-x-auto">
-        <table class="w-full">
-          <thead class="bg-gray-50">
-            <tr>
-              <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Order ID</th>
-              <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Image</th>
-              <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Product</th>
-              <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Customer Name</th>
-              <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Customer Phone</th>
-              <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Amount</th>
-              <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
-              <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Date</th>
-              <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
-            </tr>
-          </thead>
-          <tbody id="ordersTable" class="bg-white divide-y divide-gray-200">
-            <!-- Orders will be populated here -->
-          </tbody>
-        </table>
-      </div>
-
-      <div class="px-6 py-4 border-t border-gray-200 text-center text-sm text-gray-600 hidden" id="noOrdersMessage">
-        No orders found. Orders will appear here when customers place them through the website.
+      <div class="w-full" style="height: 700px; background:#f9fafb;">
+        <iframe
+          id="sheetFrame"
+          src="https://docs.google.com/spreadsheets/d/e/2PACX-1vRJqEbSgkTdyynVMK3AWae5tJCi43d8DLS7KbPNLyhi5M3B86pf-Gc13vPFhz3-86_8xYkgCTyvYwtK/pubhtml?gid=848603174&single=true&widget=true&headers=false"
+          class="w-full h-full"
+          style="border:0;"
+          loading="lazy"
+          referrerpolicy="no-referrer-when-downgrade">
+        </iframe>
       </div>
     </div>
   </main>
 
-  <!-- Order Details Modal -->
-  <div id="orderModal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 hidden">
-    <div class="bg-white rounded-2xl p-6 max-w-2xl w-full mx-4 max-h-[90vh] overflow-y-auto">
-      <div class="flex justify-between items-center mb-6">
-        <h3 class="text-xl font-bold">Order Details</h3>
-        <button onclick="hideOrderModal()" class="text-gray-500 hover:text-gray-700">
-          <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
-          </svg>
-        </button>
-      </div>
-
-      <div id="orderDetails" class="space-y-4">
-        <!-- Order details will be populated here -->
-      </div>
-    </div>
-  </div>
-
   <script>
-    // Check authentication
+    // 🔗 1) PASTE YOUR WEB APP URL FROM APPS SCRIPT HERE:
+    const DASHBOARD_API_URL = "https://script.google.com/macros/s/AKfycbzDgKA-4tQmfl5tLYZbmKZuMc2m1Yuc0OT9T9OZMSVvG_fszjvN39PVtZtl0zDPPabo/exec"; // e.g. https://script.google.com/macros/s/XXXXX/exec
+
+    // 🔗 2) Your published sheet URL (same as iframe src)
+    const SHEET_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vRJqEbSgkTdyynVMK3AWae5tJCi43d8DLS7KbPNLyhi5M3B86pf-Gc13vPFhz3-86_8xYkgCTyvYwtK/pubhtml?gid=848603174&single=true&widget=true&headers=false";
+
+    // ---------- AUTH CHECK ----------
     const session = JSON.parse(localStorage.getItem('adminSession') || '{}');
     if (!session.loggedIn) {
       window.location.href = 'admin-login.html';
     }
 
-    // Set current date and welcome message
+    // Date + welcome
     document.getElementById('currentDate').textContent = new Date().toLocaleDateString('en-IN', {
       weekday: 'long',
       year: 'numeric',
       month: 'long',
       day: 'numeric'
     });
-    document.getElementById('welcomeMessage').textContent = `Welcome, ${session.username}!`;
+    document.getElementById('welcomeMessage').textContent = session.username
+      ? `Welcome, ${session.username}!`
+      : 'Welcome back!';
 
-    // Load orders from localStorage
-    let orders = JSON.parse(localStorage.getItem('jewelleryOrders') || '[]');
-
-    // Helper function to get customer name from all possible fields
-    function getCustomerName(order) {
-      const nameFields = [
-        'customerName',
-        'shippingName', 
-        'name',
-        'firstName',
-        'fullName',
-        'custName'
-      ];
-      
-      for (const field of nameFields) {
-        if (order[field] && String(order[field]).trim()) {
-          return String(order[field]).trim();
-        }
-      }
-      
-      return 'Not provided';
-    }
-
-    // Helper function to get customer phone from all possible fields
-    function getCustomerPhone(order) {
-      const phoneFields = [
-        'phone',
-        'customerPhone',
-        'shippingPhone',
-        'mobile',
-        'contactNumber',
-        'phoneNumber'
-      ];
-      
-      for (const field of phoneFields) {
-        if (order[field] && String(order[field]).trim()) {
-          return String(order[field]).trim();
-        }
-      }
-      
-      return 'Not provided';
-    }
-
-    // Helper function to format shipping address
-    function getShippingAddress(order) {
-      const addressFields = [
-        'address1', 'address2', 'city', 'district', 'state', 'pincode',
-        'address', 'shippingAddress', 'deliveryAddress'
-      ];
-      
-      let hasAddress = false;
-      let addressHTML = '';
-      
-      // Check address line 1
-      if (order.address1 && order.address1.trim()) {
-        addressHTML += `<div>${order.address1.trim()}</div>`;
-        hasAddress = true;
-      }
-      
-      // Check address line 2
-      if (order.address2 && order.address2.trim()) {
-        addressHTML += `<div>${order.address2.trim()}</div>`;
-        hasAddress = true;
-      }
-      
-      // Check city, district, state, pincode
-      const locationParts = [];
-      if (order.city && order.city.trim()) locationParts.push(order.city.trim());
-      if (order.district && order.district.trim()) locationParts.push(order.district.trim());
-      
-      if (locationParts.length > 0) {
-        addressHTML += `<div>${locationParts.join(', ')}</div>`;
-        hasAddress = true;
-      }
-      
-      // Check state and pincode
-      const statePincodeParts = [];
-      if (order.state && order.state.trim()) statePincodeParts.push(order.state.trim());
-      if (order.pincode && order.pincode.trim()) statePincodeParts.push(order.pincode.trim());
-      
-      if (statePincodeParts.length > 0) {
-        addressHTML += `<div>${statePincodeParts.join(' - ')}</div>`;
-        hasAddress = true;
-      }
-      
-      // If no structured address found, try to find any address field
-      if (!hasAddress) {
-        for (const field of addressFields) {
-          if (order[field] && order[field].trim()) {
-            addressHTML += `<div>${order[field].trim()}</div>`;
-            hasAddress = true;
-            break;
-          }
-        }
-      }
-      
-      return hasAddress ? addressHTML : '<div>N/A</div>';
-    }
-
-    // Function to update stats - FIXED: Only count shipped/delivered orders in revenue
-    function updateStats() {
-      const totalOrders = orders.length;
-      const pendingOrders = orders.filter(order => order.status === 'pending').length;
-      const completedOrders = orders.filter(order => order.status === 'delivered').length;
-      
-      // ONLY count shipped and delivered orders in revenue
-      const shippedAndDeliveredOrders = orders.filter(order => 
-        order.status === 'shipped' || order.status === 'delivered'
-      );
-      const totalRevenue = shippedAndDeliveredOrders.reduce((sum, order) => sum + (parseInt(order.amount) || 0), 0);
-
-      document.getElementById('totalOrders').textContent = totalOrders;
-      document.getElementById('pendingOrders').textContent = pendingOrders;
-      document.getElementById('completedOrders').textContent = completedOrders;
-      document.getElementById('totalRevenue').textContent = `₹${totalRevenue}`;
-    }
-
-    // Function to render orders table - includes image thumbnail if available
-    function renderOrdersTable(filterStatus = 'all') {
-      const tableBody = document.getElementById('ordersTable');
-      const noOrdersMessage = document.getElementById('noOrdersMessage');
-      
-      const filteredOrders = filterStatus === 'all' 
-        ? orders 
-        : orders.filter(order => order.status === filterStatus);
-
-      if (filteredOrders.length === 0) {
-        tableBody.innerHTML = '';
-        noOrdersMessage.classList.remove('hidden');
-        return;
-      }
-
-      noOrdersMessage.classList.add('hidden');
-      
-      tableBody.innerHTML = filteredOrders.map(order => {
-        // Get customer name from all possible fields
-        const customerName = getCustomerName(order);
-        const customerPhone = getCustomerPhone(order);
-
-        // Thumbnail (if present)
-        let thumbHTML = '<div class="text-xs text-gray-500">-</div>';
-        if (order.image) {
-          // order.image expected to be a base64 data URL or public URL
-          thumbHTML = `<img src="${order.image}" alt="ref" class="thumb" />`;
-        } else if (order.imageId && localStorage.getItem(order.imageId)) {
-          thumbHTML = `<img src="${localStorage.getItem(order.imageId)}" alt="ref" class="thumb" />`;
-        }
-
-        return `
-          <tr class="hover:bg-gray-50">
-            <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">${order.id}</td>
-            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">${thumbHTML}</td>
-            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">${order.product || 'Custom Order'}</td>
-            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-              ${customerName}
-            </td>
-            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-              ${customerPhone}
-            </td>
-            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">₹${order.amount || 0}</td>
-            <td class="px-6 py-4 whitespace-nowrap">
-              <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full 
-                ${order.status === 'pending' ? 'bg-yellow-100 text-yellow-800' : ''}
-                ${order.status === 'confirmed' ? 'bg-blue-100 text-blue-800' : ''}
-                ${order.status === 'shipped' ? 'bg-purple-100 text-purple-800' : ''}
-                ${order.status === 'delivered' ? 'bg-green-100 text-green-800' : ''}">
-                ${order.status || 'pending'}
-              </span>
-            </td>
-            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-              ${new Date(order.timestamp).toLocaleDateString('en-IN')}
-            </td>
-            <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
-              <button onclick="viewOrder('${order.id}')" class="text-rose-600 hover:text-rose-900 mr-3">View</button>
-              <button onclick="updateOrderStatus('${order.id}')" class="text-blue-600 hover:text-blue-900 mr-3">Update</button>
-              <button onclick="deleteOrder('${order.id}')" class="text-red-600 hover:text-red-900">Delete</button>
-            </td>
-          </tr>
-        `;
-      }).join('');
-    }
-
-    // Function to view order details - shows image if present
-    function viewOrder(orderId) {
-      const order = orders.find(o => o.id === orderId);
-      if (!order) return;
-
-      const modal = document.getElementById('orderModal');
-      const details = document.getElementById('orderDetails');
-
-      // Use helper functions to get consistent customer data
-      const customerName = getCustomerName(order);
-      const customerPhone = getCustomerPhone(order);
-
-      // Prepare image HTML
-      let imageSection = '<div class="text-sm text-gray-500">No reference image provided.</div>';
-      if (order.image) {
-        imageSection = `
-          <div class="flex items-start gap-4">
-            <div class="w-48 h-48 rounded-lg overflow-hidden border border-gray-200 bg-white flex items-center justify-center">
-              <img src="${order.image}" alt="reference" class="max-w-full max-h-full object-contain">
-            </div>
-            <div class="text-sm">
-              <div><strong>Filename:</strong> ${order.imageName || 'uploaded-image'}</div>
-              <div class="mt-2">
-                <a href="${order.image}" download="${order.imageName || 'reference.png'}" class="px-3 py-2 bg-rose-600 text-white rounded text-sm inline-block hover:bg-rose-700">Download Image</a>
-              </div>
-            </div>
-          </div>
-        `;
-      } else if (order.imageId && localStorage.getItem(order.imageId)) {
-        const dataUrl = localStorage.getItem(order.imageId);
-        imageSection = `
-          <div class="flex items-start gap-4">
-            <div class="w-48 h-48 rounded-lg overflow-hidden border border-gray-200 bg-white flex items-center justify-center">
-              <img src="${dataUrl}" alt="reference" class="max-w-full max-h-full object-contain">
-            </div>
-            <div class="text-sm">
-              <div><strong>Filename:</strong> ${order.imageName || 'uploaded-image'}</div>
-              <div class="mt-2">
-                <a href="${dataUrl}" download="${order.imageName || 'reference.png'}" class="px-3 py-2 bg-rose-600 text-white rounded text-sm inline-block hover:bg-rose-700">Download Image</a>
-              </div>
-            </div>
-          </div>
-        `;
-      }
-
-      details.innerHTML = `
-        <div class="grid grid-cols-2 gap-4">
-          <div>
-            <h4 class="font-semibold text-gray-900">Order Information</h4>
-            <div class="mt-2 space-y-2 text-sm">
-              <div><strong>Order ID:</strong> ${order.id}</div>
-              <div><strong>Product:</strong> ${order.product}</div>
-              <div><strong>Amount:</strong> ₹${order.amount || 0}</div>
-              <div><strong>Quantity:</strong> ${order.quantity || order.qty || 1}</div>
-              <div><strong>Status:</strong> <span class="capitalize">${order.status || 'pending'}</span></div>
-              <div><strong>Revenue Counted:</strong> <span class="${(order.status === 'shipped' || order.status === 'delivered') ? 'text-green-600 font-semibold' : 'text-gray-500'}">
-                ${(order.status === 'shipped' || order.status === 'delivered') ? 'YES (included in revenue)' : 'NO (not shipped yet)'}
-              </span></div>
-              <div><strong>Order Date:</strong> ${new Date(order.timestamp).toLocaleString('en-IN')}</div>
-            </div>
-          </div>
-
-          <div>
-            <h4 class="font-semibold text-gray-900">Customer Information</h4>
-            <div class="mt-2 space-y-2 text-sm">
-              <div><strong>Name:</strong> ${customerName}</div>
-              <div><strong>Phone:</strong> ${customerPhone}</div>
-              ${order.email ? `<div><strong>Email:</strong> ${order.email}</div>` : ''}
-            </div>
-          </div>
-        </div>
-
-        <div>
-          <h4 class="font-semibold text-gray-900">Shipping Address</h4>
-          <div class="mt-2 text-sm">
-            ${getShippingAddress(order)}
-          </div>
-        </div>
-
-        <div>
-          <h4 class="font-semibold text-gray-900">Customization Details</h4>
-          <div class="mt-2 p-3 bg-gray-50 rounded-lg text-sm">
-            ${order.customization || order.note || order.message || 'No customization details provided'}
-          </div>
-        </div>
-
-        <div>
-          <h4 class="font-semibold text-gray-900">Reference Image</h4>
-          <div class="mt-2 text-sm">
-            ${imageSection}
-          </div>
-        </div>
-
-        <div>
-          <h4 class="font-semibold text-gray-900">Payment Information</h4>
-          <div class="mt-2 text-sm">
-            <div><strong>Payment Method:</strong> UPI</div>
-            <div><strong>UPI ID:</strong> ${order.upiId || 'Aroobakhan660@okicici'}</div>
-            <div><strong>Payment Status:</strong> <span class="text-green-600">Completed</span></div>
-          </div>
-        </div>
-
-        <div class="pt-4 border-t border-gray-200">
-          <button onclick="deleteOrder('${order.id}')" class="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors">
-            🗑️ Delete This Order
-          </button>
-        </div>
-      `;
-
-      modal.classList.remove('hidden');
-    }
-
-    function hideOrderModal() {
-      document.getElementById('orderModal').classList.add('hidden');
-    }
-
-    // Function to update order status
-    function updateOrderStatus(orderId) {
-      const order = orders.find(o => o.id === orderId);
-      if (!order) return;
-
-      const newStatus = prompt('Update order status:\n(pending, confirmed, shipped, delivered)', order.status || 'pending');
-      
-      if (newStatus && ['pending', 'confirmed', 'shipped', 'delivered'].includes(newStatus)) {
-        const oldStatus = order.status;
-        order.status = newStatus;
-        localStorage.setItem('jewelleryOrders', JSON.stringify(orders));
-        renderOrdersTable(document.getElementById('statusFilter').value);
-        updateStats();
-        
-        // Show revenue impact message
-        if ((oldStatus === 'pending' || oldStatus === 'confirmed') && (newStatus === 'shipped' || newStatus === 'delivered')) {
-          alert(`✅ Order status updated to ${newStatus}!\n\n💰 Amount ₹${order.amount} has been added to revenue.`);
-        } else if ((oldStatus === 'shipped' || oldStatus === 'delivered') && (newStatus === 'pending' || newStatus === 'confirmed')) {
-          alert(`✅ Order status updated to ${newStatus}!\n\n💰 Amount ₹${order.amount} has been removed from revenue.`);
-        } else {
-          alert('✅ Order status updated successfully!');
-        }
-      }
-    }
-
-    // Function to delete order
-    function deleteOrder(orderId) {
-      if (!confirm('Are you sure you want to delete this order? This action cannot be undone.')) {
-        return;
-      }
-
-      const orderIndex = orders.findIndex(o => o.id === orderId);
-      if (orderIndex !== -1) {
-        const deletedOrder = orders[orderIndex];
-        // If image stored separately as imageId in localStorage, remove it too
-        if (deletedOrder.imageId) {
-          localStorage.removeItem(deletedOrder.imageId);
-        }
-        orders.splice(orderIndex, 1);
-        localStorage.setItem('jewelleryOrders', JSON.stringify(orders));
-        
-        // Update display
-        renderOrdersTable(document.getElementById('statusFilter').value);
-        updateStats();
-        hideOrderModal();
-        
-        alert(`✅ Order ${orderId} has been deleted successfully!`);
-      }
-    }
-
-    // Logout functionality
-    document.getElementById('logoutBtn').addEventListener('click', function() {
+    // Logout
+    document.getElementById('logoutBtn').addEventListener('click', function () {
       localStorage.removeItem('adminSession');
       window.location.href = 'admin-login.html';
     });
 
-    // Change password functions
-    function showChangePassword() {
-      document.getElementById('passwordModal').classList.remove('hidden');
-    }
+    // Open sheet in new tab
+    document.getElementById('openSheetBtn').addEventListener('click', function () {
+      window.open(SHEET_URL, '_blank');
+    });
 
-    function hideChangePassword() {
-      document.getElementById('passwordModal').classList.add('hidden');
-      document.getElementById('changePasswordForm').reset();
-    }
+    // Reload iframe
+    document.getElementById('reloadSheetBtn').addEventListener('click', function () {
+      const frame = document.getElementById('sheetFrame');
+      if (frame) frame.src = SHEET_URL;
+    });
 
-    // Change password form
-    document.getElementById('changePasswordForm').addEventListener('submit', function(e) {
-      e.preventDefault();
-      
-      const formData = new FormData(this);
-      const currentPassword = formData.get('currentPassword');
-      const newPassword = formData.get('newPassword');
-      
-      const credentials = JSON.parse(localStorage.getItem('adminCredentials') || '{}');
-      
-      if (credentials.password !== currentPassword) {
-        alert('❌ Current password is incorrect');
+    // ---------- FETCH STATS FROM APPS SCRIPT ----------
+    async function loadStats() {
+      const totalEl   = document.getElementById('statTotalOrders');
+      const todayEl   = document.getElementById('statOrdersToday');
+      const revEl     = document.getElementById('statTotalRevenue');
+
+      // Default “loading” state
+      totalEl.textContent = '…';
+      todayEl.textContent = '…';
+      revEl.textContent   = '…';
+
+      if (!DASHBOARD_API_URL || DASHBOARD_API_URL === "PASTE_YOUR_WEB_APP_URL_HERE") {
+        totalEl.textContent = '—';
+        todayEl.textContent = '—';
+        revEl.textContent   = '—';
+        console.warn('Dashboard API URL not set');
         return;
       }
-      
-      if (newPassword.length < 6) {
-        alert('❌ New password must be at least 6 characters long');
-        return;
+
+      try {
+        const res = await fetch(DASHBOARD_API_URL, { cache: 'no-store' });
+        if (!res.ok) throw new Error('HTTP ' + res.status);
+        const data = await res.json();
+
+        const totalOrders  = data.totalOrders ?? 0;
+        const ordersToday  = data.ordersToday ?? 0;
+        const totalRevenue = data.totalRevenue ?? 0;
+        const currency     = data.currency || 'INR';
+
+        totalEl.textContent = totalOrders;
+        todayEl.textContent = ordersToday;
+        revEl.textContent   = (currency === 'INR' ? '₹' : (currency + ' ')) + totalRevenue.toFixed(0);
+      } catch (err) {
+        console.error('Failed to load stats', err);
+        totalEl.textContent = '—';
+        todayEl.textContent = '—';
+        revEl.textContent   = '—';
       }
-      
-      credentials.password = newPassword;
-      localStorage.setItem('adminCredentials', JSON.stringify(credentials));
-      
-      alert('✅ Password changed successfully!');
-      hideChangePassword();
-    });
+    }
 
-    // Status filter
-    document.getElementById('statusFilter').addEventListener('change', function() {
-      renderOrdersTable(this.value);
-    });
+    loadStats();
 
-    // Refresh button
-    document.getElementById('refreshBtn').addEventListener('click', function() {
-      orders = JSON.parse(localStorage.getItem('jewelleryOrders') || '[]');
-      renderOrdersTable(document.getElementById('statusFilter').value);
-      updateStats();
-    });
-
-    // Initialize dashboard
-    updateStats();
-    renderOrdersTable();
-
-    // Auto-logout after 24 hours
-    setTimeout(() => {
+    // Optional: auto-logout after 24 hours
+    if (session.loginTime && Date.now() - session.loginTime > 24 * 60 * 60 * 1000) {
       alert('Session expired. Please login again.');
       localStorage.removeItem('adminSession');
       window.location.href = 'admin-login.html';
-    }, 24 * 60 * 60 * 1000);
+    }
   </script>
 </body>
 </html>

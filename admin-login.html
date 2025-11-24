@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Admin Login — Customised Jewellary</title>
+  <title>Admin Dashboard — Customised Jewellary</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap" rel="stylesheet">
@@ -11,173 +11,130 @@
   <style>
     body {
       font-family: 'Poppins', sans-serif;
-      background: #f0f2f5;
-      min-height: 100vh;
-    }
-    .login-card {
-      background: white;
-      box-shadow: 0 2px 4px rgba(0, 0, 0, .1), 0 8px 16px rgba(0, 0, 0, .1);
+      background: #f8fafc;
     }
   </style>
 </head>
-<body class="min-h-screen flex items-center justify-center p-6">
-  
-  <div class="w-full max-w-md">
-    <!-- Header -->
-    <div class="text-center mb-8">
-      <div class="inline-flex items-center gap-3 mb-4 p-4">
-        <div class="w-16 h-16 rounded-xl bg-gradient-to-br from-rose-500 to-rose-300 flex items-center justify-center shadow-lg">
-          <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
-            <path d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" stroke="white" stroke-width="2"/>
-          </svg>
-        </div>
-        <div class="text-left">
-          <h1 class="text-2xl font-bold text-gray-900">Customised Jewellary</h1>
-          <p class="text-gray-600">Admin Dashboard</p>
-        </div>
-      </div>
-    </div>
+<body class="min-h-screen bg-gray-50">
 
-    <!-- Login Card -->
-    <div class="login-card rounded-xl p-6">
-      <h2 class="text-xl font-semibold text-center mb-6">Log in to Admin Panel</h2>
-      
-      <form id="loginForm" class="space-y-4">
-        <div>
-          <input type="text" name="username" required 
-                 class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:border-rose-500 focus:ring-1 focus:ring-rose-500"
-                 placeholder="Admin username">
+  <!-- Header -->
+  <header class="bg-white shadow-sm border-b border-gray-200">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div class="flex justify-between items-center py-4">
+        <div class="flex items-center space-x-4">
+          <div class="w-10 h-10 rounded-xl bg-gradient-to-br from-rose-500 to-rose-300 flex items-center justify-center shadow-sm">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
+              <path d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" stroke="white" stroke-width="2"/>
+            </svg>
+          </div>
+          <div>
+            <h1 class="text-xl font-bold text-gray-900">Admin Dashboard</h1>
+            <p class="text-sm text-gray-600" id="welcomeMessage">Welcome back!</p>
+          </div>
         </div>
-
-        <div>
-          <input type="password" name="password" required 
-                 class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:border-rose-500 focus:ring-1 focus:ring-rose-500"
-                 placeholder="Password">
-        </div>
-
-        <button type="submit" 
-                class="w-full py-3 bg-rose-600 text-white font-semibold rounded-lg hover:bg-rose-700 transition-colors">
-          Log In
-        </button>
-      </form>
-
-      <!-- Setup Credentials (Only shows if no credentials exist) -->
-      <div id="setupSection" class="mt-6 p-4 bg-blue-50 rounded-lg border border-blue-200 hidden">
-        <p class="text-sm text-blue-700 text-center mb-3">
-          <strong>First time here?</strong> Set up your admin credentials:
-        </p>
-        <form id="setupForm" class="space-y-3">
-          <input type="text" name="newUsername" required 
-                 class="w-full px-3 py-2 border border-gray-300 rounded text-sm"
-                 placeholder="Choose username">
-          <input type="password" name="newPassword" required 
-                 class="w-full px-3 py-2 border border-gray-300 rounded text-sm"
-                 placeholder="Choose password (min 6 chars)">
-          <button type="submit" 
-                  class="w-full py-2 bg-green-600 text-white text-sm font-semibold rounded hover:bg-green-700">
-            Setup Admin Account
+        <div class="flex items-center space-x-4">
+          <span id="currentDate" class="text-sm text-gray-600"></span>
+          <button id="logoutBtn" class="px-4 py-2 text-sm bg-rose-600 text-white rounded-lg hover:bg-rose-700 transition-colors">
+            Logout
           </button>
-        </form>
-      </div>
-
-      <div class="mt-4 text-center">
-        <button onclick="resetCredentials()" class="text-sm text-rose-600 hover:text-rose-700 font-medium">
-          Reset Credentials
-        </button>
-      </div>
-
-      <div class="mt-6 text-center">
-        <a href="index.html" class="text-sm text-gray-600 hover:text-rose-600">← Back to Store</a>
+        </div>
       </div>
     </div>
-  </div>
+  </header>
+
+  <!-- Main Content -->
+  <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+    <!-- Info note -->
+    <div class="mb-4 p-4 bg-blue-50 border border-blue-200 rounded-xl text-sm text-blue-800">
+      <strong>Live Orders Sheet</strong><br>
+      This view shows your Google Form responses directly from Google Sheets.
+      If the sheet does not load, use the button below to open it in a new tab.
+    </div>
+
+    <!-- Spreadsheet Card -->
+    <div class="bg-white rounded-2xl shadow-lg overflow-hidden">
+      <div class="px-6 py-4 border-b border-gray-200 flex items-center justify-between">
+        <div>
+          <h2 class="text-lg font-semibold text-gray-900">Orders Spreadsheet</h2>
+          <p class="text-xs text-gray-500 mt-1">
+            Any new form submission will appear here automatically.
+          </p>
+        </div>
+        <div class="flex gap-2">
+          <button
+            type="button"
+            id="openSheetBtn"
+            class="px-3 py-1.5 text-xs bg-rose-600 text-white rounded-lg hover:bg-rose-700">
+            Open in new tab
+          </button>
+          <button
+            type="button"
+            id="reloadSheetBtn"
+            class="px-3 py-1.5 text-xs bg-slate-100 text-slate-700 rounded-lg hover:bg-slate-200">
+            Reload
+          </button>
+        </div>
+      </div>
+
+      <!-- Fixed height container so iframe is always visible -->
+      <div class="w-full" style="height: 700px; background:#f9fafb;">
+        <iframe
+          id="sheetFrame"
+          src="https://docs.google.com/spreadsheets/d/e/2PACX-1vRJqEbSgkTdyynVMK3AWae5tJCi43d8DLS7KbPNLyhi5M3B86pf-Gc13vPFhz3-86_8xYkgCTyvYwtK/pubhtml?gid=848603174&single=true&widget=true&headers=false"
+          class="w-full h-full"
+          style="border:0;"
+          loading="lazy"
+          referrerpolicy="no-referrer-when-downgrade">
+        </iframe>
+      </div>
+    </div>
+  </main>
 
   <script>
-    // Check if credentials exist
-    function checkCredentials() {
-      const credentials = JSON.parse(localStorage.getItem('adminCredentials') || '{}');
-      const setupSection = document.getElementById('setupSection');
-      
-      if (!credentials.username) {
-        // No credentials exist - show setup form
-        setupSection.classList.remove('hidden');
-      } else {
-        // Credentials exist - hide setup form
-        setupSection.classList.add('hidden');
-      }
-    }
-
-    // Setup form - Create credentials
-    document.getElementById('setupForm').addEventListener('submit', function(e) {
-      e.preventDefault();
-      
-      const formData = new FormData(this);
-      const username = formData.get('newUsername').trim();
-      const password = formData.get('newPassword');
-      
-      if (password.length < 6) {
-        alert('Password must be at least 6 characters long');
-        return;
-      }
-      
-      // Store credentials securely
-      const credentials = {
-        username: username,
-        password: password,
-        createdAt: new Date().toISOString()
-      };
-      
-      localStorage.setItem('adminCredentials', JSON.stringify(credentials));
-      
-      alert('✅ Admin account created! You can now login.');
-      checkCredentials(); // Hide setup form
-      this.reset();
-    });
-
-    // Login form
-    document.getElementById('loginForm').addEventListener('submit', function(e) {
-      e.preventDefault();
-      
-      const formData = new FormData(this);
-      const username = formData.get('username').trim();
-      const password = formData.get('password');
-      
-      const credentials = JSON.parse(localStorage.getItem('adminCredentials') || '{}');
-      
-      if (credentials.username === username && credentials.password === password) {
-        // Successful login
-        const session = {
-          loggedIn: true,
-          username: username,
-          loginTime: Date.now()
-        };
-        
-        localStorage.setItem('adminSession', JSON.stringify(session));
-        window.location.href = 'admin-dashboard.html';
-      } else {
-        alert('❌ Invalid username or password');
-        this.querySelector('input[type="password"]').value = '';
-      }
-    });
-
-    // Reset credentials
-    function resetCredentials() {
-      if (confirm('Are you sure you want to reset admin credentials? This will remove all existing credentials.')) {
-        localStorage.removeItem('adminCredentials');
-        localStorage.removeItem('adminSession');
-        alert('Credentials reset. Please set up new credentials.');
-        checkCredentials(); // Show setup form again
-      }
-    }
-
-    // Auto-redirect if already logged in
+    // ---------- AUTH CHECK ----------
     const session = JSON.parse(localStorage.getItem('adminSession') || '{}');
-    if (session.loggedIn && (Date.now() - session.loginTime < 24 * 60 * 60 * 1000)) {
-      window.location.href = 'admin-dashboard.html';
+    if (!session.loggedIn) {
+      window.location.href = 'admin-login.html';
     }
 
-    // Initialize
-    checkCredentials();
+    // Date + welcome
+    document.getElementById('currentDate').textContent = new Date().toLocaleDateString('en-IN', {
+      weekday: 'long',
+      year: 'numeric',
+      month: 'long',
+      day: 'numeric'
+    });
+    document.getElementById('welcomeMessage').textContent = session.username
+      ? `Welcome, ${session.username}!`
+      : 'Welcome back!';
+
+    // Logout
+    document.getElementById('logoutBtn').addEventListener('click', function () {
+      localStorage.removeItem('adminSession');
+      window.location.href = 'admin-login.html';
+    });
+
+    // Open sheet in new tab (fallback)
+    const SHEET_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vRJqEbSgkTdyynVMK3AWae5tJCi43d8DLS7KbPNLyhi5M3B86pf-Gc13vPFhz3-86_8xYkgCTyvYwtK/pubhtml?gid=848603174&single=true";
+
+    document.getElementById('openSheetBtn').addEventListener('click', function () {
+      window.open(SHEET_URL, '_blank');
+    });
+
+    // Reload iframe
+    document.getElementById('reloadSheetBtn').addEventListener('click', function () {
+      const frame = document.getElementById('sheetFrame');
+      if (frame) {
+        frame.src = SHEET_URL;
+      }
+    });
+
+    // Optional: auto-logout after 24 hours
+    if (session.loginTime && Date.now() - session.loginTime > 24 * 60 * 60 * 1000) {
+      alert('Session expired. Please login again.');
+      localStorage.removeItem('adminSession');
+      window.location.href = 'admin-login.html';
+    }
   </script>
 </body>
 </html>
